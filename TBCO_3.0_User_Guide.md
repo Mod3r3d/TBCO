@@ -1,6 +1,6 @@
-# Hướng Dẫn Sử Dụng Chi Tiết — TBCO 3.0 (User Guide)
+# Hướng Dẫn Sử Dụng Chi Tiết — TBCO (Translate Bot Conversation by OCR)
 
-Tài liệu hướng dẫn toàn diện dành cho người dùng ứng dụng **TBCO 3.0 (TranslateBot Chibi Overlay)**.
+Tài liệu hướng dẫn toàn diện dành cho người dùng ứng dụng **TBCO (Translate Bot Conversation by OCR)**.
 
 ---
 

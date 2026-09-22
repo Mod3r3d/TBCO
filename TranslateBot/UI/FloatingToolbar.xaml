@@ -1,7 +1,7 @@
 <Window x:Class="TranslateBot.UI.FloatingToolbar"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Translate Bot" 
+        Title="TBCO (Translate Bot Conversation by OCR)" 
         Width="430" Height="46" 
         WindowStyle="None" AllowsTransparency="True" 
         Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize"

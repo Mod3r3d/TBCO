@@ -16,7 +16,7 @@ namespace TranslateBot.Tests
             string current = AppDomain.CurrentDomain.BaseDirectory;
             // Di chuyển lên từ bin/Debug/net8.0-... để tìm thư mục gốc TranslateBot
             var dir = new DirectoryInfo(current);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TBCO_Step7_Revised_Master_Plan.md")))
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TranslateBot.sln")))
             {
                 dir = dir.Parent;
             }
@@ -34,7 +34,8 @@ namespace TranslateBot.Tests
 
             var prodAttr = asm.GetCustomAttribute<AssemblyProductAttribute>();
             Assert.IsNotNull(prodAttr);
-            Assert.IsTrue(prodAttr.Product.Contains("TBCO 3.0"), $"Product name should contain 'TBCO 3.0', got: {prodAttr.Product}");
+            Assert.IsTrue(prodAttr.Product.Contains("TBCO"), $"Product name should contain 'TBCO', got: {prodAttr.Product}");
+            Assert.IsTrue(prodAttr.Product.Contains("Translate Bot Conversation by OCR"), $"Product name should contain 'Translate Bot Conversation by OCR', got: {prodAttr.Product}");
         }
 
         [TestMethod]

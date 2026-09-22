@@ -1,4 +1,5 @@
 {
+  "Project": "TBCO (Translate Bot Conversation by OCR)",
   "Version": "3.0.0",
   "AppConfig": {
     "AutoStart": false,

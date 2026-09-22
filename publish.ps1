@@ -19,7 +19,7 @@ $ErrorActionPreference = "Stop"
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
 
 Write-Host "================================================================" -ForegroundColor Cyan
-Write-Host "          TBCO 3.0 - PRODUCTION RELEASE PACKAGING               " -ForegroundColor Cyan
+Write-Host "    TBCO (Translate Bot Conversation by OCR) - PACKAGING        " -ForegroundColor Cyan
 Write-Host "================================================================" -ForegroundColor Cyan
 
 $WorkspaceRoot = $PSScriptRoot
@@ -101,7 +101,7 @@ $totalSizeMb = [math]::Round(((Get-ChildItem $PublishDir -Recurse | Measure-Obje
 $zipSizeMb = [math]::Round(((Get-Item $ZipFile).Length / 1MB), 2)
 
 Write-Host "`n================================================================" -ForegroundColor Green
-Write-Host "          HOÀN TẤT ĐÓNG GÓI TBCO 3.0 PRODUCTION!                " -ForegroundColor Green
+Write-Host "    HOÀN TẤT ĐÓNG GÓI TBCO (Translate Bot Conversation by OCR)! " -ForegroundColor Green
 Write-Host "================================================================" -ForegroundColor Green
 Write-Host " Thư mục xuất bản : $PublishDir" -ForegroundColor White
 Write-Host " Tệp nén phân phối: $ZipFile" -ForegroundColor White

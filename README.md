@@ -1,4 +1,4 @@
-# TBCO 3.0 — TranslateBot Chibi Overlay (Next-Gen Realtime Game Translation)
+# TBCO — Translate Bot Conversation by OCR (v3.0 PRO)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -16,7 +16,7 @@
 
 ## 📖 Giới thiệu
 
-**TBCO 3.0 (TranslateBot Chibi Overlay)** là ứng dụng dịch thuật thời gian thực chuyên sâu dành cho visual novel, anime RPG và game cốt truyện (đặc biệt tối ưu hóa sâu cho *Fate/Grand Order* và *Blue Archive*). 
+**TBCO (Translate Bot Conversation by OCR)** là ứng dụng dịch thuật thời gian thực chuyên sâu dành cho visual novel, anime RPG và game cốt truyện (đặc biệt tối ưu hóa sâu cho *Fate/Grand Order* và *Blue Archive*). 
 
 Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến trúc LLM đa tầng, TBCO 3.0 mang lại tốc độ phản hồi tính bằng mili-giây, khả năng dịch ngoại tuyến 100%, bộ nhớ bản dịch SQLite hai tầng không trùng lặp, cơ chế xoay vòng Multi-Key chống lỗi Rate Limit 429, cùng hệ thống Hồ sơ Game (Game Profiles) tự động nhận diện cửa sổ và phân cảnh câu chuyện.
 

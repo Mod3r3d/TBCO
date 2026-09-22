@@ -1,7 +1,7 @@
 <Window x:Class="TranslateBot.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TBCO — Game Dialogue Translation Deck" Height="730" Width="640" 
+        Title="TBCO (Translate Bot Conversation by OCR)" Height="730" Width="640" 
         MinHeight="660" MinWidth="580" WindowStartupLocation="CenterScreen"
         Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
         Icon="pack://application:,,,/TBCO-Icon.ico"
@@ -335,7 +335,7 @@
 
             <!-- Brand & Status Pill -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock x:Name="BrandTitleText" Text="TBCO" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}" 
+                <TextBlock x:Name="BrandTitleText" Text="TBCO" ToolTip="TBCO (Translate Bot Conversation by OCR)" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}" 
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="0,0,12,0">
                     <TextBlock Text="v3.0 PRO" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>

@@ -7,12 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <AssemblyName>TBCO</AssemblyName>
-    <Product>TBCO 3.0 - TranslateBot Chibi Overlay</Product>
-    <Title>TBCO 3.0</Title>
+    <Product>TBCO (Translate Bot Conversation by OCR)</Product>
+    <Title>TBCO (Translate Bot Conversation by OCR)</Title>
     <Version>3.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
-    <Description>High-performance visual novel and anime game real-time screen translator</Description>
+    <Description>TBCO (Translate Bot Conversation by OCR) - Real-time game dialogue translation engine</Description>
     <Company>TBCO Team</Company>
     <Copyright>Copyright © 2026</Copyright>
     <ApplicationIcon>TBCO-Icon.ico</ApplicationIcon>
