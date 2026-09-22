@@ -1,0 +1,150 @@
+<Window x:Class="TranslateBot.Overlay.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FGO Translation Overlay"
+        Width="750" Height="150" MinWidth="400" MinHeight="80"
+        WindowStyle="None" AllowsTransparency="True" 
+        Topmost="True" ShowInTaskbar="False" ResizeMode="CanResizeWithGrip"
+        Background="Transparent"
+        MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        LocationChanged="Window_LocationChanged"
+        SizeChanged="Window_SizeChanged">
+
+    <Window.Resources>
+        <!-- Style cho các nút mini trên Overlay Toolbar -->
+        <Style TargetType="Button" x:Key="MiniToolbarButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" 
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#35FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid" Margin="4">
+        <!-- Card nền chính của Overlay -->
+        <Border x:Name="OverlayCard" CornerRadius="12" BorderThickness="1.5" Padding="14,10">
+            <Border.Effect>
+                <DropShadowEffect x:Name="CardShadow" Color="#000000" Opacity="0.6" BlurRadius="12" ShadowDepth="3"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Mini Control Bar (ẩn khi khóa hoặc chuột ra ngoài) -->
+                    <RowDefinition Height="*"/>    <!-- Vùng nội dung hội thoại -->
+                    <RowDefinition Height="Auto"/> <!-- Debug Telemetry (chỉ hiện khi debug) -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Mini Control Bar (Top Bar) -->
+                <Grid Grid.Row="0" x:Name="MiniControlBar" Margin="0,0,0,6" Visibility="Visible">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/> <!-- Drag handle / Title -->
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/> <!-- Action Buttons -->
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="LockStatusBadge" Text="[Tự do]" FontSize="11" 
+                                   Foreground="#38BDF8" FontWeight="Bold" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ModeBadge" Text="HUD: Overlay" FontSize="11" 
+                                   Foreground="#94A3B8" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ThemeBadge" Text="Theme: Chaldea" FontSize="11" 
+                                   Foreground="#F59E0B" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <!-- Lock (F9) -->
+                        <Button x:Name="LockBtn" Content="Khóa [F9]" 
+                                ToolTip="Khóa Overlay &amp; xuyên chuột vào game (nhấn F9 để mở lại)" 
+                                Style="{StaticResource MiniToolbarButton}" Click="LockBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- Mode cycle (Overlay / Layer) -->
+                        <Button x:Name="ModeCycleBtn" Content="Kiểu" 
+                                ToolTip="Chuyển đổi kiểu hiển thị: Overlay (khung nổi) ⇄ Layer (phụ đề không viền)" 
+                                Style="{StaticResource MiniToolbarButton}" Click="ModeCycleBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- Theme cycle -->
+                        <Button x:Name="ThemeCycleBtn" Content="Theme" 
+                                ToolTip="Đổi Theme: Chaldea ⇄ Dark ⇄ Light ⇄ High Contrast" 
+                                Style="{StaticResource MiniToolbarButton}" Click="ThemeCycleBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- Display Mode cycle -->
+                        <Button x:Name="DisplayModeBtn" Content="Dịch" 
+                                ToolTip="Đổi chế độ: Song ngữ ⇄ Chỉ dịch ⇄ Debug" 
+                                Style="{StaticResource MiniToolbarButton}" Click="DisplayModeBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- Snap position -->
+                        <Button x:Name="SnapBtn" Content="Ghim" 
+                                ToolTip="Ghim vị trí: Đáy game ⇄ Đỉnh game ⇄ Tự do" 
+                                Style="{StaticResource MiniToolbarButton}" Click="SnapBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- History -->
+                        <Button x:Name="HistoryBtn" Content="Log" 
+                                ToolTip="Mở Lịch sử hội thoại" 
+                                Style="{StaticResource MiniToolbarButton}" Click="HistoryBtn_Click" Margin="0,0,2,0"/>
+
+                        <!-- Close -->
+                        <Button x:Name="CloseBtn" Content="✕" 
+                                ToolTip="Ẩn Overlay" 
+                                Style="{StaticResource MiniToolbarButton}" Click="CloseBtn_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 2. Vùng hiển thị Hội thoại -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="DialogueContentPanel" VerticalAlignment="Center">
+                        <!-- Speaker Badge + Original Line -->
+                        <StackPanel Orientation="Horizontal" x:Name="HeaderPanel" Margin="0,0,0,4">
+                            <!-- Speaker Badge -->
+                            <Border x:Name="SpeakerBadge" CornerRadius="4" Padding="6,2" Margin="0,0,8,0" Visibility="Collapsed">
+                                <TextBlock x:Name="SpeakerLabel" Text="" FontSize="12" FontWeight="Bold"/>
+                            </Border>
+
+                            <!-- Original Text (Tiếng Nhật/Anh) -->
+                            <TextBlock x:Name="OriginalLabel" Text="" FontSize="13" 
+                                       FontStyle="Italic" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Translated Text (Bản dịch tiếng Việt) -->
+                        <TextBlock x:Name="TranslatedLabel" Text="Vùng phụ đề game sẵn sàng..." 
+                                   FontSize="20" FontWeight="Medium" TextWrapping="Wrap">
+                            <TextBlock.Effect>
+                                <DropShadowEffect x:Name="TextGlowEffect" Color="#000000" BlurRadius="6" Opacity="0.8" Direction="270" ShadowDepth="1"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 3. Debug Telemetry Footer -->
+                <Grid Grid.Row="2" x:Name="DebugFooter" Margin="0,4,0,0" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="DebugMetricsLabel" 
+                               Text="Seq: #0001 | Latency: 420ms | Model: Gemini | Cache: MISS" 
+                               FontSize="11" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="1" Text="Debug Mode Active" FontSize="10" FontStyle="Italic" Opacity="0.7"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

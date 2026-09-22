@@ -1,0 +1,51 @@
+name: Build & Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore TranslateBot.sln
+
+      - name: Run Unit Tests
+        run: dotnet test TranslateBot.Tests/TranslateBot.Tests.csproj -c Release --no-restore --verbosity normal
+
+      - name: Build and Package Release (TBCO.exe & TBCO-win-x64.zip)
+        shell: pwsh
+        run: |
+          ./build-release.ps1
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/TBCO-win-x64.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+      - name: Upload Artifacts (for manual workflow runs)
+        uses: actions/upload-artifact@v4
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        with:
+          name: TBCO-Windows-x64
+          path: release/TBCO-win-x64.zip
+          retention-days: 14

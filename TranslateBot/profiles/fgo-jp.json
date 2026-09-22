@@ -1,0 +1,110 @@
+{
+  "id": "fgo-jp",
+  "name": "Fate/Grand Order (JP)",
+  "gameName": "Fate/Grand Order",
+  "processMatch": "HD-Player|Nox|MuMu|FateGO",
+  "titleMatch": "Fate/Grand Order|FateGO|FGO",
+  "sourceLanguage": "ja",
+  "targetLanguage": "vi",
+  "stabilityPreset": "Balanced",
+  "preprocessPreset": "FgoDialogue",
+  "preferredOcrEngine": "WindowsOCR",
+  "ocrAreas": [
+    {
+      "id": "fgo-dialogue",
+      "name": "Hộp thoại chính",
+      "type": "Dialogue",
+      "regionX": 0,
+      "regionY": 700,
+      "regionWidth": 1280,
+      "regionHeight": 220,
+      "enabled": true,
+      "preset": "FgoDialogue"
+    },
+    {
+      "id": "fgo-speaker",
+      "name": "Tên nhân vật",
+      "type": "Speaker",
+      "regionX": 180,
+      "regionY": 650,
+      "regionWidth": 320,
+      "regionHeight": 50,
+      "enabled": true,
+      "preset": "FgoSpeaker"
+    }
+  ],
+  "exclusionAreas": [
+    {
+      "id": "fgo-skip-btn",
+      "name": "Nút Skip & Menu",
+      "regionX": 1100,
+      "regionY": 10,
+      "regionWidth": 180,
+      "regionHeight": 60,
+      "enabled": true
+    }
+  ],
+  "characters": [
+    {
+      "name": "Mash Kyrielight",
+      "aliases": ["Mash", "Mashu", "Shielder", "マシュ"],
+      "speakingStyle": "Lịch sự, nhẹ nhàng, kính ngữ. Giọng điệu chân thành, tận tụy vì Master.",
+      "preferredPronouns": "em / Senpai",
+      "addressingRules": "Gọi Ritsuka là 'Senpai'. Xưng 'em'."
+    },
+    {
+      "name": "Ritsuka Fujimaru",
+      "aliases": ["Master", "Gudao", "Gudako", "藤丸立香"],
+      "speakingStyle": "Thân thiện, dũng cảm, quyết đoán nhưng gần gũi.",
+      "preferredPronouns": "tôi / cậu"
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "aliases": ["Da Vinci", "Da Vinci-chan", "ダ・ヴィンチ"],
+      "speakingStyle": "Vui tươi, tự tin, thông thái và dí dỏm.",
+      "preferredPronouns": "tôi / cậu",
+      "addressingRules": "Gọi Master là 'Master-kun'."
+    },
+    {
+      "name": "Romani Archaman",
+      "aliases": ["Roman", "Dr. Roman", "ロマニ"],
+      "speakingStyle": "Ấm áp, chu đáo, đôi khi nhút nhát và lo lắng.",
+      "preferredPronouns": "tôi / cậu"
+    },
+    {
+      "name": "Gilgamesh",
+      "aliases": ["Gil", "King of Heroes", "AUO", "ギルガメッシュ"],
+      "speakingStyle": "Ngạo nghễ, trịch thượng, tự xưng là Vua.",
+      "preferredPronouns": "ta / ngươi"
+    }
+  ],
+  "glossary": [
+    { "source": "Master", "target": "Master", "tier": "Game", "level": "Locked" },
+    { "source": "Servant", "target": "Servant", "tier": "Game", "level": "Locked" },
+    { "source": "Senpai", "target": "tiền bối", "tier": "Game", "level": "Locked" },
+    { "source": "Noble Phantasm", "target": "Bảo Khí", "tier": "Game", "level": "Locked" },
+    { "source": "Saint Quartz", "target": "Thánh Tinh Thạch", "tier": "Game", "level": "Locked" },
+    { "source": "Chaldea", "target": "Chaldea", "tier": "Game", "level": "Locked" },
+    { "source": "Holy Grail", "target": "Chén Thánh", "tier": "Game", "level": "Locked" },
+    { "source": "Command Spells", "target": "Lệnh Chú", "tier": "Game", "level": "Locked" },
+    { "source": "Singularity", "target": "Điểm Đặc Dị", "tier": "Game", "level": "Locked" },
+    { "source": "Lostbelt", "target": "Dị Văn Đới", "tier": "Game", "level": "Locked" }
+  ],
+  "scenes": [
+    {
+      "name": "Chaldea",
+      "description": "Căn cứ Tổ chức Bảo tồn Trật tự Nhân lý Chaldea, không khí thường nhật ấm áp và thảo luận chiến thuật.",
+      "speakingStyleContext": "Thường nhật, nhẹ nhàng, đầm ấm",
+      "activeCharacters": ["Mash Kyrielight", "Leonardo da Vinci", "Romani Archaman"]
+    },
+    {
+      "name": "Lostbelt",
+      "description": "Bối cảnh Dị Văn Đới hoang tàn, thế giới bị đào thải đầy nguy hiểm, căng thẳng sinh tồn.",
+      "speakingStyleContext": "Bi tráng, nghiêm nghị, cảnh giác",
+      "activeCharacters": ["Mash Kyrielight", "Ritsuka Fujimaru"],
+      "glossaryOverrides": [
+        { "source": "Tree of Emptiness", "target": "Cây Hư Không", "tier": "Story", "level": "Locked" }
+      ]
+    }
+  ]
+}

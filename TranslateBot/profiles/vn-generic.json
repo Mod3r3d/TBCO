@@ -1,0 +1,29 @@
+{
+  "id": "vn-generic",
+  "name": "Visual Novel (Generic)",
+  "gameName": "Visual Novel",
+  "processMatch": "",
+  "titleMatch": "",
+  "sourceLanguage": "ja",
+  "targetLanguage": "vi",
+  "stabilityPreset": "Safe",
+  "preprocessPreset": "VnDialogue",
+  "preferredOcrEngine": "WindowsOCR",
+  "ocrAreas": [
+    {
+      "id": "vn-dialogue",
+      "name": "Khung thoại Visual Novel",
+      "type": "Dialogue",
+      "regionX": 0,
+      "regionY": 650,
+      "regionWidth": 1280,
+      "regionHeight": 250,
+      "enabled": true,
+      "preset": "VnDialogue"
+    }
+  ],
+  "exclusionAreas": [],
+  "characters": [],
+  "glossary": [],
+  "scenes": []
+}

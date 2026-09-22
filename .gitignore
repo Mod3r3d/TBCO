@@ -1,0 +1,53 @@
+## ========================================================================
+## TBCO .gitignore - Rules for .NET WPF Project & Security
+## ========================================================================
+
+# 1. Bảo mật: Tuyệt đối không commit API keys & cấu hình bí mật
+.env
+*.env
+.env.local
+.env.*.local
+
+# 2. Thư mục biên dịch & bản phát hành (.NET build output)
+[Bb]in/
+[Oo]bj/
+[Rr]elease/
+[Pp]ublish/
+publish_compressed/
+
+# 3. File nhị phân & nén lớn
+*.exe
+*.dll.config
+*.pdb
+*.zip
+*.7z
+*.tar.gz
+*.rar
+
+# 4. Tệp cá nhân của Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# 5. Nhật ký & file tạm
+*.log
+crash.log
+scratch_inspect.txt
+*.tmp
+*.bak
+BenchmarkDotNet.Artifacts/
+
+# 6. Windows OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# 7. Thư viện OCR ngoại tuyến tải tự động
+DLL/
+TranslateBot/DLL/

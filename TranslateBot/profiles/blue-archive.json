@@ -1,0 +1,67 @@
+{
+  "id": "blue-archive",
+  "name": "Blue Archive",
+  "gameName": "Blue Archive",
+  "processMatch": "HD-Player|Nox|MuMu|BlueArchive",
+  "titleMatch": "Blue Archive",
+  "sourceLanguage": "ja",
+  "targetLanguage": "vi",
+  "stabilityPreset": "Fast",
+  "preprocessPreset": "WhiteTextOnDark",
+  "preferredOcrEngine": "WindowsOCR",
+  "ocrAreas": [
+    {
+      "id": "ba-dialogue",
+      "name": "Khung thoại Blue Archive",
+      "type": "Dialogue",
+      "regionX": 0,
+      "regionY": 720,
+      "regionWidth": 1280,
+      "regionHeight": 200,
+      "enabled": true,
+      "preset": "WhiteTextOnDark"
+    }
+  ],
+  "exclusionAreas": [],
+  "characters": [
+    {
+      "name": "Arona",
+      "aliases": ["アロナ"],
+      "speakingStyle": "Vui vẻ, nhí nhảnh, giọng điệu AI trợ lý dễ thương, tận tâm vì Thầy.",
+      "preferredPronouns": "em / Sensei",
+      "addressingRules": "Gọi người chơi là Sensei."
+    },
+    {
+      "name": "Plana",
+      "aliases": ["プラナ"],
+      "speakingStyle": "Điềm tĩnh, ít nói, ngoan ngoãn và trung thành.",
+      "preferredPronouns": "em / Sensei"
+    },
+    {
+      "name": "Yuuka",
+      "aliases": ["Hayase Yuuka", "ユウカ"],
+      "speakingStyle": "Nghiêm túc, trách nhiệm, hay cằn nhằn về chi tiêu nhưng quan tâm chân thành.",
+      "preferredPronouns": "tôi / Sensei"
+    }
+  ],
+  "glossary": [
+    { "source": "Sensei", "target": "Thầy", "tier": "Game", "level": "Locked" },
+    { "source": "Kivotos", "target": "Kivotos", "tier": "Game", "level": "Locked" },
+    { "source": "Schale", "target": "Schale", "tier": "Game", "level": "Locked" },
+    { "source": "Halo", "target": "vòng hào quang", "tier": "Game", "level": "Locked" },
+    { "source": "Mystic", "target": "thần bí", "tier": "Game", "level": "Locked" }
+  ],
+  "scenes": [
+    {
+      "name": "Schale Office",
+      "description": "Văn phòng câu lạc bộ liên bang Schale, gặp gỡ và hướng dẫn các học sinh.",
+      "speakingStyleContext": "Hài hước, gần gũi, đời thường",
+      "activeCharacters": ["Arona", "Plana", "Yuuka"]
+    },
+    {
+      "name": "Eden Treaty",
+      "description": "Hiệp ước Eden, xung đột chính trị và trận chiến căng thẳng giữa các học viện.",
+      "speakingStyleContext": "Kịch tính, căng thẳng, trang trọng"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "fgo-na",
+  "name": "Fate/Grand Order (NA)",
+  "gameName": "Fate/Grand Order",
+  "processMatch": "HD-Player|Nox|MuMu|FateGO",
+  "titleMatch": "Fate/Grand Order",
+  "sourceLanguage": "en",
+  "targetLanguage": "vi",
+  "stabilityPreset": "Balanced",
+  "preprocessPreset": "FgoDialogue",
+  "preferredOcrEngine": "WindowsOCR",
+  "ocrAreas": [
+    {
+      "id": "fgo-na-dialogue",
+      "name": "Hộp thoại chính",
+      "type": "Dialogue",
+      "regionX": 0,
+      "regionY": 700,
+      "regionWidth": 1280,
+      "regionHeight": 220,
+      "enabled": true,
+      "preset": "FgoDialogue"
+    },
+    {
+      "id": "fgo-na-speaker",
+      "name": "Tên nhân vật",
+      "type": "Speaker",
+      "regionX": 180,
+      "regionY": 650,
+      "regionWidth": 320,
+      "regionHeight": 50,
+      "enabled": true,
+      "preset": "FgoSpeaker"
+    }
+  ],
+  "exclusionAreas": [
+    {
+      "id": "fgo-na-skip-btn",
+      "name": "Nút Skip & Menu",
+      "regionX": 1100,
+      "regionY": 10,
+      "regionWidth": 180,
+      "regionHeight": 60,
+      "enabled": true
+    }
+  ],
+  "characters": [
+    {
+      "name": "Mash Kyrielight",
+      "aliases": ["Mash", "Mashu", "Shielder"],
+      "speakingStyle": "Lịch sự, nhẹ nhàng, kính ngữ. Giọng điệu chân thành, tận tụy vì Master.",
+      "preferredPronouns": "em / Senpai",
+      "addressingRules": "Gọi Ritsuka là 'Senpai'. Xưng 'em'."
+    },
+    {
+      "name": "Ritsuka Fujimaru",
+      "aliases": ["Master", "Gudao", "Gudako"],
+      "speakingStyle": "Thân thiện, dũng cảm, quyết đoán nhưng gần gũi.",
+      "preferredPronouns": "tôi / cậu"
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "aliases": ["Da Vinci", "Da Vinci-chan"],
+      "speakingStyle": "Vui tươi, tự tin, thông thái và dí dỏm.",
+      "preferredPronouns": "tôi / cậu",
+      "addressingRules": "Gọi Master là 'Master-kun'."
+    },
+    {
+      "name": "Romani Archaman",
+      "aliases": ["Roman", "Dr. Roman"],
+      "speakingStyle": "Ấm áp, chu đáo, đôi khi nhút nhát và lo lắng.",
+      "preferredPronouns": "tôi / cậu"
+    }
+  ],
+  "glossary": [
+    { "source": "Master", "target": "Master", "tier": "Game", "level": "Locked" },
+    { "source": "Servant", "target": "Servant", "tier": "Game", "level": "Locked" },
+    { "source": "Senpai", "target": "tiền bối", "tier": "Game", "level": "Locked" },
+    { "source": "Noble Phantasm", "target": "Bảo Khí", "tier": "Game", "level": "Locked" },
+    { "source": "Saint Quartz", "target": "Thánh Tinh Thạch", "tier": "Game", "level": "Locked" },
+    { "source": "Chaldea", "target": "Chaldea", "tier": "Game", "level": "Locked" },
+    { "source": "Holy Grail", "target": "Chén Thánh", "tier": "Game", "level": "Locked" },
+    { "source": "Command Spells", "target": "Lệnh Chú", "tier": "Game", "level": "Locked" },
+    { "source": "Singularity", "target": "Điểm Đặc Dị", "tier": "Game", "level": "Locked" },
+    { "source": "Lostbelt", "target": "Dị Văn Đới", "tier": "Game", "level": "Locked" }
+  ],
+  "scenes": [
+    {
+      "name": "Chaldea",
+      "description": "Căn cứ Tổ chức Bảo tồn Trật tự Nhân lý Chaldea.",
+      "speakingStyleContext": "Thường nhật, thảo luận chiến thuật"
+    }
+  ]
+}

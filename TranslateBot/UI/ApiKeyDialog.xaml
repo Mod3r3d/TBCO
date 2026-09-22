@@ -1,0 +1,42 @@
+<Window x:Class="TranslateBot.UI.ApiKeyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cài đặt Gemini API Key" Height="260" Width="520"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Icon="pack://application:,,,/TBCO-Icon.ico"
+        Background="#1F2937" Foreground="#F9FAFB" FontFamily="Segoe UI">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Nhập Gemini API Key" FontSize="18" FontWeight="Bold" Foreground="#60A5FA"/>
+        <TextBlock Grid.Row="1" Text="Nhập khóa API từ Google AI Studio để kích hoạt tính năng dịch tự động:" 
+                   Foreground="#9CA3AF" FontSize="12" Margin="0,6,0,16" TextWrapping="Wrap"/>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" x:Name="ApiKeyTextBox" Height="36" FontSize="13" 
+                     Padding="8,6" Background="#374151" Foreground="#FFFFFF" BorderBrush="#4B5563"
+                     BorderThickness="1" VerticalContentAlignment="Center"/>
+            <Button Grid.Column="1" x:Name="PasteBtn" Content="Dán" Height="36" Width="60" 
+                    Margin="8,0,0,0" Background="#4B5563" Foreground="#FFFFFF"
+                    BorderThickness="0" Click="PasteBtn_Click" Cursor="Hand"/>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,20,0,0">
+            <Button x:Name="GetFreeKeyBtn" Content="Lấy key miễn phí" Height="34" Padding="12,0" 
+                    Margin="0,0,12,0" Background="Transparent" Foreground="#93C5FD" 
+                    BorderThickness="0" Click="GetFreeKeyBtn_Click" Cursor="Hand"/>
+            <Button x:Name="SaveBtn" Content="Lưu &amp; Áp dụng" Height="34" Width="130" 
+                    Background="#2563EB" Foreground="#FFFFFF" FontWeight="SemiBold"
+                    BorderThickness="0" Click="SaveBtn_Click" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

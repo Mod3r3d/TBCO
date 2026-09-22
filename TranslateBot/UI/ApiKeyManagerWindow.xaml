@@ -1,0 +1,130 @@
+<Window x:Class="TranslateBot.UI.ApiKeyManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TBCO - Quản lý API Key Pool"
+        Height="540" Width="780"
+        WindowStartupLocation="CenterOwner"
+        Background="#0B0F19"
+        Foreground="#F8FAFC"
+        FontFamily="Segoe UI"
+        ResizeMode="CanResizeWithGrip">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#161E2E"/>
+            <Setter Property="Foreground" Value="#F1F5F9"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1E293B"/>
+                    <Setter Property="BorderBrush" Value="#38BDF8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="QUẢN LÝ API KEY POOL" FontSize="18" FontWeight="Bold" Foreground="#38BDF8"/>
+                <TextBlock Text="Cơ chế luân chuyển tự động: Khi 1 key hết quota (429), TBCO tự đổi sang key tiếp theo mà không dừng game."
+                           FontSize="12" Foreground="#94A3B8" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button Content="Lấy Key Google Miễn phí" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                    Background="#065F46" BorderBrush="#059669" Click="GetFreeKeyBtn_Click" ToolTip="Mở Google AI Studio để lấy API Key miễn phí"/>
+        </DockPanel>
+
+        <!-- Pool Summary Card -->
+        <Border Grid.Row="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="TỔNG SỐ KEY" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                    <TextBlock x:Name="TotalKeysText" Text="0 key" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="KHẢ DỤNG (ACTIVE)" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                    <TextBlock x:Name="ActiveKeysText" Text="0 key" FontSize="16" FontWeight="Bold" Foreground="#10B981" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="NHÀ CUNG CẤP DỰ PHÒNG" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                    <TextBlock Text="Google Web Translate" FontSize="14" FontWeight="SemiBold" Foreground="#F59E0B" Margin="0,3,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Credentials ListView -->
+        <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="4">
+            <ListView x:Name="CredentialsListView" Background="Transparent" BorderThickness="0" Foreground="#F8FAFC"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="ID" Width="130" DisplayMemberBinding="{Binding Id}"/>
+                        <GridViewColumn Header="Provider" Width="90" DisplayMemberBinding="{Binding Provider}"/>
+                        <GridViewColumn Header="Khóa API (Đã che)" Width="210" DisplayMemberBinding="{Binding MaskedSecret}"/>
+                        <GridViewColumn Header="Trạng thái" Width="120">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding StatusColor}" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding StatusText}" Foreground="#FFFFFF" FontSize="11" FontWeight="Bold"/>
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Thành công" Width="80" DisplayMemberBinding="{Binding SuccessCount}"/>
+                        <GridViewColumn Header="Lỗi" Width="60" DisplayMemberBinding="{Binding FailureCount}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+
+        <!-- Actions Toolbar -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,12" HorizontalAlignment="Left">
+            <Button Content="+ Thêm Key" Margin="0,0,8,0" Click="AddKeyBtn_Click"/>
+            <Button Content="Dán hàng loạt" Margin="0,0,8,0" Click="BatchPasteBtn_Click" ToolTip="Dán nhiều key từ clipboard (mỗi dòng 1 key)"/>
+            <Button Content="Kiểm tra Key đã chọn" Margin="0,0,8,0" Click="TestKeyBtn_Click"/>
+            <Button Content="Bật/Tắt" Margin="0,0,8,0" Click="ToggleEnableBtn_Click"/>
+            <Button Content="Xóa Key" Background="#7F1D1D" BorderBrush="#991B1B" Click="RemoveKeyBtn_Click"/>
+        </StackPanel>
+
+        <!-- Footer / Save -->
+        <DockPanel Grid.Row="4">
+            <TextBlock x:Name="StatusMessageText" Text="Sẵn sàng" Foreground="#94A3B8" VerticalAlignment="Center" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Đóng" Margin="0,0,8,0" Width="80" Click="CloseBtn_Click"/>
+                <Button Content="Lưu &amp; Áp dụng" Background="#0284C7" BorderBrush="#0284C7" Width="120" Click="SaveAndApplyBtn_Click"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

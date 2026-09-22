@@ -1,0 +1,142 @@
+<Window x:Class="TranslateBot.UI.DetachedSubtitleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TBCO — Cửa Sổ Dịch Nổi" 
+        Width="680" Height="170" MinWidth="380" MinHeight="110"
+        WindowStyle="None" AllowsTransparency="True" 
+        Topmost="True" ShowInTaskbar="False" ResizeMode="CanResizeWithGrip"
+        Background="Transparent" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="SubWindowButton">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#334155"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#0F172A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="CloseSubWindowButton" BasedOn="{StaticResource SubWindowButton}">
+            <Setter Property="Background" Value="#7F1D1D"/>
+            <Setter Property="BorderBrush" Value="#991B1B"/>
+            <Setter Property="Foreground" Value="#FCA5A5"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Thân cửa sổ chính với viền phát sáng và nền mờ cao cấp -->
+    <Border x:Name="MainContainer" Background="#E80B0F19" CornerRadius="10" 
+            BorderBrush="#38BDF8" BorderThickness="1.5" Margin="4">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.5" BlurRadius="12" ShadowDepth="3"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header bar -->
+                <RowDefinition Height="*"/>    <!-- Content area -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Thanh tiêu đề kéo thả + Bộ phím tắt điều khiển -->
+            <Border Grid.Row="0" x:Name="HeaderBar" Background="#C8111827" CornerRadius="8,8,0,0" 
+                    Padding="8,5" BorderBrush="#1F2937" BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="HeaderBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Thông tin mục tiêu bên trái -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Nút kẹp kéo -->
+                        <TextBlock Text="⠿" FontSize="14" FontWeight="Bold" Foreground="#64748B" 
+                                   Margin="0,0,6,0" VerticalAlignment="Center" Cursor="SizeAll"
+                                   ToolTip="Kéo giữ chuột để di chuyển cửa sổ"/>
+
+                        <Border Background="#0F2442" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="0,0,6,0">
+                            <TextBlock Text="SUBTITLE" FontSize="9" FontWeight="Bold" Foreground="#60A5FA"/>
+                        </Border>
+
+                        <TextBlock x:Name="TargetWindowTitleText" Text="Toàn màn hình" 
+                                   VerticalAlignment="Center" Foreground="#94A3B8" FontSize="11" 
+                                   TextTrimming="CharacterEllipsis" MaxWidth="160" Margin="0,0,6,0"/>
+
+                        <Button Content="Đổi" Style="{StaticResource SubWindowButton}" 
+                                Padding="5,1" Height="22" FontSize="10" Click="SelectWindow_Click"
+                                ToolTip="Đổi cửa sổ game mục tiêu"/>
+                    </StackPanel>
+
+                    <!-- Cụm nút thao tác bên phải -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="SpeakBtn" Content="Đọc" Style="{StaticResource SubWindowButton}" Click="Speak_Click" ToolTip="Đọc câu thoại hiện tại (TTS)"/>
+                        <Button x:Name="CopyBtn" Content="Chép" Style="{StaticResource SubWindowButton}" Click="Copy_Click" ToolTip="Sao chép câu dịch"/>
+                        <Button x:Name="HistoryBtn" Content="Lịch sử" Style="{StaticResource SubWindowButton}" Click="History_Click" ToolTip="Xem lịch sử hội thoại"/>
+                        <Button x:Name="FontDecBtn" Content="A-" Style="{StaticResource SubWindowButton}" Click="FontDec_Click" Width="26" Padding="0" ToolTip="Giảm cỡ chữ"/>
+                        <Button x:Name="FontIncBtn" Content="A+" Style="{StaticResource SubWindowButton}" Click="FontInc_Click" Width="26" Padding="0" ToolTip="Tăng cỡ chữ"/>
+                        <Button x:Name="PinToggleBtn" Content="Ghim" Style="{StaticResource SubWindowButton}" Click="PinToggle_Click" ToolTip="Bật / Tắt luôn nổi trên cùng (Topmost)"/>
+                        <Button x:Name="LockToggleBtn" Content="F9" Style="{StaticResource SubWindowButton}" Click="LockToggle_Click" ToolTip="Khóa / Mở khóa xuyên chuột vào game (F9)"/>
+                        <Button x:Name="DockBackBtn" Content="⇲ Gắn lại" Style="{StaticResource SubWindowButton}" Click="DockBack_Click" ToolTip="Gắn lại vùng hiển thị vào ứng dụng chính"/>
+                        <Button Content="✕" Style="{StaticResource CloseSubWindowButton}" Click="Close_Click" ToolTip="Đóng cửa sổ phụ đề nổi"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 2. Vùng hiển thị nội dung dịch thuật -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="10,6,10,6">
+                <StackPanel>
+                    <!-- Speaker Badge (Tên nhân vật) -->
+                    <Border x:Name="SpeakerBadge" Background="#3E2723" BorderBrush="#5D4037" BorderThickness="1" 
+                            CornerRadius="4" Padding="6,1.5" HorizontalAlignment="Left" Margin="0,0,0,4" Visibility="Collapsed">
+                        <TextBlock x:Name="SpeakerText" Text="Người nói" Foreground="#FFCC80" FontWeight="Bold" FontSize="11.5"/>
+                    </Border>
+
+                    <!-- Context: Câu thoại trước đó -->
+                    <TextBlock x:Name="PreviousText" Text="" FontSize="11.5" Foreground="#64748B" 
+                               TextWrapping="Wrap" Margin="0,0,0,3" FontStyle="Italic" Visibility="Collapsed"/>
+
+                    <!-- Bản dịch tiếng Việt chính (To, sắc nét, dễ đọc) -->
+                    <TextBlock x:Name="TranslatedText" Text="Đang đợi văn bản dịch từ game..." 
+                               FontSize="16" FontWeight="SemiBold" Foreground="#F8FAFC" 
+                               TextWrapping="Wrap" LineHeight="24" Margin="0,2,0,4"/>
+
+                    <!-- Câu gốc (Tiếng Nhật/Anh) -->
+                    <TextBlock x:Name="OriginalText" Text="" FontSize="11.5" Foreground="#94A3B8" 
+                               TextWrapping="Wrap" Margin="0,0,0,2"/>
+
+                    <!-- Debug / Trạng thái phụ -->
+                    <TextBlock x:Name="DebugInfoText" Text="" FontSize="10" Foreground="#38BDF8" Visibility="Collapsed"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,14 @@
+<Window x:Class="TranslateBot.UI.RegionSelector"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn Vùng OCR" 
+        WindowStyle="None" AllowsTransparency="True" Background="#60000000"
+        Topmost="True" WindowState="Maximized" ShowInTaskbar="False"
+        Cursor="Cross" 
+        MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" 
+        MouseUp="Window_MouseUp" KeyDown="Window_KeyDown">
+    <Canvas Name="DrawCanvas">
+        <Rectangle Name="SelectionBox" Stroke="#00FF80" StrokeThickness="2" 
+                   Fill="#2000FF80" Visibility="Hidden" StrokeDashArray="2,2"/>
+    </Canvas>
+</Window>

@@ -1,0 +1,688 @@
+<Window x:Class="TranslateBot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TBCO — Game Dialogue Translation Deck" Height="730" Width="640" 
+        MinHeight="660" MinWidth="580" WindowStartupLocation="CenterScreen"
+        Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
+        Icon="pack://application:,,,/TBCO-Icon.ico"
+        x:Name="AppWindow">
+
+    <Window.Resources>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 0. THEME DYNAMIC BRUSHES (Tương thích giao diện Sáng / Tối)     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <SolidColorBrush x:Key="BrushAppBg" Color="#0B0F19"/>
+        <SolidColorBrush x:Key="BrushCardBg" Color="#111827"/>
+        <SolidColorBrush x:Key="BrushCardBorder" Color="#1F2937"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="BrushTextMuted" Color="#64748B"/>
+        <SolidColorBrush x:Key="BrushKeyBadgeBg" Color="#0F2442"/>
+        <SolidColorBrush x:Key="BrushKeyBadgeBorder" Color="#2563EB"/>
+        <SolidColorBrush x:Key="BrushKeyBadgeFg" Color="#60A5FA"/>
+        <SolidColorBrush x:Key="BrushTabFg" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="BrushTabHoverBg" Color="#151D2C"/>
+        <SolidColorBrush x:Key="BrushTabHoverFg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BrushTabSelectedBg" Color="#1E293B"/>
+        <SolidColorBrush x:Key="BrushTabSelectedFg" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="BrushTabSelectedBorder" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="BrushButtonBg" Color="#161E2E"/>
+        <SolidColorBrush x:Key="BrushButtonBorder" Color="#334155"/>
+        <SolidColorBrush x:Key="BrushButtonFg" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="BrushInputBg" Color="#161E2E"/>
+        <SolidColorBrush x:Key="BrushInputBorder" Color="#334155"/>
+        <SolidColorBrush x:Key="BrushInputFg" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="BrushCheckBg" Color="#161F30"/>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 1. CHECKBOX PHONG CÁCH CÔNG NGHỆ CAO                           -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Style TargetType="CheckBox" x:Key="AutoHostCheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextPrimary}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border x:Name="CheckBorder" Grid.Column="0" Width="18" Height="18" 
+                                    CornerRadius="4" Background="{DynamicResource BrushCheckBg}" 
+                                    BorderBrush="{DynamicResource BrushInputBorder}" BorderThickness="1.5"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Path x:Name="CheckMark" Data="M 3 9 L 7 13 L 15 4" 
+                                      Stroke="White" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      Visibility="Collapsed" Margin="0,1,0,0"/>
+                            </Border>
+
+                            <ContentPresenter Grid.Column="1" Margin="10,0,0,0" 
+                                              VerticalAlignment="Center" 
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckBorder" Property="Background" Value="#2563EB"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource BrushTextMuted}"/>
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 2. NÚT BẤM (BUTTONS) HIỆN ĐẠI                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Style TargetType="Button" x:Key="DarkButton">
+            <Setter Property="Foreground" Value="{DynamicResource BrushButtonFg}"/>
+            <Setter Property="Background" Value="{DynamicResource BrushButtonBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushButtonBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="PrimaryActionButton" BasedOn="{StaticResource DarkButton}">
+            <Setter Property="Background" Value="#1D4ED8"/>
+            <Setter Property="BorderBrush" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="MicroActionButton" BasedOn="{StaticResource DarkButton}">
+            <Setter Property="Background" Value="{DynamicResource BrushButtonBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushButtonBorder}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushButtonFg}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 3. COMBOBOX CHUYÊN NGHIỆP                                       -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Style TargetType="ComboBoxItem" x:Key="DarkComboBoxItemStyle">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource BrushCardBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushInputFg}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" 
+                                Padding="{TemplateBinding Padding}" CornerRadius="4" Margin="2,1">
+                            <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#2563EB"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#1D4ED8"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox Toggle Button Template -->
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+            <Grid>
+                <Border x:Name="Border" Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="6"/>
+                <Path x:Name="Arrow" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                      Margin="0,0,10,0" Fill="{DynamicResource BrushTextSecondary}" Data="M 0 0 L 4 4 L 8 0 Z"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="BorderBrush" Value="#38BDF8"/>
+                    <Setter TargetName="Arrow" Property="Fill" Value="#38BDF8"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Complete Dynamic ComboBox Style -->
+        <Style TargetType="ComboBox" x:Key="DarkComboBox">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource BrushInputBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushInputFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushInputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource DarkComboBoxItemStyle}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Name="ToggleButton" 
+                                          Template="{StaticResource ComboBoxToggleButton}" 
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                          ClickMode="Press"/>
+                            <ContentPresenter Name="ContentSite" IsHitTestVisible="False" 
+                                              Content="{TemplateBinding SelectionBoxItem}" 
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
+                                              Margin="10,3,25,3" 
+                                              VerticalAlignment="Center" HorizontalAlignment="Left"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            <Popup Name="Popup" Placement="Bottom" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}" 
+                                   AllowsTransparency="True" Focusable="False" 
+                                   PopupAnimation="Slide">
+                                <Grid Name="DropDown" SnapsToDevicePixels="True" 
+                                      MinWidth="{TemplateBinding ActualWidth}" MaxHeight="240">
+                                    <Border x:Name="DropDownBorder" Background="{DynamicResource BrushCardBg}" 
+                                            BorderBrush="{DynamicResource BrushInputBorder}" BorderThickness="1.5" 
+                                            CornerRadius="6" Margin="0,4,0,4">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#000000" BlurRadius="12" Opacity="0.3" ShadowDepth="4"/>
+                                        </Border.Effect>
+                                        <ScrollViewer Margin="4,4,4,4" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="30"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 4. THẺ CARD & PHÍM TẮT BADGE                                    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Style TargetType="Border" x:Key="SectionCard">
+            <Setter Property="Background" Value="{DynamicResource BrushCardBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushCardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16,14"/>
+        </Style>
+
+        <Style TargetType="Border" x:Key="KeyBadge">
+            <Setter Property="Background" Value="{DynamicResource BrushKeyBadgeBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushKeyBadgeBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 5. SEGMENTED TAB ITEM STYLE                                    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Style TargetType="TabItem" x:Key="SegmentedTabItem">
+            <Setter Property="Foreground" Value="{DynamicResource BrushTabFg}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" Background="Transparent" 
+                                BorderBrush="Transparent" BorderThickness="0,0,0,3" 
+                                Padding="{TemplateBinding Padding}" Margin="0,0,6,0" CornerRadius="6,6,0,0">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource BrushTabHoverFg}"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource BrushTabHoverBg}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource BrushTabSelectedFg}"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource BrushTabSelectedBg}"/>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource BrushTabSelectedBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- BỐ CỤC CHÍNH (STUDIO COMMAND DECK)                              -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <Grid Margin="18,14,18,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Row 0: Top Studio App Bar -->
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/> <!-- Row 2: Hero Live Subtitle Monitor -->
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>    <!-- Row 4: Segmented Command Deck (Tabs) -->
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/> <!-- Row 6: Bottom Telemetry Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <!-- ROW 0: TOP STUDIO APP BAR                                     -->
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Brand & Status Pill -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="BrandTitleText" Text="TBCO" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}" 
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="v3.0 PRO" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
+                </Border>
+
+                <!-- Status pill -->
+                <Border Background="{DynamicResource BrushCardBg}" BorderBrush="{DynamicResource BrushCardBorder}" BorderThickness="1" CornerRadius="14" Padding="10,4" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse x:Name="StatusDot" Width="10" Height="10" Fill="#6B7280" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StatusText" Text="ĐÃ TẠM DỪNG" FontSize="12.5" FontWeight="Bold" 
+                                   Foreground="{DynamicResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Master Action Button (Start / Stop) -->
+            <Button Grid.Column="1" x:Name="ToggleBotBtn" Content="BẮT ĐẦU DỊCH" 
+                    Height="38" MinWidth="160" FontSize="13" FontWeight="Bold"
+                    Background="#10B981" Foreground="#FFFFFF" BorderThickness="0"
+                    Cursor="Hand" Click="ToggleBotBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" CornerRadius="8" Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <!-- ROW 2: HERO LIVE SUBTITLE MONITOR (MÀN HÌNH PHỤ ĐỀ TRỰC TIẾP) -->
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <Border Grid.Row="2" Style="{StaticResource SectionCard}" x:Name="TranslationCard" 
+                BorderThickness="1.5">
+            <StackPanel>
+                <!-- Mini Header: Target Window Info + Micro Actions -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cửa sổ theo dõi bên trái -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                            <TextBlock Text="CỬA SỔ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
+                        </Border>
+                        <TextBlock x:Name="WindowInfoText" Text="Toàn màn hình (Chưa ghim)" 
+                                   VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" FontSize="12" 
+                                   TextTrimming="CharacterEllipsis" MaxWidth="220" Margin="0,0,8,0"/>
+                        <Button x:Name="SelectWindowBtn" Content="Đổi cửa sổ" 
+                                Style="{StaticResource MicroActionButton}" Click="SelectWindowBtn_Click"/>
+                    </StackPanel>
+
+                    <!-- Nút thao tác nhanh bên phải -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border x:Name="DetachedBadge" Background="#0F2442" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="Collapsed" VerticalAlignment="Center">
+                            <TextBlock Text="ĐANG TÁCH RỜI" FontSize="10" FontWeight="Bold" Foreground="#60A5FA"/>
+                        </Border>
+                        <Button x:Name="DetachSubtitleBtn" Content="Tách cửa sổ" ToolTip="Tách vùng hiển thị thành cửa sổ nổi độc lập" Style="{StaticResource MicroActionButton}" Click="DetachSubtitleBtn_Click"/>
+                        <Button x:Name="SpeakCurrentBtn" Content="Đọc" Style="{StaticResource MicroActionButton}" Click="SpeakCurrentBtn_Click"/>
+                        <Button x:Name="CopyTextBtn" Content="Sao chép" Style="{StaticResource MicroActionButton}" Click="CopyTextBtn_Click"/>
+                        <Button x:Name="HistoryBtn" Content="Lịch sử" Style="{StaticResource MicroActionButton}" Click="HistoryBtn_Click"/>
+                        <Button x:Name="ToolbarToggleBtn" Content="Thanh nổi" Style="{StaticResource MicroActionButton}" Click="ToolbarToggleBtn_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Speaker Badge -->
+                <Border x:Name="MainSpeakerBadge" Background="#3E2723" CornerRadius="4" 
+                        Padding="8,2" HorizontalAlignment="Left" Margin="0,2,0,6" Visibility="Collapsed">
+                    <TextBlock x:Name="MainSpeakerLabel" Text="Người nói" Foreground="#FFCC80" 
+                                FontWeight="Bold" FontSize="12"/>
+                </Border>
+
+                <!-- Câu trước đó (Context) -->
+                <TextBlock x:Name="PreviousTranslatedLabel" Text="" FontSize="12" 
+                           Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,4" TextWrapping="Wrap" 
+                           Visibility="Collapsed" FontStyle="Italic"/>
+
+                <!-- Câu dịch chính: To, rõ nét, tương phản tối đa -->
+                <TextBlock x:Name="TranslatedTextLabel" Text="Vùng dịch thuật sẽ hiển thị ở đây khi bắt đầu nhận diện." 
+                           FontSize="15.5" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextPrimary}" 
+                           TextWrapping="Wrap" LineHeight="23" Margin="0,2,0,6"/>
+
+                <!-- Câu tiếng Nhật gốc -->
+                <TextBlock x:Name="OriginalTextLabel" Text="Chưa có dữ liệu..." 
+                           FontSize="12" Foreground="{DynamicResource BrushTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,2"/>
+
+                <!-- Debug text -->
+                <TextBlock x:Name="MainDebugText" Text="" FontSize="11" Foreground="#38BDF8" Visibility="Collapsed"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <!-- ROW 4: SEGMENTED COMMAND DECK (KHÔNG CẦN THANH CUỘN DÀI)      -->
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <TabControl Grid.Row="4" Background="Transparent" BorderThickness="0">
+            
+            <!-- ═══ TAB 1: BẮT HÌNH & PHÍM TẮT ═══════════════════════════ -->
+            <TabItem Header="BẮT HÌNH &amp; PHÍM TẮT" Style="{StaticResource SegmentedTabItem}">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card1" Margin="0,8,0,0">
+                    <StackPanel>
+                        <!-- Phím tắt chụp nhanh F8 -->
+                        <Grid Margin="0,6,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="45"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Chụp ảnh tức thì:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <Border Grid.Column="1" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="F8" Foreground="{DynamicResource BrushKeyBadgeFg}" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
+                                <Button x:Name="SelectRegionBtn" Content="Quét vùng mới" Style="{StaticResource DarkButton}" 
+                                        Margin="0,0,8,0" Click="SelectRegionBtn_Click"/>
+                                <Button x:Name="SnapshotBtn" Content="Chụp [F8]" Style="{StaticResource PrimaryActionButton}" 
+                                        Click="SnapshotBtn_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Phím tắt khóa xuyên chuột F9 & Vùng OCR -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="45"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Khóa phụ đề (F9):" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <Border Grid.Column="1" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="F9" Foreground="{DynamicResource BrushKeyBadgeFg}" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
+                                <Button x:Name="LockOverlayBtn" Content="Khóa [F9]" Style="{StaticResource DarkButton}" 
+                                        Margin="0,0,8,0" Click="LockOverlayBtn_Click"/>
+                                <Button x:Name="OcrAreaBtn" Content="Quản lý vùng OCR" Style="{StaticResource DarkButton}" 
+                                        Click="OcrAreaBtn_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Chu kỳ quét tự động -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Chu kỳ quét chữ:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="ScanIntervalCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="ScanIntervalCombo_SelectionChanged">
+                                <ComboBoxItem Content="200 ms (Siêu tốc — Dành cho máy mạnh)" Tag="200"/>
+                                <ComboBoxItem Content="300 ms (Nhanh — Khuyên dùng cho FGO)" Tag="300" IsSelected="True"/>
+                                <ComboBoxItem Content="500 ms (Tiêu chuẩn cân bằng)" Tag="500"/>
+                                <ComboBoxItem Content="1.0 giây (Tiết kiệm tài nguyên)" Tag="1000"/>
+                                <ComboBoxItem Content="1.5 giây (Tiết kiệm tối đa)" Tag="1500"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <!-- ═══ TAB 2: BỘ MÁY AI & NGÔN NGỮ ═══════════════════════════ -->
+            <TabItem Header="BỘ MÁY AI &amp; NGÔN NGỮ" Style="{StaticResource SegmentedTabItem}">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card2" Margin="0,8,0,0">
+                    <StackPanel>
+                        <!-- Row 1: Model AI -->
+                        <Grid Margin="0,6,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Mô hình AI:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="AiModelCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="AiModelCombo_SelectionChanged">
+                                <ComboBoxItem Content="Google Gemini 3.5 Flash (Khuyên dùng - Cân bằng tốc độ / chất lượng)" Tag="gemini-3.5-flash" IsSelected="True"/>
+                                <ComboBoxItem Content="Google Gemini 3.6 Flash (Mới nhất - Dịch thuật cao cấp)" Tag="gemini-3.6-flash"/>
+                                <ComboBoxItem Content="Google Gemini 3.1 Flash Lite (Nhanh nhất - Phản hồi tức thì)" Tag="gemini-3.1-flash-lite"/>
+                                <ComboBoxItem Content="Google Gemini 3.5 Flash Lite (Bản Lite thế hệ 3.5)" Tag="gemini-3.5-flash-lite"/>
+                                <ComboBoxItem Content="Google Gemini 3.1 Pro Preview (Chính xác cao, ngữ cảnh sâu)" Tag="gemini-3.1-pro-preview"/>
+                                <ComboBoxItem Content="Google Gemini 2.5 Flash (Cũ - Sắp bị Google khai tử 16/10/2026)" Tag="gemini-2.5-flash"/>
+                                <ComboBoxItem Content="Google Gemini 1.5 Flash (Bản cũ kế thừa)" Tag="gemini-1.5-flash"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Row 2: Ngôn ngữ -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Ngôn ngữ dịch:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="SourceLangCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="SourceLangCombo_SelectionChanged">
+                                <ComboBoxItem Content="Tự động (auto)" Tag="auto" IsSelected="True"/>
+                                <ComboBoxItem Content="Tiếng Nhật (ja)" Tag="ja"/>
+                                <ComboBoxItem Content="Tiếng Anh (en)" Tag="en"/>
+                            </ComboBox>
+                            <TextBlock Grid.Column="2" Text="→" Foreground="#38BDF8" FontWeight="Bold" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="3" x:Name="TargetLangCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="TargetLangCombo_SelectionChanged">
+                                <ComboBoxItem Content="Tiếng Việt (vi)" Tag="vi" IsSelected="True"/>
+                                <ComboBoxItem Content="Tiếng Anh (en)" Tag="en"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Row 2.5: OCR Engine -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Engine OCR:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="OcrEngineCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="OcrEngineCombo_SelectionChanged">
+                                <ComboBoxItem Content="Windows OCR (Ổn định — mặc định)" Tag="WindowsOcr" IsSelected="True"/>
+                                <ComboBoxItem Content="OneOCR (Thử nghiệm — chính xác hơn nếu máy hỗ trợ)" Tag="OneOcr"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Row 3: API Key -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Khóa API Gemini:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" x:Name="ApiKeyStatusText" Text="Đã cấu hình trong máy" 
+                                       VerticalAlignment="Center" Foreground="#10B981" FontSize="12.5"/>
+                            <Button Grid.Column="2" x:Name="ApiKeyBtn" Content="Cài đặt API Key" 
+                                    Style="{StaticResource PrimaryActionButton}" Click="ApiKeyBtn_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <!-- ═══ TAB 3: TÙY CHỌN & PHỤ ĐỀ ═══════════════════════════ -->
+            <TabItem Header="TÙY CHỌN &amp; PHỤ ĐỀ" Style="{StaticResource SegmentedTabItem}">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card3" Margin="0,8,0,0">
+                    <StackPanel>
+                        <!-- 5 Checkboxes -->
+                        <Grid Margin="0,4,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <CheckBox x:Name="AlwaysOnTopCheckBox" Content="Luôn nổi trên cùng (Topmost)" 
+                                          Style="{StaticResource AutoHostCheckBox}" Click="AlwaysOnTopCheckBox_Click"/>
+                                <CheckBox x:Name="AutoCopyClipboardCheckBox" Content="Tự động sao chép vào Clipboard" 
+                                          Style="{StaticResource AutoHostCheckBox}" Click="AutoCopyClipboardCheckBox_Click"/>
+                                <CheckBox x:Name="OverlayToggleCheckBox" Content="Bật phụ đề nổi (Overlay HUD)" 
+                                          Style="{StaticResource AutoHostCheckBox}" Click="OverlayToggleCheckBox_Click"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <CheckBox x:Name="TtsToggleCheckBox" Content="Tự động đọc thoại bằng giọng nói" 
+                                          Style="{StaticResource AutoHostCheckBox}" Click="TtsToggleCheckBox_Click"/>
+                                <CheckBox x:Name="SessionLogCheckBox" Content="Lưu nhật ký phiên (.jsonl &amp; CSV)" 
+                                          Style="{StaticResource AutoHostCheckBox}" IsChecked="True" Click="SessionLogCheckBox_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator Background="{DynamicResource BrushCardBorder}" Margin="0,2,0,10"/>
+
+                        <!-- Row: Theme & Mode -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Theme -->
+                            <TextBlock Grid.Column="0" Text="Giao diện:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="ThemeCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="ThemeCombo_SelectionChanged">
+                                <ComboBoxItem Content="Studio Dark (Mặc định)" Tag="autohostdark" IsSelected="True"/>
+                                <ComboBoxItem Content="FGO Chaldea Navy" Tag="fgochaldea"/>
+                                <ComboBoxItem Content="High Contrast Gold" Tag="highcontrast"/>
+                                <ComboBoxItem Content="Light Studio" Tag="light"/>
+                            </ComboBox>
+
+                            <!-- Display Mode -->
+                            <TextBlock Grid.Column="3" Text="Kiểu hiển thị:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="4" x:Name="DisplayModeCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="DisplayModeCombo_SelectionChanged">
+                                <ComboBoxItem Content="Song ngữ (JP + VI)" Tag="both" IsSelected="True"/>
+                                <ComboBoxItem Content="Chỉ bản dịch (VI)" Tag="translationonly"/>
+                                <ComboBoxItem Content="Chế độ Debug (FPS)" Tag="debug"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Kiểu khung Overlay / Layer -->
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Khung phụ đề:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="OverlayModeCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="OverlayModeCombo_SelectionChanged">
+                                <ComboBoxItem Content="Khung nổi kính mờ (Overlay Mode)" Tag="Overlay" IsSelected="True"/>
+                                <ComboBoxItem Content="Chữ nổi trực tiếp không viền (Layer Mode)" Tag="Layer"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
+
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <!-- ROW 6: BOTTOM TELEMETRY FOOTER                                -->
+        <!-- ───────────────────────────────────────────────────────────── -->
+        <Grid Grid.Row="6" Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" x:Name="HotkeyHintText" 
+                       Text="Phím tắt: [F8] Chụp khoanh vùng  |  [F9] Khóa xuyên chuột phụ đề" 
+                       Foreground="{DynamicResource BrushTextMuted}" FontSize="11.5" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="1" x:Name="PerformanceMetricsText" Text="" 
+                       Foreground="#10B981" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

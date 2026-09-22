@@ -1,0 +1,43 @@
+{
+  "Version": "3.0.0",
+  "AppConfig": {
+    "AutoStart": false,
+    "TargetWindowHandle": 0,
+    "TargetWindowTitle": "",
+    "TargetProcessName": "",
+    "UseWindowRelative": true,
+    "ActiveProfileId": "fgo-jp",
+    "SourceLanguage": "ja",
+    "TargetLanguage": "vi",
+    "OfflineMode": false,
+    "EnablePrefetch": false
+  },
+  "TranslationProviders": {
+    "Primary": "Gemini",
+    "FallbackChain": ["DeepL", "CustomApi", "Ollama", "GoogleWeb"],
+    "Gemini": {
+      "Model": "gemini-1.5-flash",
+      "KeyPool": []
+    },
+    "DeepL": {
+      "ApiKey": "",
+      "Endpoint": "https://api-free.deepl.com/v2/translate"
+    },
+    "CustomApi": {
+      "Endpoint": "http://localhost:1234/v1/chat/completions",
+      "ApiKey": "",
+      "Model": "local-model"
+    },
+    "Ollama": {
+      "Endpoint": "http://localhost:11434/api/generate",
+      "Model": "qwen2.5:7b"
+    }
+  },
+  "Hotkeys": {
+    "ToggleCapture": "F9",
+    "SnapshotTranslate": "F8",
+    "ToggleOverlay": "F10",
+    "DetachSubtitle": "F11",
+    "ToggleLocalAi": "Ctrl+L"
+  }
+}

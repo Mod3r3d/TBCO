@@ -1,0 +1,64 @@
+========================================================================
+                          HƯỚNG DẪN SỬ DỤNG TBCO (v3.0 PRO)
+========================================================================
+
+TBCO là ứng dụng dịch thuật hội thoại game thời gian thực (hỗ trợ tối ưu cho 
+Fate/Grand Order, Visual Novel, RPG giả tưởng và Anime) sử dụng công nghệ 
+Windows WinRT OCR và trí tuệ nhân tạo Google Gemini 3.x (kế thừa MORT).
+
+------------------------------------------------------------------------
+1. BẮT ĐẦU SỬ DỤNG (KHÔNG CẦN CÀI ĐẶT .NET)
+------------------------------------------------------------------------
+- Ứng dụng đã được đóng gói độc lập (Self-Contained). Bạn chỉ cần:
+  1. Giải nén toàn bộ file trong file zip vào một thư mục (ví dụ: D:\TBCO).
+  2. Nhấp đúp vào file "TBCO.exe" để mở ứng dụng.
+
+* LƯU Ý BẢO MẬT TRÊN WINDOWS 10 / 11 (SMARTSCREEN & SMART APP CONTROL):
+  1. Mở khóa file zip: Trước khi giải nén, nhấp chuột phải vào file zip -> Properties -> 
+     Tích vào ô "Unblock" (Bỏ chặn) ở góc dưới -> Bấm OK.
+  2. Cảnh báo xanh "Windows protected your PC":
+     -> Bấm vào dòng chữ "More info" (Xem thêm thông tin)
+     -> Chọn "Run anyway" (Vẫn chạy).
+  3. Smart App Control (Windows 11): Ứng dụng dùng runtime chuẩn Microsoft.
+     Nếu máy bạn bật SAC ở chế độ Enforce nghiêm ngặt, hãy đặt về 'Evaluation' hoặc 'Off' 
+     trong Windows Security -> App & browser control -> Smart App Control settings.
+
+------------------------------------------------------------------------
+2. CẤU HÌNH GOOGLE GEMINI 3.X API KEY (MIỄN PHÍ)
+------------------------------------------------------------------------
+TBCO dùng AI Gemini 3.x (gemini-3.5-flash) để dịch câu thoại tự nhiên và chính xác:
+- Bước 1: Mở ứng dụng TBCO.
+- Bước 2: Bấm nút [Cài đặt API] trên góc phải giao diện chính.
+- Bước 3: Dán API Key Gemini của bạn vào và bấm Lưu.
+  (Nếu bạn chưa có API Key, truy cập https://aistudio.google.com/ để tạo key miễn phí).
+
+------------------------------------------------------------------------
+3. CÁCH SỬ DỤNG KHI CHƠI GAME
+------------------------------------------------------------------------
+1. Mở game hoặc trình giả lập (VD: LDPlayer, MuMu, Nox, BlueStacks hoặc game PC).
+2. Bấm nút [Đổi cửa sổ] để chọn đúng cửa sổ game của bạn.
+3. Bấm [Quét vùng mới] để kéo chuột khoanh vùng hiển thị phụ đề/hội thoại của game.
+4. Bấm [BẮT ĐẦU DỊCH].
+5. Bấm [Tách cửa sổ] để bung ra một Cửa sổ phụ đề nổi độc lập trên màn hình game!
+
+------------------------------------------------------------------------
+4. CÁC TÍNH NĂNG VÀ PHÍM TẮT CAO CẤP
+------------------------------------------------------------------------
+- [Tách cửa sổ]: Vùng dịch thuật tách ra thành cửa sổ nổi độc lập, không viền, 
+  luôn nổi trên cùng (Topmost). Bạn có thể thu nhỏ bảng điều khiển chính xuống Taskbar.
+- Phím tắt F8: Chụp nhanh và dịch tức thì vùng quét mà không cần bật bot tự động.
+- Phím tắt F9: Khóa xuyên chuột (Click-Through) giúp bạn click xuyên qua cửa sổ dịch
+  thẳng vào trong game mà không lo bấm trúng cửa sổ phụ đề.
+- [A-] / [A+]: Tăng/giảm cỡ chữ trực tiếp tức thì trên cửa sổ phụ đề nổi.
+- [Thanh nổi]: Bật thanh điều khiển mini gọn nhẹ khi chơi game toàn màn hình.
+
+------------------------------------------------------------------------
+5. TÙY BIẾN THUẬT NGỮ & NHÂN VẬT
+------------------------------------------------------------------------
+- characters.json: Chứa danh sách nhân vật, cách xưng hô, văn phong dịch riêng biệt.
+- glossary.json: Chứa bảng tra cứu thuật ngữ chuyên ngành game (Noble Phantasm, Servant,
+  Singularities, Chén Thánh, Bảo Khí...).
+Bạn có thể mở 2 file này bằng Notepad để bổ sung thêm bất kỳ từ nào bạn muốn!
+
+Chúc bạn có những giây phút trải nghiệm game tuyệt vời cùng TBCO!
+========================================================================

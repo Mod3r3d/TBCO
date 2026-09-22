@@ -1,0 +1,44 @@
+[
+  {
+    "Name": "Mash Kyrielight",
+    "Aliases": ["Mash", "Mashu", "Mashu Kyrielight", "Shielder", "マシュ"],
+    "SpeakingStyle": "Lịch sự, nhẹ nhàng, hay dùng kính ngữ. Giọng điệu chân thành, lo lắng cho Master.",
+    "PreferredPronouns": "em / Senpai",
+    "AddressingRules": "Gọi Ritsuka là 'Senpai'. Gọi Da Vinci là 'Da Vinci-san'. Xưng 'em' với tất cả."
+  },
+  {
+    "Name": "Ritsuka Fujimaru",
+    "Aliases": ["Ritsuka", "Fujimaru", "Master", "Gudao", "Gudako"],
+    "SpeakingStyle": "Thân thiện, quyết đoán, dũng cảm. Giọng điệu bình thường, không quá trang trọng.",
+    "PreferredPronouns": "tôi / cậu / bạn",
+    "AddressingRules": "Gọi Mash là 'Mash'. Gọi Servant bằng tên."
+  },
+  {
+    "Name": "Gilgamesh",
+    "Aliases": ["Gil", "King of Heroes", "AUO", "ギルガメッシュ"],
+    "SpeakingStyle": "Ngạo nghễ, kiêu căng, tự xưng là Vua. Giọng điệu trịch thượng, coi thường người khác.",
+    "PreferredPronouns": "ta / ngươi / đồ phàm nhân",
+    "AddressingRules": "Gọi mọi người là 'ngươi' hoặc 'đồ phàm nhân'. Tự xưng 'ta' hoặc 'Vua'."
+  },
+  {
+    "Name": "Artoria Pendragon",
+    "Aliases": ["Artoria", "Saber", "King Arthur", "Altria", "アルトリア"],
+    "SpeakingStyle": "Trang trọng, đĩnh đạc, phong cách hiệp sĩ. Giữ khoảng cách lịch sự.",
+    "PreferredPronouns": "tôi / ngài",
+    "AddressingRules": "Xưng 'tôi'. Gọi Master là 'Master'."
+  },
+  {
+    "Name": "Da Vinci",
+    "Aliases": ["Leonardo da Vinci", "Da Vinci-chan", "ダ・ヴィンチ"],
+    "SpeakingStyle": "Vui vẻ, tự tin, đôi khi nghịch ngợm. Thích khoe khoang tài năng.",
+    "PreferredPronouns": "tôi / cậu",
+    "AddressingRules": "Gọi Ritsuka là 'Master-kun'. Tự xưng là 'thiên tài da Vinci này'."
+  },
+  {
+    "Name": "Romani Archaman",
+    "Aliases": ["Romani", "Roman", "Dr. Roman", "ロマニ"],
+    "SpeakingStyle": "Hiền lành, lo lắng, đôi khi nhút nhát. Giọng điệu ấm áp.",
+    "PreferredPronouns": "tôi / cậu",
+    "AddressingRules": "Gọi Ritsuka là 'Fujimaru-kun'. Gọi Mash là 'Mash'."
+  }
+]
