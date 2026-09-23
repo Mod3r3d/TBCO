@@ -25,6 +25,7 @@ namespace TranslateBot
         private readonly HotkeyManager _hotkeyManager = new();
         private ApiKeyPool _keyPool = new();
         private TranslationRouter? _translationRouter;
+        private Translation.Providers.DeepLProvider? _deepLProvider;
 
         // Stage 3A: Cửa sổ game đã chọn
         private WindowInfo? _selectedWindow;
@@ -93,9 +94,20 @@ namespace TranslateBot
                     });
                 }
 
-                if (!_keyPool.GetAllCredentials().Any(c => c.IsAvailable))
+                string activeProvider = _appConfig.TranslationProvider ?? "Gemini";
+                string deepLKey = ConfigManager.GetEffectiveDeepLApiKey(_appConfig);
+                bool hasGemini = _keyPool.GetAllCredentials().Any(c => c.IsAvailable);
+                bool hasDeepL = !string.IsNullOrWhiteSpace(deepLKey);
+
+                if (activeProvider.Equals("Gemini", StringComparison.OrdinalIgnoreCase) && !hasGemini)
                 {
-                    StatusText.Text = "! Chưa có API Key — Bấm [Cài đặt API] để nhập";
+                    StatusText.Text = "! Chưa có Gemini API Key — Bấm [Cài đặt API] để nhập";
+                    StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
+                    return;
+                }
+                else if (activeProvider.Equals("DeepL", StringComparison.OrdinalIgnoreCase) && !hasDeepL)
+                {
+                    StatusText.Text = "! Chưa có DeepL Auth Key — Vui lòng nhập ở Tab Bộ máy AI & Ngôn ngữ";
                     StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
                     return;
                 }
@@ -111,13 +123,26 @@ namespace TranslateBot
                 if (!string.IsNullOrEmpty(_appConfig.TargetLanguage)) gemini.TargetLanguage = _appConfig.TargetLanguage;
                 if (!string.IsNullOrEmpty(_appConfig.SourceLanguage)) gemini.SourceLanguage = _appConfig.SourceLanguage;
 
-                var fallback = new GoogleWebTranslateProvider
+                _deepLProvider = new Translation.Providers.DeepLProvider(deepLKey)
                 {
-                    SourceLanguage = gemini.SourceLanguage,
-                    TargetLanguage = gemini.TargetLanguage
+                    SourceLanguage = _appConfig.SourceLanguage,
+                    TargetLanguage = _appConfig.TargetLanguage
                 };
 
-                _translationRouter = new TranslationRouter(_keyPool, gemini, fallback);
+                var fallback = new GoogleWebTranslateProvider
+                {
+                    SourceLanguage = _appConfig.SourceLanguage,
+                    TargetLanguage = _appConfig.TargetLanguage
+                };
+
+                _translationRouter = new TranslationRouter(
+                    _keyPool, 
+                    gemini, 
+                    fallback, 
+                    deepLProvider: _deepLProvider)
+                {
+                    PrimaryProvider = activeProvider
+                };
                 _translationProvider = _translationRouter;
                 var translationWorker = new TranslationWorker(_translationProvider);
 
@@ -132,7 +157,7 @@ namespace TranslateBot
                         _detachedSubtitleWindow?.UpdateDialogue(job.RawText, result, speaker, _dialogueHistory.Previous?.TranslatedText);
 
                         // Stage 7: Tự động ghi session log và đọc TTS nếu bật
-                        _sessionManager.AddRecord(job.SequenceId, job.RawText, result, speaker, "Gemini", 0, false);
+                        _sessionManager.AddRecord(job.SequenceId, job.RawText, result, speaker, _translationRouter?.CurrentProviderName ?? activeProvider, 0, false);
                         if (_isTtsEnabled)
                         {
                             _ttsService.SpeakAsync(result, cancelPrevious: true);
@@ -249,6 +274,15 @@ namespace TranslateBot
                     case HotkeyCommand.ToggleOverlay:
                         ToggleOverlay();
                         break;
+                    case HotkeyCommand.DetachSubtitle:
+                        ToggleDetachedSubtitle();
+                        break;
+                    case HotkeyCommand.Retranslate:
+                        DoRetranslate();
+                        break;
+                    case HotkeyCommand.OpenHotkeyHelp:
+                        OpenHotkeyCheatsheet();
+                        break;
                     case HotkeyCommand.ToggleTTS:
                         ToggleTts();
                         break;
@@ -269,6 +303,157 @@ namespace TranslateBot
                         break;
                 }
             });
+        }
+
+        private async void DoRetranslate()
+        {
+            if (_translationProvider == null) return;
+
+            string textToTranslate = "";
+            TranslationContext? context = null;
+
+            if (_dialogueHistory.Current != null)
+            {
+                textToTranslate = _dialogueHistory.Current.OriginalText;
+            }
+            else if (!string.IsNullOrWhiteSpace(OriginalTextLabel.Text) && OriginalTextLabel.Text != "Chưa có dữ liệu...")
+            {
+                textToTranslate = OriginalTextLabel.Text;
+            }
+
+            if (string.IsNullOrWhiteSpace(textToTranslate))
+            {
+                DoSnapshot();
+                return;
+            }
+
+            StatusText.Text = "Đang dịch lại...";
+            try
+            {
+                string result = await _translationProvider.TranslateAsync(textToTranslate, context);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    TranslatedTextLabel.Text = result;
+                    _overlayWindow?.UpdateDialogue(textToTranslate, result, _dialogueHistory.Current?.Speaker, 0, 0, false);
+                    _detachedSubtitleWindow?.UpdateDialogue(textToTranslate, result, _dialogueHistory.Current?.Speaker, _dialogueHistory.Previous?.TranslatedText);
+                    StatusText.Text = "Đã dịch lại xong";
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[RETRANSLATE_ERROR] {ex.Message}");
+                StatusText.Text = "Dịch lại thất bại";
+            }
+        }
+
+        private void OpenHotkeyCheatsheet()
+        {
+            var win = new UI.HotkeyCheatsheetWindow
+            {
+                Owner = this
+            };
+            win.ShowDialog();
+        }
+
+        private void HotkeyCheatsheetBtn_Click(object sender, RoutedEventArgs e) => OpenHotkeyCheatsheet();
+        private void HotkeyHintText_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => OpenHotkeyCheatsheet();
+
+        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            // F1: Mở bảng tra cứu phím tắt
+            if (e.Key == System.Windows.Input.Key.F1)
+            {
+                OpenHotkeyCheatsheet();
+                e.Handled = true;
+                return;
+            }
+
+            // F6: Bật / Tắt dịch tự động
+            if (e.Key == System.Windows.Input.Key.F6)
+            {
+                ToggleBotBtn_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
+            // F7: Chụp 1 khung hình
+            if (e.Key == System.Windows.Input.Key.F7)
+            {
+                DoSnapshot();
+                e.Handled = true;
+                return;
+            }
+
+            // F8 hoặc Ctrl+F8
+            if (e.Key == System.Windows.Input.Key.F8)
+            {
+                if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+                {
+                    DoSelectRegion();
+                }
+                else
+                {
+                    DoSnapshot();
+                }
+                e.Handled = true;
+                return;
+            }
+
+            // F9: Khóa / Mở khóa xuyên chuột
+            if (e.Key == System.Windows.Input.Key.F9)
+            {
+                ToggleOverlayLock();
+                e.Handled = true;
+                return;
+            }
+
+            // F10: Ẩn / Hiện Overlay HUD
+            if (e.Key == System.Windows.Input.Key.F10)
+            {
+                ToggleOverlay();
+                e.Handled = true;
+                return;
+            }
+
+            // F11: Tách / Gắn lại cửa sổ phụ đề nổi
+            if (e.Key == System.Windows.Input.Key.F11)
+            {
+                ToggleDetachedSubtitle();
+                e.Handled = true;
+                return;
+            }
+
+            // Ctrl+T: Dịch lại
+            if (e.Key == System.Windows.Input.Key.T && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+            {
+                DoRetranslate();
+                e.Handled = true;
+                return;
+            }
+
+            // Ctrl+Y: TTS
+            if (e.Key == System.Windows.Input.Key.Y && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+            {
+                ToggleTts();
+                e.Handled = true;
+                return;
+            }
+
+            // Ctrl+J: Lịch sử
+            if (e.Key == System.Windows.Input.Key.J && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+            {
+                OpenHistoryWindow();
+                e.Handled = true;
+                return;
+            }
+
+            // Ctrl+K: API Key
+            if (e.Key == System.Windows.Input.Key.K && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+            {
+                ApiKeyBtn_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════════
@@ -1034,6 +1219,27 @@ namespace TranslateBot
             _isSyncingUiControls = true;
             try
             {
+                // Đồng bộ Nhà cung cấp dịch (Translation Provider)
+                string currentProvider = _appConfig.TranslationProvider ?? "Gemini";
+                if (TranslationProviderCombo != null)
+                {
+                    foreach (ComboBoxItem item in TranslationProviderCombo.Items)
+                    {
+                        if (string.Equals(item.Tag?.ToString(), currentProvider, StringComparison.OrdinalIgnoreCase))
+                        {
+                            TranslationProviderCombo.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+
+                if (DeepLKeyTextBox != null)
+                {
+                    DeepLKeyTextBox.Text = ConfigManager.GetEffectiveDeepLApiKey(_appConfig);
+                }
+
+                UpdateProviderPanelsVisibility(currentProvider);
+
                 // Đồng bộ Mô hình AI
                 if (!string.IsNullOrEmpty(_appConfig.AiModel) && AiModelCombo != null)
                 {
@@ -1103,6 +1309,68 @@ namespace TranslateBot
             {
                 _isSyncingUiControls = false;
             }
+        }
+
+        private void TranslationProviderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isSyncingUiControls) return;
+
+            if (TranslationProviderCombo.SelectedItem is ComboBoxItem item)
+            {
+                string provider = item.Tag?.ToString() ?? "Gemini";
+                _appConfig.TranslationProvider = provider;
+                ConfigManager.Save(_appConfig);
+
+                if (_translationRouter != null)
+                {
+                    _translationRouter.PrimaryProvider = provider;
+                }
+
+                UpdateProviderPanelsVisibility(provider);
+                InitializeBot();
+            }
+        }
+
+        private void UpdateProviderPanelsVisibility(string provider)
+        {
+            if (GeminiModelRow == null || GeminiApiKeyRow == null || 
+                DeepLSettingsRow == null || GoogleWebNoteBorder == null) return;
+
+            if (provider.Equals("DeepL", StringComparison.OrdinalIgnoreCase))
+            {
+                GeminiModelRow.Visibility = Visibility.Collapsed;
+                GeminiApiKeyRow.Visibility = Visibility.Collapsed;
+                DeepLSettingsRow.Visibility = Visibility.Visible;
+                GoogleWebNoteBorder.Visibility = Visibility.Collapsed;
+            }
+            else if (provider.Equals("GoogleWeb", StringComparison.OrdinalIgnoreCase))
+            {
+                GeminiModelRow.Visibility = Visibility.Collapsed;
+                GeminiApiKeyRow.Visibility = Visibility.Collapsed;
+                DeepLSettingsRow.Visibility = Visibility.Collapsed;
+                GoogleWebNoteBorder.Visibility = Visibility.Visible;
+            }
+            else // Gemini
+            {
+                GeminiModelRow.Visibility = Visibility.Visible;
+                GeminiApiKeyRow.Visibility = Visibility.Visible;
+                DeepLSettingsRow.Visibility = Visibility.Collapsed;
+                GoogleWebNoteBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SaveDeepLKeyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string key = DeepLKeyTextBox?.Text?.Trim() ?? string.Empty;
+            ConfigManager.SetEffectiveDeepLApiKey(_appConfig, key);
+            if (_deepLProvider != null)
+            {
+                _deepLProvider.ApiKey = key;
+            }
+            InitializeBot();
+
+            string planType = key.EndsWith(":fx", StringComparison.OrdinalIgnoreCase) ? "Free Plan (:fx)" : "Pro Plan";
+            MessageBox.Show($"Đã lưu DeepL Auth Key ({planType}) thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void CopyTextBtn_Click(object sender, RoutedEventArgs e)

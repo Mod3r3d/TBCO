@@ -31,34 +31,32 @@ namespace TranslateBot.Hotkeys
             _bindings.Clear();
 
             // Capture
-            AddBinding(HotkeyCommand.ToggleCapture, Key.F6, ModifierKeys.None, "Bật/Tắt chế độ quét liên tục");
+            AddBinding(HotkeyCommand.ToggleCapture, Key.F6, ModifierKeys.None, "Bật/Tắt chế độ quét liên tục (Hook loop)");
             AddBinding(HotkeyCommand.CaptureOnce, Key.F7, ModifierKeys.None, "Chụp và dịch 1 khung hình");
-            AddBinding(HotkeyCommand.Snapshot, Key.F8, ModifierKeys.None, "Chụp nhanh lưu ảnh (Snapshot)");
+            AddBinding(HotkeyCommand.Snapshot, Key.F8, ModifierKeys.None, "Chụp nhanh lưu ảnh & dịch tức thì (Snapshot)");
             AddBinding(HotkeyCommand.SelectRegion, Key.F8, ModifierKeys.Control, "Chọn vùng chụp OCR");
-            AddBinding(HotkeyCommand.LockOverlay, Key.F9, ModifierKeys.None, "Khóa/Mở khóa Click-through Overlay");
+            AddBinding(HotkeyCommand.LockOverlay, Key.F9, ModifierKeys.None, "Khóa/Mở khóa xuyên chuột phụ đề (Click-through)");
 
-            // Dialogue
+            // Overlay & Subtitles
+            AddBinding(HotkeyCommand.ToggleOverlay, Key.F10, ModifierKeys.None, "Ẩn/Hiện thanh phụ đề nổi (Overlay HUD)");
+            AddBinding(HotkeyCommand.DetachSubtitle, Key.F11, ModifierKeys.None, "Tách / Gắn lại cửa sổ phụ đề nổi độc lập");
+            AddBinding(HotkeyCommand.ToggleClickThrough, Key.H, ModifierKeys.Control | ModifierKeys.Shift, "Bật/Tắt xuyên chuột nâng cao");
+
+            // Dialogue & Translation
+            AddBinding(HotkeyCommand.Retranslate, Key.T, ModifierKeys.Control, "Dịch lại câu thoại gần nhất");
             AddBinding(HotkeyCommand.ToggleStabilizer, Key.D, ModifierKeys.Control, "Bật/Tắt bộ ổn định thoại");
             AddBinding(HotkeyCommand.FinalizeDialogue, Key.D, ModifierKeys.Control | ModifierKeys.Shift, "Chốt câu thoại ngay lập tức");
-            AddBinding(HotkeyCommand.Retranslate, Key.D, ModifierKeys.Shift, "Dịch lại câu hiện tại");
             AddBinding(HotkeyCommand.SkipDialogue, Key.D, ModifierKeys.Alt, "Bỏ qua câu thoại hiện tại");
 
-            // Translation & API
-            AddBinding(HotkeyCommand.Retranslate, Key.T, ModifierKeys.Control, "Dịch lại câu thoại (phím tắt T)");
-            AddBinding(HotkeyCommand.OpenApiKeyManager, Key.K, ModifierKeys.Control, "Mở quản lý API Key");
-
-            // Overlay
-            AddBinding(HotkeyCommand.ToggleOverlay, Key.H, ModifierKeys.Control, "Ẩn/Hiện Overlay");
-            AddBinding(HotkeyCommand.LockOverlay, Key.H, ModifierKeys.Shift, "Khóa vị trí Overlay");
-            AddBinding(HotkeyCommand.ToggleClickThrough, Key.H, ModifierKeys.Control | ModifierKeys.Shift, "Bật/Tắt xuyên chuột (Click-through)");
-
-            // Audio & Local AI
-            AddBinding(HotkeyCommand.ToggleTTS, Key.Y, ModifierKeys.Control, "Đọc to câu thoại (TTS)");
+            // API, Audio & Diagnostics
+            AddBinding(HotkeyCommand.OpenApiKeyManager, Key.K, ModifierKeys.Control, "Mở quản lý API Key Pool");
+            AddBinding(HotkeyCommand.ToggleTTS, Key.Y, ModifierKeys.Control, "Đọc to câu thoại bằng giọng nói (TTS)");
             AddBinding(HotkeyCommand.ToggleLocalAI, Key.L, ModifierKeys.Control, "Bật/Tắt Local AI (Ollama)");
-
-            // History & Diagnostics
-            AddBinding(HotkeyCommand.OpenHistory, Key.J, ModifierKeys.Control, "Mở lịch sử dịch");
+            AddBinding(HotkeyCommand.OpenHistory, Key.J, ModifierKeys.Control, "Mở lịch sử dịch thuật");
             AddBinding(HotkeyCommand.OpenDiagnostics, Key.F12, ModifierKeys.Control, "Mở bảng chẩn đoán hiệu năng");
+
+            // Cheatsheet Help
+            AddBinding(HotkeyCommand.OpenHotkeyHelp, Key.F1, ModifierKeys.None, "Mở bảng tra cứu phím tắt");
         }
 
         private void AddBinding(HotkeyCommand command, Key key, ModifierKeys modifiers, string description)
@@ -134,7 +132,7 @@ namespace TranslateBot.Hotkeys
                 binding.RegistrationId = ++_nextId;
             }
 
-            uint mod = binding.GetWin32Modifiers();
+            uint mod = binding.GetWin32Modifiers() | 0x4000; // MOD_NOREPEAT (Windows 7+)
             uint vk = binding.GetWin32VirtualKey();
 
             if (vk == 0) return false;

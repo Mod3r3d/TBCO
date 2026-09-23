@@ -70,8 +70,27 @@ namespace TranslateBot.Tests
             Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.Snapshot && b.Key == Key.F8));
             Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.LockOverlay && b.Key == Key.F9));
             Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.ToggleCapture && b.Key == Key.F6));
-            Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.FinalizeDialogue && b.Key == Key.D));
+            Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.DetachSubtitle && b.Key == Key.F11));
+            Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.OpenHotkeyHelp && b.Key == Key.F1));
+            Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.Retranslate && b.Key == Key.T && b.Modifiers == ModifierKeys.Control));
+            Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.FinalizeDialogue && b.Key == Key.D && (b.Modifiers & ModifierKeys.Control) != 0));
             Assert.IsTrue(bindings.Any(b => b.Command == HotkeyCommand.OpenApiKeyManager && b.Key == Key.K));
+        }
+
+        [TestMethod]
+        public void HotkeyManager_NoSingleShiftAlphaKeys_ToAvoidTypingInterference()
+        {
+            var manager = new HotkeyManager();
+            foreach (var b in manager.Bindings)
+            {
+                // Nếu phím là chữ cái A-Z, không được chỉ dùng mỗi ModifierKeys.Shift (gây liệt gõ chữ in hoa trong Windows)
+                bool isAlpha = b.Key >= Key.A && b.Key <= Key.Z;
+                if (isAlpha)
+                {
+                    bool isShiftOnly = b.Modifiers == ModifierKeys.Shift;
+                    Assert.IsFalse(isShiftOnly, $"Phím tắt {b.DisplayText} cho {b.Command} không được chỉ dùng Shift+[A-Z] để tránh chặn gõ chữ in hoa.");
+                }
+            }
         }
 
         [TestMethod]

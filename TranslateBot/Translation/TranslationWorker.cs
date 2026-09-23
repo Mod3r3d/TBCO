@@ -32,6 +32,14 @@ namespace TranslateBot.Translation
         // Phase 20: Request Coalescing & Stale Prefetch Tracking
         private DialogueJob? _lastPrefetchJob;
 
+        // Mở rộng Coalescing cho CÂU THOẠI CHÍNH THỨC (không chỉ prefetch): nếu câu #12 (VD:
+        // câu dài, đang dịch chậm) còn chưa xong mà đã có câu #14 mới hơn được xác nhận, việc
+        // dịch xong #12 rồi hiển thị chỉ để bị #13/#14 đè lên gần như ngay lập tức là vô nghĩa
+        // - đây chính là nguyên nhân "phần sub nhảy khá nhanh" khi câu dài làm dồn ứ hàng đợi.
+        // Giữ 1 danh sách nhỏ các job confirmed CHƯA xử lý xong để có thể huỷ khi bị vượt mặt.
+        private readonly List<DialogueJob> _pendingConfirmedJobs = new();
+        private readonly object _pendingLock = new();
+
         // Callback để gửi kết quả về cho giao diện (WPF) hiển thị.
         // Gọi theo ĐÚNG THỨ TỰ SequenceId (qua ReorderBuffer).
         public Action<DialogueJob, string>? OnTranslationCompleted
@@ -114,6 +122,25 @@ namespace TranslateBot.Translation
                     AppLogger.Info($"[COALESCE] Hủy job prefetch #{_lastPrefetchJob.SequenceId} do đã có câu chính thức #{job.SequenceId}");
                     _lastPrefetchJob = null;
                 }
+
+                // Huỷ các câu confirmed CŨ HƠN vẫn còn đang chờ (chưa dịch xong) - tránh dịch
+                // xong rồi hiển thị chỉ để bị đè lên gần như ngay lập tức (hiện tượng "nhảy
+                // nhanh" khi 1 câu dài làm dồn ứ hàng đợi phía sau).
+                lock (_pendingLock)
+                {
+                    foreach (var pending in _pendingConfirmedJobs)
+                    {
+                        if (pending.SequenceId < job.SequenceId && !pending.IsTranslated && !pending.IsCancelled)
+                        {
+                            pending.IsCancelled = true;
+                            Metrics?.RecordJobDropped();
+                            AppLogger.Info($"[COALESCE_STALE] Hủy câu #{pending.SequenceId} (còn chưa dịch xong) do đã có câu mới hơn #{job.SequenceId}");
+                        }
+                    }
+                    // Chỉ giữ lại các job thật sự còn đang chờ, tránh danh sách phình vô hạn
+                    _pendingConfirmedJobs.RemoveAll(j => j.IsTranslated || j.IsCancelled);
+                    _pendingConfirmedJobs.Add(job);
+                }
             }
 
             // Stage 5: Check Translation Memory trước khi gửi API
@@ -191,9 +218,16 @@ namespace TranslateBot.Translation
                         }
 
                         // Prefetch: lưu cache nhưng KHÔNG hiển thị ra UI (chờ Confirmed thật sự)
-                        if (!job.IsPrefetch)
+                        // Cũng bỏ qua hiển thị nếu job đã bị coalesce/huỷ TRONG LÚC đang dịch dở
+                        // (đã có câu mới hơn xuất hiện) - dữ liệu dịch vẫn được lưu cache phía
+                        // trên (không lãng phí), chỉ là không đưa ra màn hình nữa vì đã lỗi thời.
+                        if (!job.IsPrefetch && !job.IsCancelled)
                         {
                             _reorderBuffer.Submit(job, finalResult);
+                        }
+                        else if (job.IsCancelled)
+                        {
+                            AppLogger.Info($"[COALESCE_STALE] Câu #{job.SequenceId} dịch xong nhưng đã bị huỷ từ trước (lỗi thời) - không hiển thị.");
                         }
                     }
                     catch (Exception ex)

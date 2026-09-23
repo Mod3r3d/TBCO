@@ -51,6 +51,8 @@ namespace TranslateBot.Hotkeys
         ExportSession,
         OpenDiagnostics,
         ToggleDebugHUD,
+        OpenHotkeyHelp,
+        DetachSubtitle,
 
         // Emergency
         EmergencyStop

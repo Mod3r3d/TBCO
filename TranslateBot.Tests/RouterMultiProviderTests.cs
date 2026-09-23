@@ -206,5 +206,88 @@ namespace TranslateBot.Tests
             Assert.AreEqual("[WebFallback: Test Text]", result);
             Assert.AreEqual("GoogleWebTranslate", router.CurrentProviderName);
         }
+
+        [TestMethod]
+        public async Task TranslationRouter_PrimaryProviderDeepL_PrioritizesDeepL()
+        {
+            var keyPool = new ApiKeyPool();
+            keyPool.AddOrUpdateCredential(new ApiCredential { Id = "k1", Provider = "Gemini", Secret = "sec1" });
+
+            bool geminiCalled = false;
+            var gemini = new TestableGeminiProvider
+            {
+                OnTranslate = t => { geminiCalled = true; return "Gemini Result"; }
+            };
+
+            var deepL = new TestableDeepLProvider("valid-deepl-key")
+            {
+                OnTranslate = t => "DeepL Primary Result"
+            };
+
+            var fallback = new MockFallbackProvider();
+            var router = new TranslationRouter(keyPool, gemini, fallback, deepLProvider: deepL)
+            {
+                PrimaryProvider = "DeepL"
+            };
+
+            var result = await router.TranslateAsync("Hello");
+
+            Assert.AreEqual("DeepL Primary Result", result);
+            Assert.AreEqual("DeepL", router.CurrentProviderName);
+            Assert.IsFalse(geminiCalled, "Khi PrimaryProvider là DeepL, không được gọi Gemini nếu DeepL hoạt động bình thường.");
+        }
+
+        [TestMethod]
+        public async Task TranslationRouter_PrimaryProviderDeepL_FallsBackToGeminiWhenDeepLFails()
+        {
+            var keyPool = new ApiKeyPool();
+            keyPool.AddOrUpdateCredential(new ApiCredential { Id = "k1", Provider = "Gemini", Secret = "sec1" });
+
+            var gemini = new TestableGeminiProvider
+            {
+                OnTranslate = t => "Gemini Fallback Result"
+            };
+
+            var deepL = new TestableDeepLProvider("valid-deepl-key")
+            {
+                OnTranslate = t => throw new HttpRequestException("DeepL Service Down")
+            };
+
+            var fallback = new MockFallbackProvider();
+            var router = new TranslationRouter(keyPool, gemini, fallback, deepLProvider: deepL)
+            {
+                PrimaryProvider = "DeepL"
+            };
+
+            var result = await router.TranslateAsync("Hello");
+
+            Assert.AreEqual("Gemini Fallback Result", result);
+            Assert.AreEqual("Gemini", router.CurrentProviderName);
+        }
+
+        [TestMethod]
+        public async Task TranslationRouter_PrimaryProviderGoogleWeb_UsesWebDirectly()
+        {
+            var keyPool = new ApiKeyPool();
+            keyPool.AddOrUpdateCredential(new ApiCredential { Id = "k1", Provider = "Gemini", Secret = "sec1" });
+
+            bool geminiCalled = false;
+            var gemini = new TestableGeminiProvider
+            {
+                OnTranslate = t => { geminiCalled = true; return "Gemini"; }
+            };
+
+            var fallback = new MockFallbackProvider();
+            var router = new TranslationRouter(keyPool, gemini, fallback)
+            {
+                PrimaryProvider = "GoogleWeb"
+            };
+
+            var result = await router.TranslateAsync("Direct Web Translate");
+
+            Assert.AreEqual("[WebFallback: Direct Web Translate]", result);
+            Assert.AreEqual("GoogleWebTranslate", router.CurrentProviderName);
+            Assert.IsFalse(geminiCalled, "Khi PrimaryProvider là GoogleWeb, dịch trực tiếp mà không cần Gemini");
+        }
     }
 }

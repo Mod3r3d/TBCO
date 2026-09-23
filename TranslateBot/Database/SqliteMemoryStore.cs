@@ -31,12 +31,11 @@ namespace TranslateBot.Database
         {
             lock (_lock)
             {
-                using var cmd = _connection.CreateCommand();
-                cmd.CommandText = @"
-                    PRAGMA journal_mode = WAL;
-                    PRAGMA synchronous = NORMAL;
-
-                    CREATE TABLE IF NOT EXISTS Translations (
+                var statements = new[]
+                {
+                    "PRAGMA journal_mode = WAL;",
+                    "PRAGMA synchronous = NORMAL;",
+                    @"CREATE TABLE IF NOT EXISTS Translations (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
                         NormalizedText TEXT UNIQUE NOT NULL,
                         OriginalText TEXT,
@@ -48,21 +47,22 @@ namespace TranslateBot.Database
                         LastUsedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                         UseCount INTEGER DEFAULT 1,
                         Confidence REAL DEFAULT 1.0
-                    );
-
-                    CREATE INDEX IF NOT EXISTS idx_translations_normalized 
-                    ON Translations (NormalizedText);
-
-                    CREATE TABLE IF NOT EXISTS TranslationVariants (
+                    );",
+                    "CREATE INDEX IF NOT EXISTS idx_translations_normalized ON Translations (NormalizedText);",
+                    @"CREATE TABLE IF NOT EXISTS TranslationVariants (
                         VariantText TEXT PRIMARY KEY,
                         CanonicalNormalizedText TEXT NOT NULL,
                         CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-                    );
+                    );",
+                    "CREATE INDEX IF NOT EXISTS idx_variants_canonical ON TranslationVariants (CanonicalNormalizedText);"
+                };
 
-                    CREATE INDEX IF NOT EXISTS idx_variants_canonical 
-                    ON TranslationVariants (CanonicalNormalizedText);
-                ";
-                cmd.ExecuteNonQuery();
+                foreach (var sql in statements)
+                {
+                    using var cmd = _connection.CreateCommand();
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 

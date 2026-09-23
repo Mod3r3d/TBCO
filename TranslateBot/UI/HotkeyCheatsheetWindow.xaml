@@ -1,0 +1,215 @@
+<Window x:Class="TranslateBot.UI.HotkeyCheatsheetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TBCO - Bảng tra cứu phím tắt" Height="540" Width="660"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Icon="pack://application:,,,/TBCO-Icon.ico"
+        Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <!-- Key Badge Style -->
+        <Style TargetType="Border" x:Key="CheatsheetKeyBadge">
+            <Setter Property="Background" Value="#0F2442"/>
+            <Setter Property="BorderBrush" Value="#2563EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="7,3"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Category Header Style -->
+        <Style TargetType="TextBlock" x:Key="CheatsheetCategoryHeader">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="Margin" Value="0,10,0,6"/>
+        </Style>
+
+        <!-- Dark Button Style -->
+        <Style TargetType="Button" x:Key="CloseBtnStyle">
+            <Setter Property="Background" Value="#1D4ED8"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="⌨" FontSize="20" Foreground="#38BDF8" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="BẢNG TRA CỨU PHÍM TẮT TOÀN CỤC" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Phím tắt hoạt động toàn hệ thống ngay cả khi bạn đang chơi game toàn màn hình hoặc cửa sổ." 
+                           FontSize="11.5" Foreground="#94A3B8" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Border Grid.Column="1" Background="#1E293B" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+                <TextBlock Text="Mẹo: Nhấn F1 để mở nhanh" FontSize="11" Foreground="#60A5FA"/>
+            </Border>
+        </Grid>
+
+        <!-- Scrollable Content with Cards -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,6,0">
+
+                <!-- ── 1. BẮT HÌNH & NHẬN DIỆN ── -->
+                <TextBlock Text="📸 BẮT HÌNH &amp; NHẬN DIỆN MÀN HÌNH" Style="{StaticResource CheatsheetCategoryHeader}"/>
+                <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- F6 -->
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F6" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Bật / Tạm dừng dịch tự động (Hook loop liên tục)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- F7 -->
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F7" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Chụp &amp; dịch 1 khung hình duy nhất (One-shot capture)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- F8 -->
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F8" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Chụp nhanh &amp; dịch tức thì (Snapshot — không cần bật bot)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- Ctrl+F8 -->
+                        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="Ctrl + F8" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="Quét và khoanh chọn vùng màn hình nhận diện mới" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+                    </Grid>
+                </Border>
+
+                <!-- ── 2. PHỤ ĐỀ & CỬA SỔ HIỂN THỊ ── -->
+                <TextBlock Text="💬 PHỤ ĐỀ &amp; CỬA SỔ HIỂN THỊ" Style="{StaticResource CheatsheetCategoryHeader}"/>
+                <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- F9 -->
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F9" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Khóa / Mở khóa xuyên chuột phụ đề &amp; Cửa sổ nổi (Click-through)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- F10 -->
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F10" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Ẩn / Hiện thanh phụ đề nổi trong game (Overlay HUD)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- F11 -->
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F11" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Tách / Gắn lại Cửa sổ phụ đề nổi độc lập (Detached Subtitle)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+                    </Grid>
+                </Border>
+
+                <!-- ── 3. DỊCH THUẬT, ÂM THANH & TIỆN ÍCH ── -->
+                <TextBlock Text="🌐 DỊCH THUẬT, ÂM THANH &amp; TIỆN ÍCH" Style="{StaticResource CheatsheetCategoryHeader}"/>
+                <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Ctrl+T -->
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="Ctrl + T" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Dịch lại câu thoại gần nhất (Retranslate)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- Ctrl+Y -->
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="Ctrl + Y" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Đọc câu dịch bằng giọng nói AI (TTS Voice)" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- Ctrl+J -->
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="Ctrl + J" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Mở cửa sổ Lịch sử đối thoại &amp; Tìm kiếm" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- Ctrl+K -->
+                        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="Ctrl + K" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="Mở bảng Quản lý API Key Pool &amp; Cài đặt nhà cung cấp" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+
+                        <!-- F1 -->
+                        <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource CheatsheetKeyBadge}" Margin="0,4">
+                            <TextBlock Text="F1" FontWeight="Bold" Foreground="#60A5FA" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Mở bảng tra cứu phím tắt này" VerticalAlignment="Center" Margin="10,4,0,4" Foreground="#E2E8F0" FontSize="12.5"/>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock Text="💡 Bạn cũng có thể bấm các nút trực tiếp trên màn hình chính." 
+                       Foreground="#64748B" FontSize="11.5" VerticalAlignment="Center"/>
+            <Button Content="Đã hiểu &amp; Đóng (Esc)" HorizontalAlignment="Right" 
+                    Style="{StaticResource CloseBtnStyle}" Click="CloseBtn_Click"/>
+        </DockPanel>
+    </Grid>
+</Window>

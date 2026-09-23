@@ -24,13 +24,25 @@ Windows WinRT OCR và trí tuệ nhân tạo Google Gemini 3.x (kế thừa MORT
      trong Windows Security -> App & browser control -> Smart App Control settings.
 
 ------------------------------------------------------------------------
-2. CẤU HÌNH GOOGLE GEMINI 3.X API KEY (MIỄN PHÍ)
+2. CẤU HÌNH BỘ DỊCH THUẬT (GEMINI / DEEPL / GOOGLE WEB)
 ------------------------------------------------------------------------
-TBCO dùng AI Gemini 3.x (gemini-3.5-flash) để dịch câu thoại tự nhiên và chính xác:
-- Bước 1: Mở ứng dụng TBCO.
-- Bước 2: Bấm nút [Cài đặt API] trên góc phải giao diện chính.
-- Bước 3: Dán API Key Gemini của bạn vào và bấm Lưu.
-  (Nếu bạn chưa có API Key, truy cập https://aistudio.google.com/ để tạo key miễn phí).
+TBCO hỗ trợ linh hoạt 3 nhà cung cấp dịch thuật hàng đầu:
+
+A. GOOGLE GEMINI 3.X AI (MẶC ĐỊNH - KHUYÊN DÙNG):
+   - Vào Tab [Cài đặt & API] -> Chọn Nhà cung cấp: "Google Gemini AI".
+   - Dán API Key Gemini của bạn và bấm [Lưu Key].
+   - Hỗ trợ các model AI tiên tiến nhất: gemini-3.5-flash, gemini-3.6-flash, gemini-3.1-pro...
+   - Lấy API Key miễn phí tại: https://aistudio.google.com/
+
+B. DEEPL TRANSLATE (DỊCH CHUẨN XÁC, VĂN PHONG TỰ NHIÊN):
+   - Vào Tab [Cài đặt & API] -> Chọn Nhà cung cấp: "DeepL Translate".
+   - Dán DeepL Authentication Key của bạn và bấm [Lưu Key].
+   - Tự động nhận diện cả gói DeepL Free (đuôi :fx) và gói DeepL Pro.
+   - Lấy Auth Key tại: https://www.deepl.com/your-account/keys
+
+C. GOOGLE WEB TRANSLATE (MIỄN PHÍ 100% - KHÔNG CẦN KEY):
+   - Chọn "Google Web Translate" trong danh sách Nhà cung cấp.
+   - Bạn có thể bắt đầu dịch ngay lập tức mà không cần tạo hay điền bất kỳ API key nào!
 
 ------------------------------------------------------------------------
 3. CÁCH SỬ DỤNG KHI CHƠI GAME
@@ -38,19 +50,31 @@ TBCO dùng AI Gemini 3.x (gemini-3.5-flash) để dịch câu thoại tự nhiê
 1. Mở game hoặc trình giả lập (VD: LDPlayer, MuMu, Nox, BlueStacks hoặc game PC).
 2. Bấm nút [Đổi cửa sổ] để chọn đúng cửa sổ game của bạn.
 3. Bấm [Quét vùng mới] để kéo chuột khoanh vùng hiển thị phụ đề/hội thoại của game.
-4. Bấm [BẮT ĐẦU DỊCH].
-5. Bấm [Tách cửa sổ] để bung ra một Cửa sổ phụ đề nổi độc lập trên màn hình game!
+4. Bấm [BẮT ĐẦU DỊCH] (hoặc bấm F6).
+5. Bấm [Tách cửa sổ] (hoặc bấm F11) để bung ra một Cửa sổ phụ đề nổi độc lập trên màn hình game!
 
 ------------------------------------------------------------------------
-4. CÁC TÍNH NĂNG VÀ PHÍM TẮT CAO CẤP
+4. BẢNG PHÍM TẮT & CÁC TÍNH NĂNG TIỆN ÍCH CAO CẤP
 ------------------------------------------------------------------------
-- [Tách cửa sổ]: Vùng dịch thuật tách ra thành cửa sổ nổi độc lập, không viền, 
-  luôn nổi trên cùng (Topmost). Bạn có thể thu nhỏ bảng điều khiển chính xuống Taskbar.
-- Phím tắt F8: Chụp nhanh và dịch tức thì vùng quét mà không cần bật bot tự động.
-- Phím tắt F9: Khóa xuyên chuột (Click-Through) giúp bạn click xuyên qua cửa sổ dịch
-  thẳng vào trong game mà không lo bấm trúng cửa sổ phụ đề.
-- [A-] / [A+]: Tăng/giảm cỡ chữ trực tiếp tức thì trên cửa sổ phụ đề nổi.
-- [Thanh nổi]: Bật thanh điều khiển mini gọn nhẹ khi chơi game toàn màn hình.
+Bấm [F1] hoặc click vào nút [⌨ Phím tắt] trên cửa sổ phụ đề để mở Bảng tra cứu phím:
+
+* NHÓM QUÉT & BẮT HÌNH:
+  - F6:      Bật / Tắt chế độ dịch tự động liên tục (Hook loop).
+  - F7:      Chụp và dịch ngay 1 khung hình đơn lẻ.
+  - F8:      Chụp nhanh lưu ảnh & dịch tức thì (Snapshot).
+  - Ctrl+F8: Kéo chuột chọn vùng quét OCR mới trên màn hình.
+
+* NHÓM PHỤ ĐỀ & HIỂN THỊ:
+  - F9:      Khóa / Mở khóa xuyên chuột phụ đề (Click-Through) để thao tác game.
+  - F10:     Ẩn / Hiện thanh phụ đề nổi (Overlay HUD).
+  - F11:     Tách rời / Gắn lại cửa sổ phụ đề độc lập.
+  - A- / A+: Tăng / giảm cỡ chữ tức thì trên cửa sổ phụ đề nổi.
+
+* NHÓM DỊCH THUẬT & HỆ THỐNG:
+  - Ctrl+T:  Dịch lại câu thoại gần nhất.
+  - Ctrl+L:  Bật / Tắt chế độ Local AI (Ollama) ngoại tuyến.
+  - Ctrl+K:  Mở hộp thoại quản lý API Key Pool.
+  - F1:      Mở Bảng tra cứu phím tắt (Hotkey Cheatsheet).
 
 ------------------------------------------------------------------------
 5. TÙY BIẾN THUẬT NGỮ & NHÂN VẬT

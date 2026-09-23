@@ -5,6 +5,7 @@
         MinHeight="660" MinWidth="580" WindowStartupLocation="CenterScreen"
         Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
         Icon="pack://application:,,,/TBCO-Icon.ico"
+        PreviewKeyDown="Window_PreviewKeyDown"
         x:Name="AppWindow">
 
     <Window.Resources>
@@ -401,6 +402,7 @@
                         <Border x:Name="DetachedBadge" Background="#0F2442" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="Collapsed" VerticalAlignment="Center">
                             <TextBlock Text="ĐANG TÁCH RỜI" FontSize="10" FontWeight="Bold" Foreground="#60A5FA"/>
                         </Border>
+                        <Button x:Name="HotkeyCheatsheetBtn" Content="⌨ Phím tắt" ToolTip="Xem bảng tra cứu phím tắt toàn cục [F1]" Style="{StaticResource MicroActionButton}" Click="HotkeyCheatsheetBtn_Click"/>
                         <Button x:Name="DetachSubtitleBtn" Content="Tách cửa sổ" ToolTip="Tách vùng hiển thị thành cửa sổ nổi độc lập" Style="{StaticResource MicroActionButton}" Click="DetachSubtitleBtn_Click"/>
                         <Button x:Name="SpeakCurrentBtn" Content="Đọc" Style="{StaticResource MicroActionButton}" Click="SpeakCurrentBtn_Click"/>
                         <Button x:Name="CopyTextBtn" Content="Sao chép" Style="{StaticResource MicroActionButton}" Click="CopyTextBtn_Click"/>
@@ -479,8 +481,10 @@
                             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
                                 <Button x:Name="LockOverlayBtn" Content="Khóa [F9]" Style="{StaticResource DarkButton}" 
                                         Margin="0,0,8,0" Click="LockOverlayBtn_Click"/>
-                                <Button x:Name="OcrAreaBtn" Content="Quản lý vùng OCR" Style="{StaticResource DarkButton}" 
-                                        Click="OcrAreaBtn_Click"/>
+                                <Button x:Name="OcrAreaBtn" Content="Vùng OCR" Style="{StaticResource DarkButton}" 
+                                        Margin="0,0,8,0" Click="OcrAreaBtn_Click"/>
+                                <Button x:Name="Tab1HotkeyBtn" Content="Bảng phím tắt [F1]" Style="{StaticResource DarkButton}" 
+                                        Click="HotkeyCheatsheetBtn_Click"/>
                             </StackPanel>
                         </Grid>
 
@@ -509,8 +513,24 @@
             <TabItem Header="BỘ MÁY AI &amp; NGÔN NGỮ" Style="{StaticResource SegmentedTabItem}">
                 <Border Style="{StaticResource SectionCard}" x:Name="Card2" Margin="0,8,0,0">
                     <StackPanel>
-                        <!-- Row 1: Model AI -->
+                        <!-- Row 0: Bộ dịch thuật (Translation Provider) -->
                         <Grid Margin="0,6,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Nhà cung cấp:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="TranslationProviderCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="TranslationProviderCombo_SelectionChanged">
+                                <ComboBoxItem Content="Google Gemini AI (Chất lượng cao, thông minh)" Tag="Gemini" IsSelected="True"/>
+                                <ComboBoxItem Content="DeepL Translate (Dịch chuẩn ngữ pháp)" Tag="DeepL"/>
+                                <ComboBoxItem Content="Google Web Translate (Miễn phí 100%, không cần Key)" Tag="GoogleWeb"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Row 1: Model AI (Chỉ hiện khi chọn Gemini) -->
+                        <Grid x:Name="GeminiModelRow" Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="*"/>
@@ -528,6 +548,30 @@
                                 <ComboBoxItem Content="Google Gemini 1.5 Flash (Bản cũ kế thừa)" Tag="gemini-1.5-flash"/>
                             </ComboBox>
                         </Grid>
+
+                        <!-- Row 1B: DeepL Settings (Chỉ hiện khi chọn DeepL) -->
+                        <Grid x:Name="DeepLSettingsRow" Margin="0,0,0,10" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="DeepL Auth Key:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <TextBox Grid.Column="1" x:Name="DeepLKeyTextBox" Height="34" FontSize="12.5"
+                                     Padding="8,6" Background="{DynamicResource BrushInputBg}" Foreground="{DynamicResource BrushInputFg}"
+                                     BorderBrush="{DynamicResource BrushInputBorder}" BorderThickness="1"
+                                     VerticalContentAlignment="Center" Margin="0,0,8,0"
+                                     ToolTip="Dán DeepL Authentication Key (hỗ trợ cả Free ':fx' và Pro)"/>
+                            <Button Grid.Column="2" x:Name="SaveDeepLKeyBtn" Content="Lưu Key" 
+                                    Style="{StaticResource PrimaryActionButton}" Click="SaveDeepLKeyBtn_Click"/>
+                        </Grid>
+
+                        <!-- Row 1C: Google Web Translate Note (Chỉ hiện khi chọn GoogleWeb) -->
+                        <Border x:Name="GoogleWebNoteBorder" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,10" Visibility="Collapsed">
+                            <TextBlock Text="✓ Đang dùng Google Web Translate: Dịch hoàn toàn miễn phí, không giới hạn số lượng và không cần API Key." 
+                                       Foreground="#A7F3D0" FontSize="12" TextWrapping="Wrap"/>
+                        </Border>
 
                         <!-- Row 2: Ngôn ngữ -->
                         <Grid Margin="0,0,0,10">
@@ -569,8 +613,8 @@
                             </ComboBox>
                         </Grid>
 
-                        <!-- Row 3: API Key -->
-                        <Grid Margin="0,0,0,6">
+                        <!-- Row 3: API Key Gemini -->
+                        <Grid x:Name="GeminiApiKeyRow" Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="*"/>
@@ -678,8 +722,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0" x:Name="HotkeyHintText" 
-                       Text="Phím tắt: [F8] Chụp khoanh vùng  |  [F9] Khóa xuyên chuột phụ đề" 
-                       Foreground="{DynamicResource BrushTextMuted}" FontSize="11.5" VerticalAlignment="Center"/>
+                       Text="Phím tắt: [F6] Dịch tự động  |  [F8] Chụp nhanh  |  [F9] Khóa  |  [F11] Tách cửa sổ  |  [F1] Bảng phím tắt" 
+                       Foreground="{DynamicResource BrushTextMuted}" FontSize="11.5" VerticalAlignment="Center"
+                       Cursor="Hand" ToolTip="Nhấn F1 hoặc bấm vào đây để mở bảng tra cứu phím tắt chi tiết"
+                       MouseDown="HotkeyHintText_MouseDown"/>
 
             <TextBlock Grid.Column="1" x:Name="PerformanceMetricsText" Text="" 
                        Foreground="#10B981" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center"/>

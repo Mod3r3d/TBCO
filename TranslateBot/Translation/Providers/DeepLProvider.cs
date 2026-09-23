@@ -56,10 +56,10 @@ namespace TranslateBot.Translation.Providers
                 var formValues = new List<KeyValuePair<string, string>>
                 {
                     new("text", text),
-                    new("target_lang", NormalizeLanguage(TargetLanguage))
+                    new("target_lang", NormalizeTargetLanguage(TargetLanguage))
                 };
 
-                string sourceLang = NormalizeLanguage(SourceLanguage);
+                string sourceLang = NormalizeSourceLanguage(SourceLanguage);
                 if (!string.IsNullOrEmpty(sourceLang) && !sourceLang.Equals("auto", StringComparison.OrdinalIgnoreCase))
                 {
                     formValues.Add(new("source_lang", sourceLang));
@@ -119,9 +119,19 @@ namespace TranslateBot.Translation.Providers
             return string.Empty;
         }
 
-        private static string NormalizeLanguage(string? lang)
+        private static string NormalizeTargetLanguage(string? lang)
         {
             if (string.IsNullOrWhiteSpace(lang)) return "VI";
+            string l = lang.Trim().ToUpperInvariant();
+            if (l == "JA-JP" || l == "JA") return "JA";
+            if (l == "EN-US" || l == "EN-GB" || l == "EN") return "EN-US";
+            if (l == "VI-VN" || l == "VI") return "VI";
+            return l;
+        }
+
+        private static string NormalizeSourceLanguage(string? lang)
+        {
+            if (string.IsNullOrWhiteSpace(lang)) return "auto";
             string l = lang.Trim().ToUpperInvariant();
             if (l == "JA-JP" || l == "JA") return "JA";
             if (l == "EN-US" || l == "EN-GB" || l == "EN") return "EN";

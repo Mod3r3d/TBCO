@@ -39,6 +39,10 @@ crash.log
 scratch_inspect.txt
 *.tmp
 *.bak
+*.db
+*.sqlite
+*.db-wal
+*.db-shm
 BenchmarkDotNet.Artifacts/
 
 # 6. Windows OS files

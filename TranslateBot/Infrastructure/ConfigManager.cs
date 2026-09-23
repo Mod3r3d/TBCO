@@ -82,6 +82,12 @@ namespace TranslateBot.Infrastructure
         public string TargetLanguage { get; set; } = "vi";
         public string AiModel { get; set; } = "gemini-3.5-flash";
 
+        // ── Translation Provider Selection ─────────────────────────────────
+        // "Gemini" (Google Gemini AI), "DeepL" (DeepL API), "GoogleWeb" (Google Web Translate miễn phí)
+        public string TranslationProvider { get; set; } = "Gemini";
+        public string? DeepLApiKey { get; set; }
+        public string? EncryptedDeepLApiKey { get; set; }
+
         // ── OCR Engine Selection ────────────────────────────────────────────
         // "WindowsOcr" (mặc định, ổn định) hoặc "OneOcr" (thử nghiệm, chính xác hơn)
         public string OcrEngineType { get; set; } = "WindowsOcr";
@@ -169,10 +175,35 @@ namespace TranslateBot.Infrastructure
                 }
             }
 
+            // Nếu có DeepLApiKey dạng plaintext mà chưa mã hóa DPAPI
+            if (!string.IsNullOrEmpty(config.DeepLApiKey) && string.IsNullOrEmpty(config.EncryptedDeepLApiKey))
+            {
+                config.EncryptedDeepLApiKey = SecretVault.EncryptSecret(config.DeepLApiKey);
+                config.DeepLApiKey = null;
+                modified = true;
+                AppLogger.Info("[CONFIG_MIGRATION] Đã tự động mã hóa DeepL API Key sang Windows DPAPI.");
+            }
+
             if (modified)
             {
                 Save(config);
             }
+        }
+
+        public static string GetEffectiveDeepLApiKey(AppConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.EncryptedDeepLApiKey))
+            {
+                return SecretVault.DecryptSecret(config.EncryptedDeepLApiKey);
+            }
+            return config.DeepLApiKey ?? string.Empty;
+        }
+
+        public static void SetEffectiveDeepLApiKey(AppConfig config, string rawKey)
+        {
+            config.EncryptedDeepLApiKey = string.IsNullOrWhiteSpace(rawKey) ? null : SecretVault.EncryptSecret(rawKey.Trim());
+            config.DeepLApiKey = null;
+            Save(config);
         }
 
         public static string GetEffectiveApiKey(AppConfig config)
