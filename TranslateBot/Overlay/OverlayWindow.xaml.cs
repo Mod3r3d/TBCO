@@ -211,11 +211,11 @@ namespace TranslateBot.Overlay
 
             double targetX = hasTargetWindow ? targetRect.Left : 0;
             double targetY = hasTargetWindow ? targetRect.Top : 0;
-            double targetW = hasTargetWindow ? targetRect.Width : SystemParameters.PrimaryScreenWidth;
-            double targetH = hasTargetWindow ? targetRect.Height : SystemParameters.PrimaryScreenHeight;
+            double targetW = hasTargetWindow ? targetRect.Width : SystemParameters.WorkArea.Width;
+            double targetH = hasTargetWindow ? targetRect.Height : SystemParameters.WorkArea.Height;
 
-            // Đặt chiều rộng tương đối với game window
-            Width = Math.Clamp(targetW * 0.85, 450, 1100);
+            // Đặt chiều rộng tương đối với game window, linh hoạt từ màn hình 14 inch tới 16+ inch
+            Width = Math.Clamp(targetW * 0.85, 340, 1100);
             Left = targetX + (targetW - Width) / 2;
 
             if (position == OverlayPosition.Bottom)

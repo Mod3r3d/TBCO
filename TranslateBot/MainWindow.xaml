@@ -1,8 +1,8 @@
 <Window x:Class="TranslateBot.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TBCO (Translate Bot Conversation by OCR)" Height="710" Width="660" 
-        MinHeight="600" MinWidth="600" WindowStartupLocation="CenterScreen"
+        Title="TBCO (Translate Bot Conversation by OCR)" Height="680" Width="640" 
+        MinHeight="460" MinWidth="520" WindowStartupLocation="CenterScreen"
         Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
         Icon="pack://application:,,,/TBCO-Icon.ico"
         PreviewKeyDown="Window_PreviewKeyDown"
@@ -315,14 +315,14 @@
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- BỐ CỤC CHÍNH (STUDIO COMMAND DECK)                              -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <Grid Margin="18,12,18,10">
+    <Grid Margin="16,10,16,8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Row 0: Top Studio App Bar -->
-            <RowDefinition Height="10"/>
-            <RowDefinition Height="*" MinHeight="230"/> <!-- Row 2: Hero Live Subtitle Monitor (Khu vực dịch thuật mở rộng tối đa) -->
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="Auto"/> <!-- Row 4: Segmented Command Deck (Tabs vừa vặn theo nội dung, không để trống thừa) -->
             <RowDefinition Height="8"/>
+            <RowDefinition Height="*" MinHeight="140"/> <!-- Row 2: Hero Live Subtitle Monitor (Co giãn linh hoạt từ 140px đến cực đại) -->
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/> <!-- Row 4: Segmented Command Deck (Tabs vừa vặn theo nội dung, không để trống thừa) -->
+            <RowDefinition Height="6"/>
             <RowDefinition Height="Auto"/> <!-- Row 6: Bottom Telemetry Footer -->
         </Grid.RowDefinitions>
 
@@ -491,12 +491,12 @@
                             <Border Grid.Column="1" Style="{StaticResource KeyBadge}">
                                 <TextBlock Text="F8" Foreground="{DynamicResource BrushKeyBadgeFg}" FontWeight="Bold" FontSize="12"/>
                             </Border>
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
+                            <WrapPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
                                 <Button x:Name="SelectRegionBtn" Content="Quét vùng mới" Style="{StaticResource DarkButton}" 
                                         Margin="0,0,8,0" Click="SelectRegionBtn_Click"/>
                                 <Button x:Name="SnapshotBtn" Content="Chụp [F8]" Style="{StaticResource PrimaryActionButton}" 
                                         Click="SnapshotBtn_Click"/>
-                            </StackPanel>
+                            </WrapPanel>
                         </Grid>
 
                         <!-- Phím tắt khóa xuyên chuột F9 & Vùng OCR -->
@@ -511,14 +511,14 @@
                             <Border Grid.Column="1" Style="{StaticResource KeyBadge}">
                                 <TextBlock Text="F9" Foreground="{DynamicResource BrushKeyBadgeFg}" FontWeight="Bold" FontSize="12"/>
                             </Border>
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
+                            <WrapPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
                                 <Button x:Name="LockOverlayBtn" Content="Khóa [F9]" Style="{StaticResource DarkButton}" 
                                         Margin="0,0,8,0" Click="LockOverlayBtn_Click"/>
                                 <Button x:Name="OcrAreaBtn" Content="Vùng OCR" Style="{StaticResource DarkButton}" 
                                         Margin="0,0,8,0" Click="OcrAreaBtn_Click"/>
                                 <Button x:Name="Tab1HotkeyBtn" Content="Bảng phím tắt [F1]" Style="{StaticResource DarkButton}" 
                                         Click="HotkeyCheatsheetBtn_Click"/>
-                            </StackPanel>
+                            </WrapPanel>
                         </Grid>
 
                         <!-- Chu kỳ quét tự động -->
@@ -697,10 +697,10 @@
                         <!-- Row: Theme & Mode -->
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="Auto" MinWidth="75"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="Auto" MinWidth="75"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 

@@ -144,8 +144,8 @@ namespace TranslateBot.Tests
             string content = File.ReadAllText(xamlPath);
 
             // Row 2 (Translation Card) must take expanding star height
-            Assert.IsTrue(content.Contains("<RowDefinition Height=\"*\" MinHeight=\"230\"/>"), 
-                "Row 2 (Translation Card) must have Height='*' and MinHeight='230'");
+            Assert.IsTrue(content.Contains("<RowDefinition Height=\"*\" MinHeight=\"140\"/>"), 
+                "Row 2 (Translation Card) must have Height='*' and MinHeight='140'");
 
             // Row 4 (TabControl) must have Height='Auto' to eliminate bottom void
             Assert.IsTrue(content.Contains("<RowDefinition Height=\"Auto\"/> <!-- Row 4:"), 
@@ -155,6 +155,10 @@ namespace TranslateBot.Tests
             Assert.IsTrue(content.Contains("x:Name=\"TranslationScrollViewer\""), 
                 "TranslationCard must contain TranslationScrollViewer");
 
+            // Window properties must be flexible for compact 14-inch screens
+            Assert.IsTrue(content.Contains("MinHeight=\"460\" MinWidth=\"520\""),
+                "Window must support compact min bounds (460x520) for 14-inch screens");
+
             // Buttons must exist
             Assert.IsTrue(content.Contains("x:Name=\"SpeakCurrentBtn\""));
             Assert.IsTrue(content.Contains("x:Name=\"CopyTextBtn\""));
@@ -162,6 +166,21 @@ namespace TranslateBot.Tests
             Assert.IsTrue(content.Contains("x:Name=\"SelectWindowBtn\""));
             Assert.IsTrue(content.Contains("x:Name=\"DetachSubtitleBtn\""));
             Assert.IsTrue(content.Contains("x:Name=\"ToolbarToggleBtn\""));
+        }
+
+        [TestMethod]
+        public void AppManifest_DpiAwareness_ConfiguredForDiverseScreens()
+        {
+            string root = GetProjectRoot();
+            string manifestPath = Path.Combine(root, "TranslateBot", "app.manifest");
+
+            Assert.IsTrue(File.Exists(manifestPath), $"app.manifest must exist at {manifestPath}");
+            string manifest = File.ReadAllText(manifestPath);
+
+            Assert.IsTrue(manifest.Contains("PerMonitorV2", StringComparison.OrdinalIgnoreCase), 
+                "app.manifest must declare PerMonitorV2 for 14-inch/16-inch DPI scaling");
+            Assert.IsTrue(manifest.Contains("true/pm", StringComparison.OrdinalIgnoreCase), 
+                "app.manifest must declare true/pm for Per-Monitor fallback");
         }
     }
 }

@@ -57,6 +57,7 @@ namespace TranslateBot
             _appConfig = ConfigManager.Load();
 
             InitializeComponent();
+            Loaded += MainWindow_Loaded;
             RestoreSettingsUiFromConfig();
             _isSyncingUiControls = false;
 
@@ -65,6 +66,43 @@ namespace TranslateBot
             RestoreOcrAreasFromConfig();
             RestoreOverlayFromConfig();
             InitializeBot();
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            AdjustWindowForScreenSize();
+        }
+
+        /// <summary>
+        /// Tự động thích ứng kích thước và vị trí theo từng loại màn hình (14 inch, 16 inch, màn hình phụ, tỉ lệ scale cao).
+        /// Đảm bảo không bao giờ bị tràn ngoài màn hình hay bị thanh Taskbar che khuất.
+        /// </summary>
+        private void AdjustWindowForScreenSize()
+        {
+            try
+            {
+                var workArea = SystemParameters.WorkArea;
+                if (workArea.Width <= 0 || workArea.Height <= 0) return;
+
+                // 1. Tự động co giãn theo chiều cao nếu màn hình laptop 14 inch hoặc DPI scale cao (125%, 150%)
+                double maxAllowedH = workArea.Height - 20;
+                if (Height > maxAllowedH)
+                {
+                    Height = Math.Max(MinHeight, maxAllowedH);
+                }
+
+                // 2. Tự động co giãn theo chiều rộng nếu màn hình có độ phân giải hẹp
+                double maxAllowedW = workArea.Width - 20;
+                if (Width > maxAllowedW)
+                {
+                    Width = Math.Max(MinWidth, maxAllowedW);
+                }
+
+                // 3. Căn giữa chuẩn xác trong vùng khả dụng (tránh bị che bởi taskbar bên dưới/bên hông)
+                Left = workArea.Left + Math.Max(0, (workArea.Width - Width) / 2.0);
+                Top = workArea.Top + Math.Max(0, (workArea.Height - Height) / 2.0);
+            }
+            catch { }
         }
 
         private void InitializeBot()

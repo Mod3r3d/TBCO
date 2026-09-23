@@ -144,16 +144,24 @@ namespace TranslateBot.UI
 
         public void ApplyRestoredBounds(double x, double y, double width, double height)
         {
-            double screenW = SystemParameters.VirtualScreenWidth > 0 ? SystemParameters.VirtualScreenWidth : 1920;
-            double screenH = SystemParameters.VirtualScreenHeight > 0 ? SystemParameters.VirtualScreenHeight : 1080;
+            double virtLeft = SystemParameters.VirtualScreenLeft;
+            double virtTop = SystemParameters.VirtualScreenTop;
+            double virtWidth = SystemParameters.VirtualScreenWidth > 0 ? SystemParameters.VirtualScreenWidth : 1920;
+            double virtHeight = SystemParameters.VirtualScreenHeight > 0 ? SystemParameters.VirtualScreenHeight : 1080;
 
-            if (width >= 350 && width <= screenW) Width = width;
-            if (height >= 100 && height <= screenH) Height = height;
+            if (width >= 320 && width <= virtWidth) Width = width;
+            if (height >= 90 && height <= virtHeight) Height = height;
 
-            if (x < 0 || x > screenW - 100)
-                x = Math.Max(20, (SystemParameters.PrimaryScreenWidth - Width) / 2);
-            if (y < 0 || y > screenH - 50)
-                y = Math.Max(20, SystemParameters.PrimaryScreenHeight - Height - 100);
+            // Kiểm tra xem vị trí có nằm trong bất kỳ màn hình nào (kể cả màn hình phụ bên trái/trên với tọa độ âm)
+            bool isInsideVirtualScreen = (x >= virtLeft && x <= virtLeft + virtWidth - 80 &&
+                                          y >= virtTop && y <= virtTop + virtHeight - 40);
+
+            if (!isInsideVirtualScreen)
+            {
+                var workArea = SystemParameters.WorkArea;
+                x = Math.Max(workArea.Left + 20, workArea.Left + (workArea.Width - Width) / 2);
+                y = Math.Max(workArea.Top + 20, workArea.Top + workArea.Height - Height - 60);
+            }
 
             Left = x;
             Top = y;
