@@ -1,8 +1,8 @@
 <Window x:Class="TranslateBot.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TBCO (Translate Bot Conversation by OCR)" Height="730" Width="640" 
-        MinHeight="660" MinWidth="580" WindowStartupLocation="CenterScreen"
+        Title="TBCO (Translate Bot Conversation by OCR)" Height="710" Width="660" 
+        MinHeight="600" MinWidth="600" WindowStartupLocation="CenterScreen"
         Background="#0B0F19" Foreground="#F8FAFC" FontFamily="Segoe UI, Inter, Roboto, sans-serif"
         Icon="pack://application:,,,/TBCO-Icon.ico"
         PreviewKeyDown="Window_PreviewKeyDown"
@@ -312,15 +312,16 @@
     </Window.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- BỐ CỤC CHÍNH (STUDIO COMMAND DECK)                              -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <Grid Margin="18,14,18,12">
+    <Grid Margin="18,12,18,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Row 0: Top Studio App Bar -->
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*" MinHeight="230"/> <!-- Row 2: Hero Live Subtitle Monitor (Khu vực dịch thuật mở rộng tối đa) -->
             <RowDefinition Height="12"/>
-            <RowDefinition Height="Auto"/> <!-- Row 2: Hero Live Subtitle Monitor -->
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="*"/>    <!-- Row 4: Segmented Command Deck (Tabs) -->
+            <RowDefinition Height="Auto"/> <!-- Row 4: Segmented Command Deck (Tabs vừa vặn theo nội dung, không để trống thừa) -->
             <RowDefinition Height="8"/>
             <RowDefinition Height="Auto"/> <!-- Row 6: Bottom Telemetry Footer -->
         </Grid.RowDefinitions>
@@ -377,9 +378,15 @@
         <!-- ───────────────────────────────────────────────────────────── -->
         <Border Grid.Row="2" Style="{StaticResource SectionCard}" x:Name="TranslationCard" 
                 BorderThickness="1.5">
-            <StackPanel>
-                <!-- Mini Header: Target Window Info + Micro Actions -->
-                <Grid Margin="0,0,0,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Thanh điều khiển trên: Cửa sổ & Trạng thái -->
+                    <RowDefinition Height="*"/>    <!-- Khu vực hiển thị dịch thuật có cuộn nội dung -->
+                    <RowDefinition Height="Auto"/> <!-- Thanh tiện ích dưới: Đọc, Sao chép, Lịch sử -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Thanh điều khiển trên: Cửa sổ theo dõi & Tách rời -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -387,13 +394,14 @@
 
                     <!-- Cửa sổ theo dõi bên trái -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                        <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
                             <TextBlock Text="CỬA SỔ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
                         </Border>
                         <TextBlock x:Name="WindowInfoText" Text="Toàn màn hình (Chưa ghim)" 
-                                   VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" FontSize="12" 
-                                   TextTrimming="CharacterEllipsis" MaxWidth="220" Margin="0,0,8,0"/>
-                        <Button x:Name="SelectWindowBtn" Content="Đổi cửa sổ" 
+                                   VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" FontSize="12.5" 
+                                   TextTrimming="CharacterEllipsis" MaxWidth="220" Margin="0,0,8,0"
+                                   ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                        <Button x:Name="SelectWindowBtn" Content="Đổi cửa sổ" ToolTip="Chọn cửa sổ trò chơi hoặc ứng dụng cần dịch"
                                 Style="{StaticResource MicroActionButton}" Click="SelectWindowBtn_Click"/>
                     </StackPanel>
 
@@ -403,38 +411,63 @@
                             <TextBlock Text="ĐANG TÁCH RỜI" FontSize="10" FontWeight="Bold" Foreground="#60A5FA"/>
                         </Border>
                         <Button x:Name="HotkeyCheatsheetBtn" Content="⌨ Phím tắt" ToolTip="Xem bảng tra cứu phím tắt toàn cục [F1]" Style="{StaticResource MicroActionButton}" Click="HotkeyCheatsheetBtn_Click"/>
-                        <Button x:Name="DetachSubtitleBtn" Content="Tách cửa sổ" ToolTip="Tách vùng hiển thị thành cửa sổ nổi độc lập" Style="{StaticResource MicroActionButton}" Click="DetachSubtitleBtn_Click"/>
-                        <Button x:Name="SpeakCurrentBtn" Content="Đọc" Style="{StaticResource MicroActionButton}" Click="SpeakCurrentBtn_Click"/>
-                        <Button x:Name="CopyTextBtn" Content="Sao chép" Style="{StaticResource MicroActionButton}" Click="CopyTextBtn_Click"/>
-                        <Button x:Name="HistoryBtn" Content="Lịch sử" Style="{StaticResource MicroActionButton}" Click="HistoryBtn_Click"/>
-                        <Button x:Name="ToolbarToggleBtn" Content="Thanh nổi" Style="{StaticResource MicroActionButton}" Click="ToolbarToggleBtn_Click"/>
+                        <Button x:Name="DetachSubtitleBtn" Content="Tách cửa sổ" ToolTip="Tách vùng hiển thị thành cửa sổ nổi độc lập [F11]" Style="{StaticResource MicroActionButton}" Click="DetachSubtitleBtn_Click"/>
+                        <Button x:Name="ToolbarToggleBtn" Content="Thanh nổi" ToolTip="Bật / Tắt thanh điều khiển nổi mini" Style="{StaticResource MicroActionButton}" Click="ToolbarToggleBtn_Click"/>
                     </StackPanel>
                 </Grid>
 
-                <!-- Speaker Badge -->
-                <Border x:Name="MainSpeakerBadge" Background="#3E2723" CornerRadius="4" 
-                        Padding="8,2" HorizontalAlignment="Left" Margin="0,2,0,6" Visibility="Collapsed">
-                    <TextBlock x:Name="MainSpeakerLabel" Text="Người nói" Foreground="#FFCC80" 
-                                FontWeight="Bold" FontSize="12"/>
-                </Border>
+                <!-- 2. Khu vực hiển thị phụ đề trực tiếp (Rộng rãi, cuộn mượt mà) -->
+                <ScrollViewer Grid.Row="1" x:Name="TranslationScrollViewer" 
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Focusable="False">
+                    <StackPanel VerticalAlignment="Top">
+                        <!-- Speaker Badge -->
+                        <Border x:Name="MainSpeakerBadge" Background="#3E2723" CornerRadius="4" 
+                                Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,8" Visibility="Collapsed">
+                            <TextBlock x:Name="MainSpeakerLabel" Text="Người nói" Foreground="#FFCC80" 
+                                       FontWeight="Bold" FontSize="12.5"/>
+                        </Border>
 
-                <!-- Câu trước đó (Context) -->
-                <TextBlock x:Name="PreviousTranslatedLabel" Text="" FontSize="12" 
-                           Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,4" TextWrapping="Wrap" 
-                           Visibility="Collapsed" FontStyle="Italic"/>
+                        <!-- Câu trước đó (Context) -->
+                        <TextBlock x:Name="PreviousTranslatedLabel" Text="" FontSize="12.5" 
+                                   Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,6" TextWrapping="Wrap" 
+                                   Visibility="Collapsed" FontStyle="Italic"/>
 
-                <!-- Câu dịch chính: To, rõ nét, tương phản tối đa -->
-                <TextBlock x:Name="TranslatedTextLabel" Text="Vùng dịch thuật sẽ hiển thị ở đây khi bắt đầu nhận diện." 
-                           FontSize="15.5" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextPrimary}" 
-                           TextWrapping="Wrap" LineHeight="23" Margin="0,2,0,6"/>
+                        <!-- Câu dịch chính: To, rõ nét, tương phản tối đa -->
+                        <TextBlock x:Name="TranslatedTextLabel" Text="Vùng dịch thuật sẽ hiển thị ở đây khi bắt đầu nhận diện." 
+                                   FontSize="16.5" FontWeight="SemiBold" Foreground="{DynamicResource BrushTextPrimary}" 
+                                   TextWrapping="Wrap" LineHeight="25" Margin="0,2,0,8"/>
 
-                <!-- Câu tiếng Nhật gốc -->
-                <TextBlock x:Name="OriginalTextLabel" Text="Chưa có dữ liệu..." 
-                           FontSize="12" Foreground="{DynamicResource BrushTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,2"/>
+                        <!-- Câu tiếng Nhật gốc -->
+                        <TextBlock x:Name="OriginalTextLabel" Text="Chưa có dữ liệu..." 
+                                   FontSize="13" Foreground="{DynamicResource BrushTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,4"/>
 
-                <!-- Debug text -->
-                <TextBlock x:Name="MainDebugText" Text="" FontSize="11" Foreground="#38BDF8" Visibility="Collapsed"/>
-            </StackPanel>
+                        <!-- Debug text -->
+                        <TextBlock x:Name="MainDebugText" Text="" FontSize="11" Foreground="#38BDF8" Visibility="Collapsed"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 3. Thanh tiện ích dưới: Đọc thoại, Sao chép, Lịch sử -->
+                <Grid Grid.Row="2" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="SpeakCurrentBtn" Content="🔊 Đọc" ToolTip="Đọc to câu dịch hiện tại bằng giọng nói TTS" 
+                                Style="{StaticResource MicroActionButton}" Click="SpeakCurrentBtn_Click" Margin="0,0,6,0"/>
+                        <Button x:Name="CopyTextBtn" Content="📋 Sao chép" ToolTip="Sao chép câu dịch vào Clipboard" 
+                                Style="{StaticResource MicroActionButton}" Click="CopyTextBtn_Click" Margin="0,0,6,0"/>
+                        <Button x:Name="HistoryBtn" Content="📜 Lịch sử" ToolTip="Xem danh sách lịch sử các câu đã dịch" 
+                                Style="{StaticResource MicroActionButton}" Click="HistoryBtn_Click"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="2" Text="Tự động cuộn theo dõi văn bản mới" 
+                               Foreground="{DynamicResource BrushTextMuted}" FontSize="11" VerticalAlignment="Center" FontStyle="Italic"/>
+                </Grid>
+            </Grid>
         </Border>
 
         <!-- ───────────────────────────────────────────────────────────── -->
@@ -444,7 +477,7 @@
             
             <!-- ═══ TAB 1: BẮT HÌNH & PHÍM TẮT ═══════════════════════════ -->
             <TabItem Header="BẮT HÌNH &amp; PHÍM TẮT" Style="{StaticResource SegmentedTabItem}">
-                <Border Style="{StaticResource SectionCard}" x:Name="Card1" Margin="0,8,0,0">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card1" Margin="0,8,0,0" MinHeight="185">
                     <StackPanel>
                         <!-- Phím tắt chụp nhanh F8 -->
                         <Grid Margin="0,6,0,10">
@@ -511,7 +544,7 @@
 
             <!-- ═══ TAB 2: BỘ MÁY AI & NGÔN NGỮ ═══════════════════════════ -->
             <TabItem Header="BỘ MÁY AI &amp; NGÔN NGỮ" Style="{StaticResource SegmentedTabItem}">
-                <Border Style="{StaticResource SectionCard}" x:Name="Card2" Margin="0,8,0,0">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card2" Margin="0,8,0,0" MinHeight="185">
                     <StackPanel>
                         <!-- Row 0: Bộ dịch thuật (Translation Provider) -->
                         <Grid Margin="0,6,0,10">
@@ -633,7 +666,7 @@
 
             <!-- ═══ TAB 3: TÙY CHỌN & PHỤ ĐỀ ═══════════════════════════ -->
             <TabItem Header="TÙY CHỌN &amp; PHỤ ĐỀ" Style="{StaticResource SegmentedTabItem}">
-                <Border Style="{StaticResource SectionCard}" x:Name="Card3" Margin="0,8,0,0">
+                <Border Style="{StaticResource SectionCard}" x:Name="Card3" Margin="0,8,0,0" MinHeight="185">
                     <StackPanel>
                         <!-- 5 Checkboxes -->
                         <Grid Margin="0,4,0,10">

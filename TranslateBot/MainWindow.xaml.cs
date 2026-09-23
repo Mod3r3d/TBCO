@@ -186,7 +186,11 @@ namespace TranslateBot
                         }
 
                         if (OriginalTextLabel != null) OriginalTextLabel.Text = entry.OriginalText;
-                        if (TranslatedTextLabel != null) TranslatedTextLabel.Text = entry.TranslatedText;
+                        if (TranslatedTextLabel != null)
+                        {
+                            TranslatedTextLabel.Text = entry.TranslatedText;
+                            TranslationScrollViewer?.ScrollToTop();
+                        }
 
                         if (_detachedSubtitleWindow != null && _detachedSubtitleWindow.IsLoaded)
                         {
@@ -617,6 +621,7 @@ namespace TranslateBot
             {
                 OriginalTextLabel.Text = result.OriginalText;
                 TranslatedTextLabel.Text = result.TranslatedText;
+                TranslationScrollViewer?.ScrollToTop();
                 _detachedSubtitleWindow?.UpdateDialogue(result.OriginalText, result.TranslatedText, null, null);
                 StatusText.Text = "Snapshot hoàn tất";
             }

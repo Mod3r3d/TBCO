@@ -133,5 +133,35 @@ namespace TranslateBot.Tests
             Assert.IsTrue(content.Contains("TBCO-3.0-win-x64", StringComparison.OrdinalIgnoreCase));
             Assert.IsTrue(content.Contains("dotnet publish", StringComparison.OrdinalIgnoreCase));
         }
+
+        [TestMethod]
+        public void MainWindow_Layout_HasSpaciousTranslationCard_AndCompactTabs()
+        {
+            string root = GetProjectRoot();
+            string xamlPath = Path.Combine(root, "TranslateBot", "MainWindow.xaml");
+
+            Assert.IsTrue(File.Exists(xamlPath), $"MainWindow.xaml must exist at {xamlPath}");
+            string content = File.ReadAllText(xamlPath);
+
+            // Row 2 (Translation Card) must take expanding star height
+            Assert.IsTrue(content.Contains("<RowDefinition Height=\"*\" MinHeight=\"230\"/>"), 
+                "Row 2 (Translation Card) must have Height='*' and MinHeight='230'");
+
+            // Row 4 (TabControl) must have Height='Auto' to eliminate bottom void
+            Assert.IsTrue(content.Contains("<RowDefinition Height=\"Auto\"/> <!-- Row 4:"), 
+                "Row 4 (TabControl) must have Height='Auto'");
+
+            // TranslationCard must contain ScrollViewer for long dialogue reading
+            Assert.IsTrue(content.Contains("x:Name=\"TranslationScrollViewer\""), 
+                "TranslationCard must contain TranslationScrollViewer");
+
+            // Buttons must exist
+            Assert.IsTrue(content.Contains("x:Name=\"SpeakCurrentBtn\""));
+            Assert.IsTrue(content.Contains("x:Name=\"CopyTextBtn\""));
+            Assert.IsTrue(content.Contains("x:Name=\"HistoryBtn\""));
+            Assert.IsTrue(content.Contains("x:Name=\"SelectWindowBtn\""));
+            Assert.IsTrue(content.Contains("x:Name=\"DetachSubtitleBtn\""));
+            Assert.IsTrue(content.Contains("x:Name=\"ToolbarToggleBtn\""));
+        }
     }
 }
