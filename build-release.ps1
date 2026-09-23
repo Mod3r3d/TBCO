@@ -37,9 +37,9 @@ if (Test-Path $readmeFile) {
     Copy-Item $readmeFile $packageDir -Force
 }
 
-# 4. Nen thanh file ZIP
+# 4. Nen thanh file ZIP (giu nguyen thu muc goc de khi giai nen khong bi bung tran lan file)
 Write-Host "[3/3] Dang tao tep ZIP phat hanh..." -ForegroundColor Yellow
-Compress-Archive -Path "$packageDir\*" -DestinationPath $zipPath -Force
+Compress-Archive -Path $packageDir -DestinationPath $zipPath -Force
 
 $zipSizeMB = [math]::Round((Get-Item $zipPath).Length / 1MB, 2)
 
