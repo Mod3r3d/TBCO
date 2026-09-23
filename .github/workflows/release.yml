@@ -38,7 +38,18 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/TBCO-win-x64.zip
-          generate_release_notes: true
+          name: "TBCO v3.0.0 PRO - DeepL, Google Web & Safe Hotkeys"
+          body: |
+            ### 🎮 TBCO — Phiên Bản Dựng Sẵn (Đã đóng gói hoàn chỉnh)
+            
+            > 🟢 **Tải về:** Tải file **`TBCO-win-x64.zip`** ở mục **Assets** bên dưới.  
+            > ⚠️ **Lưu ý:** KHÔNG tải file `Source code (zip)` vì đó chỉ là mã nguồn lập trình, không có file chạy `.exe`.
+            
+            #### 📂 Hướng dẫn khởi chạy nhanh:
+            1. Giải nén file `TBCO-win-x64.zip`.
+            2. Mở thư mục `TBCO-win-x64`, nhấp đúp vào **`TBCO.exe`** (hoặc `KHOI_CHAY_TBCO.bat`).
+            3. Vào mục **[Cài đặt & API]** để chọn bộ dịch (Google Gemini, DeepL Translate hoặc Google Web Translate miễn phí).
+            4. Bấm **F1** để xem bảng phím tắt bất kỳ lúc nào!
           draft: false
           prerelease: false
 

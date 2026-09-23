@@ -9,9 +9,17 @@ Windows WinRT OCR và trí tuệ nhân tạo Google Gemini 3.x (kế thừa MORT
 ------------------------------------------------------------------------
 1. BẮT ĐẦU SỬ DỤNG (KHÔNG CẦN CÀI ĐẶT .NET)
 ------------------------------------------------------------------------
-- Ứng dụng đã được đóng gói độc lập (Self-Contained). Bạn chỉ cần:
-  1. Giải nén toàn bộ file trong file zip vào một thư mục (ví dụ: D:\TBCO).
-  2. Nhấp đúp vào file "TBCO.exe" để mở ứng dụng.
+Ứng dụng đã được đóng gói độc lập (Self-Contained) với cấu trúc 2 tầng gọn gàng:
+
+📁 TBCO-win-x64/
+  ├── 🚀 TBCO.exe              <--- NHẤP ĐÚP VÀO ĐÂY ĐỂ MỞ ỨNG DỤNG NGAY!
+  ├── ⚡ KHOI_CHAY_TBCO.bat    <--- Khởi chạy nhanh dự phòng (nếu cần)
+  ├── 📄 HUONG_DAN_SU_DUNG.txt <--- Hướng dẫn sử dụng này
+  └── 📁 app/                  <--- Toàn bộ thư viện DLL và dữ liệu (không cần can thiệp)
+
+* CÁC BƯỚC KHỞI CHẠY:
+  1. Giải nén toàn bộ thư mục trong file zip "TBCO-win-x64.zip".
+  2. Nhấp đúp vào file "TBCO.exe" ngay tại thư mục gốc để mở ứng dụng.
 
 * LƯU Ý BẢO MẬT TRÊN WINDOWS 10 / 11 (SMARTSCREEN & SMART APP CONTROL):
   1. Mở khóa file zip: Trước khi giải nén, nhấp chuột phải vào file zip -> Properties -> 

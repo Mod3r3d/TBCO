@@ -14,6 +14,18 @@
 
 ---
 
+## ⚡ Tải Về Nhanh (Download)
+
+> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip**](https://github.com/Mod3r3d/TBCO/releases/latest/download/TBCO-win-x64.zip)
+
+> [!IMPORTANT]
+> **DÀNH CHO NGƯỜI CHƠI GAME (KHÔNG PHẢI LẬP TRÌNH VIÊN):**
+> - Hãy tải file **`TBCO-win-x64.zip`** từ mục **Releases** (hoặc link xanh ở trên).
+> - **⚠️ TUYỆT ĐỐI KHÔNG TẢI `Source code (zip)`**: File mã nguồn chỉ chứa code lập trình `.cs`, không có file chạy `.exe`.
+> - Gói phát hành `TBCO-win-x64.zip` được sắp xếp theo cấu trúc **2 tầng cực kỳ gọn gàng**: giải nén ra bạn sẽ thấy ngay file **`TBCO.exe`** nổi bật ở thư mục gốc để mở game.
+
+---
+
 ## 📖 Giới thiệu
 
 **TBCO (Translate Bot Conversation by OCR)** là ứng dụng dịch thuật thời gian thực chuyên sâu dành cho visual novel, anime RPG và game cốt truyện (đặc biệt tối ưu hóa sâu cho *Fate/Grand Order* và *Blue Archive*). 
@@ -78,11 +90,19 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 - Cài đặt sẵn [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (hoặc sử dụng bản đóng gói SelfContained).
 
 ### Khởi Chạy Nhanh
-1. Tải file `TBCO-3.0-win-x64.zip` từ thư mục `publish/` hoặc GitHub Releases.
-2. Giải nén vào một thư mục (ví dụ `D:\TBCO`).
-3. Chạy file **`TBCO.exe`**.
-4. Vào mục **[Quản lý API Key]** để thêm các khóa Gemini hoặc DeepL của bạn.
-5. Mở game, TBCO sẽ tự động nhận diện cửa sổ và nạp cấu hình tối ưu nhất!
+1. Tải file **`TBCO-win-x64.zip`** từ mục [GitHub Releases](https://github.com/Mod3r3d/TBCO/releases/latest).
+2. Giải nén file zip vào bất kỳ thư mục nào (ví dụ `D:\Games\TBCO`).
+3. Cấu trúc thư mục sau khi giải nén cực kỳ gọn gàng:
+   ```text
+   📁 TBCO-win-x64/
+     ├── 🚀 TBCO.exe              <--- Nhấp đúp vào đây để mở ứng dụng ngay!
+     ├── ⚡ KHOI_CHAY_TBCO.bat    <--- File khởi chạy nhanh dự phòng
+     ├── 📄 HUONG_DAN_SU_DUNG.txt <--- Hướng dẫn chi tiết bằng tiếng Việt
+     └── 📁 app/                  <--- Toàn bộ thư viện DLL và dữ liệu (không cần can thiệp)
+   ```
+4. Nhấp đúp vào file **`TBCO.exe`** để mở ứng dụng.
+5. Vào mục **[Cài đặt & API]** để chọn bộ dịch ưa thích (Google Gemini, DeepL Translate hoặc Google Web Translate miễn phí không cần key).
+6. Mở game, TBCO sẽ tự động nhận diện cửa sổ và nạp cấu hình tối ưu nhất!
 
 ---
 
@@ -90,7 +110,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### Biên dịch & Chạy kiểm thử tự động
 ```powershell
-# Chạy toàn bộ 118 test cases
+# Chạy toàn bộ 122 test cases
 dotnet test TranslateBot.Tests\TranslateBot.Tests.csproj
 
 # Biên dịch Release
