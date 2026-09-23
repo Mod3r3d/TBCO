@@ -23,10 +23,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore TranslateBot.sln
+        run: dotnet restore TranslateBot.sln -r win-x64
 
       - name: Run Unit Tests
-        run: dotnet test TranslateBot.Tests/TranslateBot.Tests.csproj -c Release --no-restore --verbosity normal
+        run: dotnet test TranslateBot.Tests/TranslateBot.Tests.csproj -c Release --verbosity normal
 
       - name: Build and Package Release (TBCO.exe & TBCO-win-x64.zip)
         shell: pwsh
