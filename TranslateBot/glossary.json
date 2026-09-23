@@ -1,38 +1,1028 @@
 [
-  { "Source": "Servant", "Target": "Servant", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Master", "Target": "Master", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Senpai", "Target": "tiền bối", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Noble Phantasm", "Target": "Bảo Khí", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Holy Grail", "Target": "Chén Thánh", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Singularity", "Target": "Điểm Kỳ Dị", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Lostbelt", "Target": "Lostbelt", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Rayshift", "Target": "Rayshift", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Mana", "Target": "Mana", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Spirit Origin", "Target": "Linh Căn", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Saint Quartz", "Target": "Thạch Anh Thánh", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Command Spell", "Target": "Lệnh Chú", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Grand Order", "Target": "Grand Order", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Chaldea", "Target": "Chaldea", "Tier": "Game", "Level": "Locked" },
-  { "Source": "SHEBA", "Target": "SHEBA", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Heroic Spirit", "Target": "Anh Linh", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Mystic Code", "Target": "Lễ Trang", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Summoning", "Target": "Triệu hồi", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Berserker", "Target": "Berserker", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Saber", "Target": "Saber", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Archer", "Target": "Archer", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Lancer", "Target": "Lancer", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Rider", "Target": "Rider", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Caster", "Target": "Caster", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Assassin", "Target": "Assassin", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Ruler", "Target": "Ruler", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Avenger", "Target": "Avenger", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Foreigner", "Target": "Foreigner", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Alter Ego", "Target": "Alter Ego", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Moon Cancer", "Target": "Moon Cancer", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Pretender", "Target": "Pretender", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Beast", "Target": "Beast", "Tier": "Game", "Level": "Locked" },
-  { "Source": "Demi-Servant", "Target": "Á Servant", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Pseudo-Servant", "Target": "Giả Servant", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Counter Force", "Target": "Sức Mạnh Phản Kháng", "Tier": "Game", "Level": "Preferred" },
-  { "Source": "Phantasm", "Target": "Bảo Khí", "Tier": "Game", "Level": "Preferred" }
+  {
+    "Source": "Servant",
+    "Target": "Servant",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Master",
+    "Target": "Master",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Senpai",
+    "Target": "tiền bối",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Noble Phantasm",
+    "Target": "Bảo Khí",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Holy Grail",
+    "Target": "Chén Thánh",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Singularity",
+    "Target": "Dị Điểm",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt",
+    "Target": "Lostbelt",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Rayshift",
+    "Target": "Rayshift",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Mana",
+    "Target": "Mana",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Spirit Origin",
+    "Target": "Linh Căn",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Saint Quartz",
+    "Target": "Thạch Anh Thánh",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Command Spell",
+    "Target": "Lệnh Chú",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Grand Order",
+    "Target": "Grand Order",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Chaldea",
+    "Target": "Chaldea",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "SHEBA",
+    "Target": "SHEBA",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Heroic Spirit",
+    "Target": "Anh Linh",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Mystic Code",
+    "Target": "Lễ Trang",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Summoning",
+    "Target": "Triệu hồi",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Berserker",
+    "Target": "Berserker",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Saber",
+    "Target": "Saber",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Archer",
+    "Target": "Archer",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Lancer",
+    "Target": "Lancer",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Rider",
+    "Target": "Rider",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Caster",
+    "Target": "Caster",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Assassin",
+    "Target": "Assassin",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Ruler",
+    "Target": "Ruler",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Avenger",
+    "Target": "Avenger",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Foreigner",
+    "Target": "Foreigner",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Alter Ego",
+    "Target": "Alter Ego",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Moon Cancer",
+    "Target": "Moon Cancer",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Pretender",
+    "Target": "Pretender",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Beast",
+    "Target": "Beast",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Demi-Servant",
+    "Target": "Bán Servant",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Pseudo-Servant",
+    "Target": "Ngụy Servant",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Counter Force",
+    "Target": "Phản Lực ",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Phantasm",
+    "Target": "Bảo Khí",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Human Order",
+    "Target": "Nhân Lý",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Chaldea Security Organization",
+    "Target": "Tổ Chức An Ninh Chaldea",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Atlas Institute",
+    "Target": "Viện Atlas",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Magecraft",
+    "Target": "Ma thuật",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Clock Tower",
+    "Target": "Tháp Đồng Hồ",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Association",
+    "Target": "Hiệp Hội Pháp Sư",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Holy Church",
+    "Target": "Giáo Hội",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Saint Graph",
+    "Target": "Linh Cơ",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Pruned Timeline",
+    "Target": "Dòng Thời Gian Bị Cắt Bỏ",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Fantasy Tree",
+    "Target": "Không Tưởng Thụ",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Fantasy Seed",
+    "Target": "Hạt Giống Không Tưởng",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Crypter",
+    "Target": "Crypter",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Alien God",
+    "Target": "Ngoại Thần",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Foreign God",
+    "Target": "Ngoại Thần",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Bleached Earth",
+    "Target": "Trái Đất Bạch Hóa",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Human Order Foundation",
+    "Target": "Nền Tảng Nhân Lý",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Storm Border",
+    "Target": "Storm Border",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Novum Chaldea",
+    "Target": "Novum Chaldea",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Orleans",
+    "Target": "Orléans",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Septem",
+    "Target": "Septem",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Okeanos",
+    "Target": "Okeanos",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "London",
+    "Target": "London",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "E Pluribus Unum",
+    "Target": "E Pluribus Unum",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Camelot",
+    "Target": "Camelot",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Babylonia",
+    "Target": "Babylonia",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Solomon",
+    "Target": "Salomon",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Temple of Time",
+    "Target": "Thần Điện Thời Gian",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Chaldea Gate",
+    "Target": "Cổng Chaldea",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Virtual Training Room",
+    "Target": "Phòng Huấn Luyện Ảo",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Summoning Chamber",
+    "Target": "Phòng Triệu Hồi",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Control Room",
+    "Target": "Phòng Điều Khiển",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Command Room",
+    "Target": "Phòng Chỉ Huy",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Medical Room",
+    "Target": "Phòng Y Tế",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Sparring Ground",
+    "Target": "Khu Huấn Luyện",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Rayshift Coffin",
+    "Target": "Quan Tài Rayshift",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Shadow Border",
+    "Target": "Shadow Border",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Imaginary Number Space",
+    "Target": "Không Gian Số Ảo",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Novum Chaldea Base",
+    "Target": "Căn Cứ Novum Chaldea",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Command Card",
+    "Target": "Thẻ Lệnh",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Buff",
+    "Target": "Hiệu ứng Tăng Cường",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Debuff",
+    "Target": "Hiệu ứng Suy Yếu",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Skill",
+    "Target": "Kỹ năng",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Passive Skill",
+    "Target": "Kỹ năng Nội Tại",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Command Code",
+    "Target": "Command Code",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Summon",
+    "Target": "Triệu hồi",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "NP",
+    "Target": "NP",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "AP",
+    "Target": "AP",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Shielder",
+    "Target": "Shielder",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Archer of Shinjuku",
+    "Target": "Archer of Shinjuku",
+    "Tier": "Game",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Fujimaru",
+    "Target": "Fujimaru",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Gudao",
+    "Target": "Gudao",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Gudako",
+    "Target": "Gudako",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Mash Kyrielight",
+    "Target": "Mash Kyrielight",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Leonardo da Vinci",
+    "Target": "Leonardo da Vinci",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Romani Archaman",
+    "Target": "Romani Archaman",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Goredolf Musik",
+    "Target": "Goredolf Musik",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Olga Marie Animusphere",
+    "Target": "Olga Marie Animusphere",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Sherlock Holmes",
+    "Target": "Sherlock Holmes",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Sion Eltnam Sokaris",
+    "Target": "Sion Eltnam Sokaris",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Nemo",
+    "Target": "Nemo",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Kirschtaria Wodime",
+    "Target": "Kirschtaria Wodime",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Kadoc Zemlupus",
+    "Target": "Kadoc Zemlupus",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Morgan",
+    "Target": "Morgan",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Oberon",
+    "Target": "Oberon",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Melusine",
+    "Target": "Melusine",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Caenis",
+    "Target": "Caenis",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Miyamoto Musashi",
+    "Target": "Miyamoto Musashi",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Jeanne d’Arc",
+    "Target": "Jeanne d’Arc",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Jeanne Alter",
+    "Target": "Jeanne Alter",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "EMIYA",
+    "Target": "EMIYA",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Mordred",
+    "Target": "Mordred",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Merlin",
+    "Target": "Merlin",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Ishtar",
+    "Target": "Ishtar",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Ereshkigal",
+    "Target": "Ereshkigal",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Tamamo-no-Mae",
+    "Target": "Tamamo-no-Mae",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Scathach",
+    "Target": "Scathach",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Scathach-Skadi",
+    "Target": "Scathach-Skadi",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "BB",
+    "Target": "BB",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Edmond Dantès",
+    "Target": "Edmond Dantès",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Kiyohime",
+    "Target": "Kiyohime",
+    "Tier": "Character",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Rayshift Adaptation",
+    "Target": "Thích Nghi Rayshift",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Ley Line",
+    "Target": "Mạch Linh Mạch",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Pseudo-Singularity",
+    "Target": "Ngụy Dị Điểm",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Singularity Repair",
+    "Target": "Sửa Chữa Dị Điểm",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt King",
+    "Target": "Vua Lostbelt",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt Fantasy Tree",
+    "Target": "Cây Không Tưởng Lostbelt",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 1",
+    "Target": "Lostbelt Số 1",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 2",
+    "Target": "Lostbelt Số 2",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 3",
+    "Target": "Lostbelt Số 3",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 4",
+    "Target": "Lostbelt Số 4",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 5",
+    "Target": "Lostbelt Số 5",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 6",
+    "Target": "Lostbelt Số 6",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Lostbelt No. 7",
+    "Target": "Lostbelt Số 7",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Human Order Incineration",
+    "Target": "Thiêu Đốt Nhân Lý",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Human Order Restoration",
+    "Target": "Khôi Phục Nhân Lý",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Chaldea Staff",
+    "Target": "Nhân Viên Chaldea",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Master Candidate",
+    "Target": "Ứng Viên Master",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Spiritual Foundation",
+    "Target": "Linh Cơ",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Reality Marble",
+    "Target": "Cố Hữu Kết Giới",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Magic Crest",
+    "Target": "Ma Thuật Khắc Ấn",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Mystery",
+    "Target": "Thần Bí",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Divine Spirit",
+    "Target": "Thần Linh",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Divinity",
+    "Target": "Thần Tính",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Age of Gods",
+    "Target": "Thời Đại Thần Thánh",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Age of Man",
+    "Target": "Thời Đại Con Người",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Phantasmal Species",
+    "Target": "Ảo Thú",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Fairy Knight",
+    "Target": "Hiệp sĩ tiên tộc",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Fairy",
+    "Target": "Tiên",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Beast of Calamity",
+    "Target": "Quái thú tai ương",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Dead Apostle",
+    "Target": "Tử Đồ",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Holy Grail War",
+    "Target": "Cuộc Chiến Chén Thánh",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Holy Grail War Participant",
+    "Target": "Người Tham Gia Cuộc Chiến Chén Thánh",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Fuyuki",
+    "Target": "Fuyuki",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Shinjuku",
+    "Target": "Shinjuku",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Agartha",
+    "Target": "Agartha",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Shimousa",
+    "Target": "Shimousa",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "SE.RA.PH",
+    "Target": "SE.RA.PH",
+    "Tier": "Context",
+    "Level": "Locked"
+  },
+  {
+    "Source": "SIN",
+    "Target": "SIN",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Yuga Kshetra",
+    "Target": "Yuga Kshetra",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Atlantis",
+    "Target": "Atlantis",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Olympus",
+    "Target": "Olympus",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Avalon le Fae",
+    "Target": "Avalon le Fae",
+    "Tier": "Context",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Nahui Mictlan",
+    "Target": "Nahui Mictlan",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Heian-kyo",
+    "Target": "Heian-kyo",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Tunguska",
+    "Target": "Tunguska",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Traum",
+    "Target": "Traum",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Seraphix",
+    "Target": "Seraphix",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Prison Tower",
+    "Target": "Ngục Tù Thời Gian",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Underworld",
+    "Target": "Địa Ngục",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Uruk",
+    "Target": "Uruk",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Workshop",
+    "Target": "Xưởng Chaldea",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Summoning Room",
+    "Target": "Phòng Triệu Hồi",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Ritual",
+    "Target": "Nghi Thức",
+    "Tier": "Context",
+    "Level": "Preferred"
+  },
+  {
+    "Source": "Commanding Seal",
+    "Target": "Lệnh Chú",
+    "Tier": "Game",
+    "Level": "Locked"
+  },
+  {
+    "Source": "Master of Chaldea",
+    "Target": "Master của Chaldea",
+    "Tier": "Character",
+    "Level": "Locked"
+  }
 ]
