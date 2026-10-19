@@ -189,20 +189,30 @@ namespace TranslateBot.Tests
         [TestMethod]
         public void DetachedSubtitleWindow_STA_ShouldInitializeWithoutCrash()
         {
+            Exception? threadEx = null;
             var t = new System.Threading.Thread(() =>
             {
-                var window = new UI.DetachedSubtitleWindow();
-                Assert.IsNotNull(window);
-                window.SetFontSize(18);
-                window.SetTopmost(true);
-                window.SetTargetWindow("Game Demo Window");
-                window.UpdateDialogue("Hello World", "Xin chào thế giới", "Artoria", null);
-                window.SetLocked(false);
+                try
+                {
+                    var window = new UI.DetachedSubtitleWindow();
+                    Assert.IsNotNull(window);
+                    window.SetFontSize(18);
+                    window.SetTopmost(true);
+                    window.SetTargetWindow("Game Demo Window");
+                    window.UpdateDialogue("Hello World", "Xin chào thế giới", "Artoria", null);
+                    window.SetLocked(false);
+                    window.Close();
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
             });
             t.SetApartmentState(System.Threading.ApartmentState.STA);
             t.Start();
-            t.Join(3000);
-            Assert.IsFalse(t.IsAlive, "STA thread khởi tạo DetachedSubtitleWindow phải hoàn tất trong 3s");
+            bool finished = t.Join(5000);
+            Assert.IsTrue(finished, "STA thread khởi tạo DetachedSubtitleWindow phải hoàn tất trong 5s");
+            Assert.IsNull(threadEx, $"Lỗi khởi tạo DetachedSubtitleWindow: {threadEx?.Message}");
         }
 
         [TestMethod]

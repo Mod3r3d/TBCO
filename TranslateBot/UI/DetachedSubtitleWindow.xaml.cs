@@ -51,7 +51,7 @@ namespace TranslateBot.UI
 
         public void UpdateDialogue(string original, string translated, string? speaker = null, string? previous = null)
         {
-            Dispatcher.Invoke(() =>
+            void Apply()
             {
                 if (!string.IsNullOrWhiteSpace(speaker))
                 {
@@ -75,15 +75,33 @@ namespace TranslateBot.UI
 
                 TranslatedText.Text = string.IsNullOrWhiteSpace(translated) ? "..." : translated;
                 OriginalText.Text = string.IsNullOrWhiteSpace(original) ? "" : original;
-            });
+            }
+
+            if (Dispatcher.CheckAccess())
+            {
+                Apply();
+            }
+            else
+            {
+                Dispatcher.Invoke(Apply);
+            }
         }
 
         public void SetTargetWindow(string title)
         {
-            Dispatcher.Invoke(() =>
+            void Apply()
             {
                 TargetWindowTitleText.Text = string.IsNullOrWhiteSpace(title) ? "Toàn màn hình" : title;
-            });
+            }
+
+            if (Dispatcher.CheckAccess())
+            {
+                Apply();
+            }
+            else
+            {
+                Dispatcher.Invoke(Apply);
+            }
         }
 
         public void SetFontSize(double size)
