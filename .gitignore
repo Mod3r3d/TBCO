@@ -55,3 +55,11 @@ $RECYCLE.BIN/
 # 7. Thư viện OCR ngoại tuyến tải tự động
 DLL/
 TranslateBot/DLL/
+
+# 8. Tệp xuất toàn bộ mã nguồn / Context dành riêng cho AI Agent (không commit lên git)
+FULL_CODEBASE.md
+PROJECT_CONTEXT.md
+*CODEBASE*.md
+*.codebase.md
+BAO_CAO_DANH_GIA_TBCO.md
+.workbuddy-ai/
