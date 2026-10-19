@@ -66,7 +66,11 @@ namespace TranslateBot.UI
             InitializeComponent();
             _keyPool = keyPool;
             _config = config;
-            _testerProvider = new GeminiProvider { ThrowOnApiError = true };
+            _testerProvider = new GeminiProvider 
+            { 
+                ModelName = !string.IsNullOrEmpty(_config.AiModel) ? _config.AiModel : "gemini-3.5-flash",
+                ThrowOnApiError = true 
+            };
 
             CredentialsListView.ItemsSource = _viewModels;
             RefreshList();
@@ -170,7 +174,8 @@ namespace TranslateBot.UI
                 return;
             }
 
-            StatusMessageText.Text = $"Đang gửi yêu cầu test đến Google với [{selected.Id}]...";
+            _testerProvider.ModelName = !string.IsNullOrEmpty(_config.AiModel) ? _config.AiModel : "gemini-3.5-flash";
+            StatusMessageText.Text = $"Đang gửi yêu cầu test đến Google với [{selected.Id}] (Model: {_testerProvider.ModelName})...";
             try
             {
                 string result = await _testerProvider.TranslateWithKeyAsync("Hello, welcome to Chaldea!", selected.Model.Secret);
@@ -193,11 +198,15 @@ namespace TranslateBot.UI
                     RefreshList();
                     MessageBox.Show($"Key [{selected.Id}] báo HẾT QUOTA (HTTP 429). Key đã chuyển sang Cooldown.", "Lỗi 429", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                else if (ex.StatusCode == 401)
+                else if (ex.StatusCode == 401 || (ex.StatusCode == 400 && (ex.RawResponse?.Contains("API_KEY_INVALID") == true || ex.RawResponse?.Contains("API key not valid") == true)))
                 {
-                    selected.Model.RecordInvalid("Test 401 Invalid Token");
+                    selected.Model.RecordInvalid("Test: Invalid API Key");
                     RefreshList();
-                    MessageBox.Show($"Key [{selected.Id}] KHÔNG HỢP LỆ (HTTP 401). Vui lòng kiểm tra lại mã secret.", "Lỗi 401", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Key [{selected.Id}] KHÔNG HỢP LỆ (Google từ chối mã API Key này). Vui lòng kiểm tra lại key lấy từ Google AI Studio.", "Lỗi API Key", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else if (ex.StatusCode == 404)
+                {
+                    MessageBox.Show($"Mô hình AI [{_testerProvider.ModelName}] không tồn tại trên tài khoản này (HTTP 404). Hệ thống sẽ chuyển về [gemini-3.5-flash].", "Mô hình không tồn tại", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {

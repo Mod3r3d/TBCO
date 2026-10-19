@@ -37,6 +37,7 @@ publish_compressed/
 *.log
 crash.log
 scratch_inspect.txt
+scratch/
 *.tmp
 *.bak
 *.db

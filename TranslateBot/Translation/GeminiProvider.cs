@@ -36,7 +36,7 @@ namespace TranslateBot.Translation
         // Bộ dịch dự phòng Google Web Translate (kế thừa từ MORT & translate-bot)
         private readonly GoogleWebTranslateProvider _fallbackProvider = new GoogleWebTranslateProvider();
 
-        public string ModelName { get; set; } = "gemini-2.5-flash";
+        public string ModelName { get; set; } = "gemini-3.5-flash";
         public string TargetLanguage { get; set; } = "vi";
         public string SourceLanguage { get; set; } = "auto";
 
@@ -80,9 +80,14 @@ namespace TranslateBot.Translation
                 return "gemini-3.5-flash";
             }
             if (m.Equals("gemini-1.5-flash", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-1.5-pro", StringComparison.OrdinalIgnoreCase))
+                m.Equals("gemini-1.5-pro", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-2.5-flash", StringComparison.OrdinalIgnoreCase))
             {
                 return "gemini-3.5-flash";
+            }
+            if (m.Equals("gemini-2.5-pro", StringComparison.OrdinalIgnoreCase))
+            {
+                return "gemini-3.1-pro-preview";
             }
             return m;
         }

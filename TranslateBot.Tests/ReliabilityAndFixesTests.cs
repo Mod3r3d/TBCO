@@ -182,6 +182,8 @@ namespace TranslateBot.Tests
             Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-flash"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-pro"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-2.5-flash"));
+            Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-2.5-pro"));
         }
 
         [TestMethod]
