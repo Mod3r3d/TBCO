@@ -7,7 +7,15 @@ namespace TranslateBot.Dialogue
 {
     public class DialogueTracker
     {
-        public DialogueJob? CurrentDialogue { get; private set; }
+        private readonly object _syncLock = new();
+        private DialogueJob? _currentDialogue;
+
+        public DialogueJob? CurrentDialogue
+        {
+            get { lock (_syncLock) { return _currentDialogue; } }
+            private set { lock (_syncLock) { _currentDialogue = value; } }
+        }
+
         public event Action? OnTransitionDetected;
         private int _sequenceCounter = 0;
         private readonly Queue<DialogueJob> _completedQueue = new();
@@ -35,75 +43,84 @@ namespace TranslateBot.Dialogue
 
         public void ProcessOcrResult(string text)
         {
-            if (string.IsNullOrWhiteSpace(text))
+            Action? transitionAction = null;
+            lock (_syncLock)
             {
-                HandleEmptyText();
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    HandleEmptyText();
+                    return;
+                }
 
-            string normalizedNew = NormalizeText(text);
+                string normalizedNew = NormalizeText(text);
 
-            // Bỏ qua rác OCR quá ngắn (< MinTextLength hoặc không có đủ chữ cái hợp lệ)
-            if (!IsValidDialogueText(normalizedNew, Config.MinTextLength))
-            {
-                return;
-            }
+                // Bỏ qua rác OCR quá ngắn (< MinTextLength hoặc không có đủ chữ cái hợp lệ)
+                if (!IsValidDialogueText(normalizedNew, Config.MinTextLength))
+                {
+                    return;
+                }
 
-            // 1. Nếu chưa có câu nào đang theo dõi
-            if (CurrentDialogue == null)
-            {
+                // 1. Nếu chưa có câu nào đang theo dõi
+                if (_currentDialogue == null)
+                {
+                    _sequenceCounter++;
+                    _currentDialogue = new DialogueJob(_sequenceCounter, text, normalizedNew);
+                    return;
+                }
+
+                string currNorm = _currentDialogue.NormalizedText;
+
+                // 2. Fast path: Chữ đang dài ra (typewriter)
+                if (TextSimilarity.IsFuzzyPrefix(currNorm, normalizedNew, Config.SimilarityThreshold))
+                {
+                    _currentDialogue.RawText = text;
+                    _currentDialogue.NormalizedText = normalizedNew;
+                    _currentDialogue.LastSeenAt = DateTime.Now;
+                    _currentDialogue.State = DialogueState.Extending;
+                    return;
+                }
+
+                // 3. Fast path: Chữ đứng im, không đổi
+                if (normalizedNew == currNorm)
+                {
+                    UpdateStability();
+                    return;
+                }
+
+                // 4. Section 9: OCR Correction
+                if (TextSimilarity.IsLikelyOcrCorrection(currNorm, normalizedNew))
+                {
+                    AppLogger.Info($"[TRACKER_OCR_CORRECTION] #{_currentDialogue.SequenceId} " +
+                                      $"old=\"{currNorm}\" new=\"{normalizedNew}\"");
+                    _currentDialogue.RawText = text;
+                    _currentDialogue.NormalizedText = normalizedNew;
+                    _currentDialogue.LastSeenAt = DateTime.Now;
+                    _currentDialogue.State = DialogueState.Stable;
+                    return;
+                }
+
+                // 5. Chuyển câu thoại mới (Transition Flush)
+                if (_currentDialogue != null)
+                {
+                    _currentDialogue.State = DialogueState.Confirmed;
+                }
+                FinalizeCurrentDialogue("TRANSITION_FLUSH");
+                transitionAction = OnTransitionDetected;
                 _sequenceCounter++;
-                CurrentDialogue = new DialogueJob(_sequenceCounter, text, normalizedNew);
-                return;
+                _currentDialogue = new DialogueJob(_sequenceCounter, text, normalizedNew);
             }
 
-            string currNorm = CurrentDialogue.NormalizedText;
-
-            // 2. Fast path: Chữ đang dài ra (typewriter)
-            if (TextSimilarity.IsFuzzyPrefix(currNorm, normalizedNew, Config.SimilarityThreshold))
-            {
-                CurrentDialogue.RawText = text;
-                CurrentDialogue.NormalizedText = normalizedNew;
-                CurrentDialogue.LastSeenAt = DateTime.Now;
-                CurrentDialogue.State = DialogueState.Extending;
-                return;
-            }
-
-            // 3. Fast path: Chữ đứng im, không đổi
-            if (normalizedNew == currNorm)
-            {
-                UpdateStability();
-                return;
-            }
-
-            // 4. Section 9: OCR Correction
-            if (TextSimilarity.IsLikelyOcrCorrection(currNorm, normalizedNew))
-            {
-                AppLogger.Info($"[TRACKER_OCR_CORRECTION] #{CurrentDialogue.SequenceId} " +
-                                  $"old=\"{currNorm}\" new=\"{normalizedNew}\"");
-                CurrentDialogue.RawText = text;
-                CurrentDialogue.NormalizedText = normalizedNew;
-                CurrentDialogue.LastSeenAt = DateTime.Now;
-                CurrentDialogue.State = DialogueState.Stable;
-                return;
-            }
-
-            // 5. Chuyển câu thoại mới (Transition Flush)
-            if (CurrentDialogue != null)
-            {
-                CurrentDialogue.State = DialogueState.Confirmed;
-            }
-            FinalizeCurrentDialogue("TRANSITION_FLUSH");
-            OnTransitionDetected?.Invoke();
-            _sequenceCounter++;
-            CurrentDialogue = new DialogueJob(_sequenceCounter, text, normalizedNew);
+            transitionAction?.Invoke();
         }
 
         public void CheckStability()
         {
-            if (CurrentDialogue != null)
+            lock (_syncLock)
             {
-                UpdateStability();
+                if (_currentDialogue != null)
+                {
+                    UpdateStability();
+                }
             }
         }
 
@@ -165,22 +182,28 @@ namespace TranslateBot.Dialogue
             CurrentDialogue = null;
         }
 
-        // Hàm này sẽ được Vòng lặp chính gọi để lấy các câu đã sẵn sàng dịch[cite: 6]
+        // Hàm này sẽ được Vòng lặp chính gọi để lấy các câu đã sẵn sàng dịch
         public List<DialogueJob> GetPendingTranslations()
         {
             var pending = new List<DialogueJob>();
-            while (_completedQueue.TryDequeue(out var job))
+            lock (_syncLock)
             {
-                pending.Add(job);
+                while (_completedQueue.TryDequeue(out var job))
+                {
+                    pending.Add(job);
+                }
             }
             return pending;
         }
 
         public void Reset()
         {
-            CurrentDialogue = null;
-            _completedQueue.Clear();
-            _deduplicator.Reset();
+            lock (_syncLock)
+            {
+                _currentDialogue = null;
+                _completedQueue.Clear();
+                _deduplicator.Reset();
+            }
         }
 
         private static bool IsValidDialogueText(string text, int minLength = 3)

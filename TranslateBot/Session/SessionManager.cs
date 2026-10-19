@@ -25,11 +25,13 @@ namespace TranslateBot.Session
         public DateTime StartTime { get; private set; } = DateTime.Now;
         public bool IsSessionActive { get; private set; } = false;
         public bool AutoSave { get; set; } = true;
-        public string SessionsDirectory { get; set; } = "sessions";
-
-        public SessionManager(string sessionsDirectory = "sessions")
+        public string SessionsDirectory { get; set; }
+ 
+        public SessionManager(string? sessionsDirectory = null)
         {
-            SessionsDirectory = sessionsDirectory;
+            SessionsDirectory = string.IsNullOrWhiteSpace(sessionsDirectory) 
+                ? AppPaths.GetSessionsDirectory() 
+                : sessionsDirectory;
         }
 
         public IReadOnlyList<SessionRecord> Records

@@ -282,7 +282,11 @@ namespace TranslateBot.Translation
                     if (!string.IsNullOrEmpty(blockReason))
                     {
                         AppLogger.Warn(
-                            $"[GEMINI BỊ CHẶN] Google chặn phản hồi vì: {blockReason}. Chuyển sang Google Web Translate...");
+                            $"[GEMINI BỊ CHẶN] Google chặn phản hồi vì: {blockReason}.");
+                        if (ThrowOnApiError)
+                        {
+                            throw new GeminiApiException(400, $"Safety Block: {blockReason}");
+                        }
                         return await FallbackTranslateAsync(text, context, $"Safety Block: {blockReason}");
                     }
 
@@ -293,7 +297,11 @@ namespace TranslateBot.Translation
                         if (finishReason == "SAFETY" || finishReason == "PROHIBITED_CONTENT")
                         {
                             AppLogger.Warn(
-                                $"[GEMINI BỊ CHẶN] finishReason = {finishReason}. Chuyển sang Google Web Translate...");
+                                $"[GEMINI BỊ CHẶN] finishReason = {finishReason}.");
+                            if (ThrowOnApiError)
+                            {
+                                throw new GeminiApiException(400, $"Safety FinishReason: {finishReason}");
+                            }
                             return await FallbackTranslateAsync(text, context, $"Safety FinishReason: {finishReason}");
                         }
 
@@ -321,6 +329,10 @@ namespace TranslateBot.Translation
                         }
                     }
 
+                    if (ThrowOnApiError)
+                    {
+                        throw new GeminiApiException(500, "Empty Candidates");
+                    }
                     return await FallbackTranslateAsync(text, context, "Empty Candidates");
                 }
                 catch (HttpRequestException ex) when (attempt <= maxRetries)
@@ -337,11 +349,16 @@ namespace TranslateBot.Translation
                 }
                 catch (Exception ex)
                 {
+                    if (ThrowOnApiError) throw;
                     AppLogger.Error($"[LỖI GEMINI] {ex.Message}");
                     return await FallbackTranslateAsync(text, context, $"Exception: {ex.Message}");
                 }
             }
 
+            if (ThrowOnApiError)
+            {
+                throw new GeminiApiException(504, "Max Retries Exceeded");
+            }
             return await FallbackTranslateAsync(text, context, "Max Retries Exceeded");
         }
 

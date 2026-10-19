@@ -14,13 +14,15 @@ using TranslateBot.GameProfiles;
 
 namespace TranslateBot.Infrastructure
 {
-    public class TranslationEngine
+    public class TranslationEngine : IDisposable
     {
         private readonly CaptureService _captureService;
         private readonly FrameChangeDetector _changeDetector;
         private readonly IOcrEngine _ocrEngine;
         private readonly DialogueTracker _dialogueTracker;
         private readonly TranslationWorker _translationWorker;
+
+        public int ScanIntervalMs { get; set; } = 300;
 
         // Stage 3B: Multi-area + exclusion
         private readonly OcrAreaManager _ocrAreaManager = new();
@@ -208,12 +210,14 @@ namespace TranslateBot.Infrastructure
 
                 try
                 {
-                    // Stage 3B: nếu có OcrArea đã thiết lập → dùng multi-area pipeline
-                    var enabledAreas = _ocrAreaManager.GetEnabledDialogueAreas();
+                    // Stage 3B: nếu có OcrArea đã thiết lập → dùng multi-area pipeline (bao gồm cả Speaker và Custom, P0-3)
+                    var enabledAreas = _ocrAreaManager.GetEnabledAreas();
 
                     if (enabledAreas.Count > 0)
                     {
-                        anyChanged = await ProcessMultiAreaAsync(enabledAreas);
+                        // Sắp xếp ưu tiên vùng Speaker được quét trước để cập nhật tên nhân vật vào TranslationContext
+                        var sortedAreas = enabledAreas.OrderBy(a => a.Type == OcrAreaType.Speaker ? 0 : 1).ToList();
+                        anyChanged = await ProcessMultiAreaAsync(sortedAreas);
                     }
                     else
                     {
@@ -284,8 +288,10 @@ namespace TranslateBot.Infrastructure
                 _transitionBurstRemaining = Math.Max(_transitionBurstRemaining, 2);
             }
 
-            // Stage 3B: áp dụng exclusion zones trước OCR
-            _exclusionManager.ApplyExclusions(frame, w, h);
+            // Stage 3B: áp dụng exclusion zones trước OCR (kèm toạ độ gốc offset, P0-5)
+            int offX = _useWindowRelative ? _relX : _regX;
+            int offY = _useWindowRelative ? _relY : _regY;
+            _exclusionManager.ApplyExclusions(frame, w, h, offX, offY);
 
             // Milestone 2.3 & 2.5: Image Preprocessing (2x Upscale, Grayscale, Contrast boost) dựa theo Preset của GameProfile
             var defaultPreprocessing = PreprocessingOptions.FromPreset(_currentGameProfile?.PreprocessPreset ?? PreprocessPreset.FgoDialogue);
@@ -334,8 +340,8 @@ namespace TranslateBot.Infrastructure
                     _transitionBurstRemaining = Math.Max(_transitionBurstRemaining, 2);
                 }
 
-                // Áp dụng exclusion zones
-                _exclusionManager.ApplyExclusions(frame, area.RegionWidth, area.RegionHeight);
+                // Áp dụng exclusion zones (kèm toạ độ vùng OCR để quy đổi chính xác, P0-5)
+                _exclusionManager.ApplyExclusions(frame, area.RegionWidth, area.RegionHeight, area.RegionX, area.RegionY);
 
                 // Milestone 2.3: Tiền xử lý ảnh theo Preset của từng OCR Area
                 var preprocessing = area.GetEffectivePreprocessing();
@@ -542,10 +548,10 @@ namespace TranslateBot.Infrastructure
 
             _metrics.IsTransitionBurstActive = false;
 
-            // 2. Không có thoại và màn hình đứng im hoàn toàn -> Idle nhẹ nhàng tiết kiệm CPU
+            // 2. Không có thoại và màn hình đứng im hoàn toàn -> Idle nhẹ nhàng theo ScanIntervalMs cấu hình
             if (state == null && !anyAreaChanged)
             {
-                return 250; // 250ms (thay vì 750ms quá trễ)
+                return Math.Max(50, ScanIntervalMs);
             }
 
             // 3. Không có thoại nhưng vừa có thay đổi trên màn hình
@@ -560,8 +566,35 @@ namespace TranslateBot.Infrastructure
                 DialogueState.Partial or DialogueState.Extending => 60, // Thoại đang chạy (60ms)
                 DialogueState.Stable => 50,                             // Thoại đã dừng, kiểm tra mốc 300ms mỗi 50ms để dịch tức thì!
                 DialogueState.Confirmed => 120,                         // Đã gửi dịch, chuẩn bị câu kế tiếp
-                _ => 250
+                _ => Math.Max(50, ScanIntervalMs)
             };
+        }
+
+        public void Dispose()
+        {
+            _isRunning = false;
+            try
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+            }
+            catch { }
+
+            try
+            {
+                _translationWorker?.Stop();
+                if (_translationWorker is IDisposable dispWorker)
+                {
+                    dispWorker.Dispose();
+                }
+            }
+            catch { }
+
+            try
+            {
+                _captureService?.Dispose();
+            }
+            catch { }
         }
     }
 }

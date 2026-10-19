@@ -100,6 +100,29 @@ namespace TranslateBot.Translation
             }
         }
 
+        /// <summary>
+        /// Circuit breaker: Kiểm tra xem provider có khả dụng hay đang bị ngắt mạch (P1-7).
+        /// Nếu Unhealthy nhưng đã quá 30s kể từ lần lỗi cuối, cho phép thử lại (half-open).
+        /// </summary>
+        public bool IsAvailable(string providerName)
+        {
+            lock (_lock)
+            {
+                if (!_metrics.TryGetValue(providerName, out var m)) return true;
+                if (m.Status == ProviderStatus.Offline) return false;
+                if (m.Status == ProviderStatus.Unhealthy)
+                {
+                    // Circuit breaker half-open: Sau 30 giây cho phép thử lại
+                    if ((DateTime.Now - m.LastFailureAt).TotalSeconds >= 30)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            }
+        }
+
         public IReadOnlyList<ProviderHealthMetrics> GetAllMetrics()
         {
             lock (_lock)

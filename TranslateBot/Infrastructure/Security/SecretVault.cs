@@ -31,7 +31,7 @@ namespace TranslateBot.Infrastructure.Security
             catch (Exception ex)
             {
                 AppLogger.Error($"[SECURITY] Lỗi mã hóa DPAPI: {ex.Message}");
-                return plainSecret; // Fallback nếu môi trường không hỗ trợ DPAPI
+                throw new CryptographicException($"Mã hóa DPAPI thất bại: {ex.Message}. Hệ thống từ chối lưu bí mật dạng không được mã hóa (P0-6).", ex);
             }
         }
 

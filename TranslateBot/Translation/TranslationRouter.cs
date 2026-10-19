@@ -155,6 +155,11 @@ namespace TranslateBot.Translation
         public async Task<string> TryTranslateWithDeepLAsync(string text, TranslationContext? context)
         {
             if (DeepLProvider == null || string.IsNullOrWhiteSpace(DeepLProvider.ApiKey)) return string.Empty;
+            if (!_healthTracker.IsAvailable("DeepL"))
+            {
+                AppLogger.Warn("[ROUTER_CIRCUIT_BREAKER] DeepL đang ở trạng thái Unhealthy, tạm thời bỏ qua (P1-7).");
+                return string.Empty;
+            }
 
             CurrentProviderName = "DeepL";
             CurrentKeyId = null;
@@ -184,6 +189,11 @@ namespace TranslateBot.Translation
         public async Task<string> TryTranslateWithCustomApiAsync(string text, TranslationContext? context)
         {
             if (CustomApiProvider == null || string.IsNullOrWhiteSpace(CustomApiProvider.EndpointUrl)) return string.Empty;
+            if (!_healthTracker.IsAvailable("CustomAPI"))
+            {
+                AppLogger.Warn("[ROUTER_CIRCUIT_BREAKER] Custom API đang ở trạng thái Unhealthy, tạm thời bỏ qua (P1-7).");
+                return string.Empty;
+            }
 
             CurrentProviderName = "CustomAPI";
             CurrentKeyId = null;
@@ -213,6 +223,11 @@ namespace TranslateBot.Translation
         public async Task<string> TryTranslateWithLocalAiAsync(string text, TranslationContext? context)
         {
             if (LocalAiProvider == null) return string.Empty;
+            if (!_healthTracker.IsAvailable("LocalAI"))
+            {
+                AppLogger.Warn("[ROUTER_CIRCUIT_BREAKER] Local AI đang ở trạng thái Unhealthy, tạm thời bỏ qua (P1-7).");
+                return string.Empty;
+            }
 
             CurrentProviderName = "LocalAI";
             CurrentKeyId = null;

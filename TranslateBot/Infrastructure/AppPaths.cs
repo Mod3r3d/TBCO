@@ -1,0 +1,101 @@
+using System;
+using System.IO;
+
+namespace TranslateBot.Infrastructure
+{
+    /// <summary>
+    /// Quản lý tập trung các đường dẫn dữ liệu người dùng tại %LOCALAPPDATA%\TBCO (P0-7).
+    /// Đảm bảo ứng dụng không ghi dữ liệu trực tiếp vào Program Files hoặc thư mục cài đặt thiếu quyền ghi.
+    /// </summary>
+    public static class AppPaths
+    {
+        private static string? _appDataDir;
+
+        public static string AppDataDir
+        {
+            get
+            {
+                if (_appDataDir == null)
+                {
+                    string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    _appDataDir = Path.Combine(localAppData, "TBCO");
+                    try
+                    {
+                        if (!Directory.Exists(_appDataDir))
+                        {
+                            Directory.CreateDirectory(_appDataDir);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogger.Error($"[APPDATA_CREATE_ERROR] Không thể tạo thư mục LocalAppData: {ex.Message}");
+                        _appDataDir = AppDomain.CurrentDomain.BaseDirectory;
+                    }
+                }
+                return _appDataDir;
+            }
+            set => _appDataDir = value; // Cho phép override trong unit tests hoặc portable mode
+        }
+
+        public static string GetConfigPath()
+        {
+            string appDataConfig = Path.Combine(AppDataDir, "config.json");
+            string legacyConfig = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+
+            // Migration một lần: nếu có config cũ ở thư mục app mà LocalAppData chưa có
+            if (!File.Exists(appDataConfig) && File.Exists(legacyConfig))
+            {
+                try
+                {
+                    File.Copy(legacyConfig, appDataConfig, overwrite: false);
+                    AppLogger.Info("[CONFIG_MIGRATION] Đã chuyển file cấu hình config.json sang %LOCALAPPDATA%\\TBCO.");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Warn($"[CONFIG_MIGRATION_WARN] Không thể copy config cũ: {ex.Message}");
+                }
+            }
+
+            return appDataConfig;
+        }
+
+        public static string GetDatabasePath()
+        {
+            string appDataDb = Path.Combine(AppDataDir, "tbco_memory.db");
+            string legacyDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tbco_memory.db");
+
+            // Migration một lần: nếu có db cũ ở thư mục app mà LocalAppData chưa có
+            if (!File.Exists(appDataDb) && File.Exists(legacyDb))
+            {
+                try
+                {
+                    File.Copy(legacyDb, appDataDb, overwrite: false);
+                    AppLogger.Info("[DB_MIGRATION] Đã chuyển cơ sở dữ liệu tbco_memory.db sang %LOCALAPPDATA%\\TBCO.");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Warn($"[DB_MIGRATION_WARN] Không thể copy db cũ: {ex.Message}");
+                }
+            }
+
+            return appDataDb;
+        }
+
+        public static string GetSessionsDirectory()
+        {
+            string dir = Path.Combine(AppDataDir, "sessions");
+            try
+            {
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[SESSIONS_DIR_ERROR] Không thể tạo thư mục sessions: {ex.Message}");
+            }
+            return dir;
+        }
+    }
+}

@@ -12,11 +12,18 @@ namespace TranslateBot.Database
         private readonly object _lock = new();
         private bool _isDisposed;
 
-        public SqliteMemoryStore(string dbPath = "tbco_memory.db")
+        public SqliteMemoryStore(string? dbPath = null)
         {
+            string resolvedPath = string.IsNullOrWhiteSpace(dbPath) ? AppPaths.GetDatabasePath() : dbPath;
+            string? dir = Path.GetDirectoryName(resolvedPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
             _connectionString = new SqliteConnectionStringBuilder
             {
-                DataSource = dbPath,
+                DataSource = resolvedPath,
                 Mode = SqliteOpenMode.ReadWriteCreate,
                 Cache = SqliteCacheMode.Shared
             }.ToString();
@@ -25,6 +32,7 @@ namespace TranslateBot.Database
             _connection.Open();
 
             InitializeSchema();
+            PruneOldEntries();
         }
 
         private void InitializeSchema()
@@ -231,6 +239,32 @@ namespace TranslateBot.Database
                 catch (Exception ex)
                 {
                     AppLogger.Error($"[SQLITE_CLEAR_ERROR] {ex.Message}");
+                }
+            }
+        }
+
+        public void PruneOldEntries(int maxEntries = 50000)
+        {
+            lock (_lock)
+            {
+                try
+                {
+                    using var cmd = _connection.CreateCommand();
+                    cmd.CommandText = @"
+                        DELETE FROM Translations 
+                        WHERE Id IN (
+                            SELECT Id FROM Translations 
+                            ORDER BY LastUsedAt ASC 
+                            LIMIT MAX(0, (SELECT COUNT(*) FROM Translations) - @maxEntries)
+                        );
+                        DELETE FROM TranslationVariants 
+                        WHERE CanonicalNormalizedText NOT IN (SELECT NormalizedText FROM Translations);";
+                    cmd.Parameters.AddWithValue("@maxEntries", maxEntries);
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error($"[SQLITE_PRUNE_ERROR] {ex.Message}");
                 }
             }
         }

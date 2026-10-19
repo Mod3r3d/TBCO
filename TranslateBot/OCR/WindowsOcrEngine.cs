@@ -28,6 +28,8 @@ namespace TranslateBot.OCR
         private static DateTime _lastClipWarningAt = DateTime.MinValue;
         private static readonly TimeSpan ClipWarningCooldown = TimeSpan.FromSeconds(10);
 
+        public bool AutoUpscaleSmallImages { get; set; } = true;
+
         public WindowsOcrEngine(string languageTag = "en-US")
         {
             var language = new Windows.Globalization.Language(languageTag);
@@ -51,12 +53,9 @@ namespace TranslateBot.OCR
                 int ocrWidth = width;
                 int ocrHeight = height;
 
-                // Phóng to ảnh trước khi đưa vào Windows OCR: phụ đề game (đặc biệt
-                // các font nghiêng/trang trí như trong FGO) thường bị đọc sai từng
-                // ký tự khi ảnh gốc quá nhỏ (VD: "I suppose" bị đọc thành "•uppose").
-                // Phóng to 2x bằng nội suy Bicubic chất lượng cao giúp OCR "nhìn rõ"
-                // nét chữ hơn, đặc biệt hiệu quả với chữ nghiêng hoặc có viền/bóng.
-                if ((long)width * height > 0 && (long)width * height <= MaxPixelsToUpscale)
+                // Phóng to ảnh trước khi đưa vào Windows OCR: chỉ thực hiện khi ảnh có chiều cao nhỏ (< 60px)
+                // để tránh phóng to 2 lần (P1-2) khi ImagePreprocessor đã phóng to 2x ở tầng trước.
+                if (AutoUpscaleSmallImages && height < 60 && (long)width * height > 0 && (long)width * height <= MaxPixelsToUpscale)
                 {
                     try
                     {

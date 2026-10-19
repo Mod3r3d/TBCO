@@ -118,16 +118,18 @@ namespace TranslateBot.Infrastructure
     // Lớp quản lý Đọc/Ghi file config.json
     public static class ConfigManager
     {
-        private static readonly string ConfigPath = "config.json";
+        public static string? CustomConfigPath { get; set; }
+        public static string ConfigPath => CustomConfigPath ?? AppPaths.GetConfigPath();
 
         public static AppConfig Load()
         {
             AppConfig config = new AppConfig();
-            if (File.Exists(ConfigPath))
+            string path = ConfigPath;
+            if (File.Exists(path))
             {
                 try
                 {
-                    string json = File.ReadAllText(ConfigPath);
+                    string json = File.ReadAllText(path);
                     config = JsonConvert.DeserializeObject<AppConfig>(json) ?? new AppConfig();
                 }
                 catch (Exception ex)
@@ -301,8 +303,14 @@ namespace TranslateBot.Infrastructure
         {
             try
             {
+                string path = ConfigPath;
+                string? dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
                 string json = JsonConvert.SerializeObject(config, Formatting.Indented);
-                File.WriteAllText(ConfigPath, json);
+                File.WriteAllText(path, json);
             }
             catch (Exception ex)
             {

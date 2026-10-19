@@ -105,7 +105,62 @@ namespace TranslateBot
             catch { }
         }
 
+        private readonly SemaphoreSlim _engineLifecycleLock = new(1, 1);
+
+        public async Task RestartEngineAsync()
+        {
+            await _engineLifecycleLock.WaitAsync();
+            try
+            {
+                bool wasRunning = _isBotRunning;
+
+                if (_engine != null)
+                {
+                    try
+                    {
+                        await _engine.StopAndWaitAsync(TimeSpan.FromMilliseconds(800));
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogger.Warn($"[RESTART_ENGINE] Lỗi dừng engine cũ: {ex.Message}");
+                    }
+                    _engine.Dispose();
+                    _engine = null;
+                }
+
+                _captureService?.Dispose();
+                _captureService = null;
+
+                if (_ocrEngine is IDisposable dispOcr)
+                {
+                    dispOcr.Dispose();
+                }
+
+                InitializeBotInternal();
+
+                if (wasRunning && _engine != null)
+                {
+                    _sessionManager.StartSession();
+                    _engine.Start();
+                    ToggleBotBtn.Content = "TẠM DỪNG HOOK";
+                    ToggleBotBtn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E04747"));
+                    StatusDot.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
+                    StatusText.Text = "HOẠT ĐỘNG";
+                    StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
+                }
+            }
+            finally
+            {
+                _engineLifecycleLock.Release();
+            }
+        }
+
         private void InitializeBot()
+        {
+            InitializeBotInternal();
+        }
+
+        private void InitializeBotInternal()
         {
             try
             {
@@ -190,68 +245,43 @@ namespace TranslateBot
                     {
                         job.State = DialogueState.Displayed;
                         string? speaker = job.Context?.SpeakerName;
-                        _dialogueHistory.Add(job.SequenceId, job.RawText, result, speaker, 0);
-                        _overlayWindow?.UpdateDialogue(job.RawText, result, speaker, job.SequenceId, 0, false);
+                        long latency = (long)job.LatencyMs;
+                        bool cacheHit = job.IsCacheHit;
+                        string provider = job.ProviderName ?? _translationRouter?.CurrentProviderName ?? activeProvider;
+
+                        _dialogueHistory.Add(job.SequenceId, job.RawText, result, speaker, latency);
+                        _overlayWindow?.UpdateDialogue(job.RawText, result, speaker, job.SequenceId, latency, cacheHit);
                         _detachedSubtitleWindow?.UpdateDialogue(job.RawText, result, speaker, _dialogueHistory.Previous?.TranslatedText);
 
-                        // Stage 7: Tự động ghi session log và đọc TTS nếu bật
-                        _sessionManager.AddRecord(job.SequenceId, job.RawText, result, speaker, _translationRouter?.CurrentProviderName ?? activeProvider, 0, false);
+                        // Stage 7: Tự động ghi session log và đọc TTS nếu bật (kèm telemetry thật, P1-5)
+                        _sessionManager.AddRecord(job.SequenceId, job.RawText, result, speaker, provider, latency, cacheHit);
                         if (_isTtsEnabled)
                         {
                             _ttsService.SpeakAsync(result, cancelPrevious: true);
                         }
+
+                        // P1-4: Tự động copy vào clipboard nếu bật
+                        if (_appConfig.AutoCopyToClipboard && !string.IsNullOrWhiteSpace(result))
+                        {
+                            try
+                            {
+                                Clipboard.SetText(result);
+                            }
+                            catch (Exception clipEx)
+                            {
+                                AppLogger.Warn($"[CLIPBOARD_AUTO_COPY_WARN] {clipEx.Message}");
+                            }
+                        }
                     });
                 };
 
-                _dialogueHistory.OnNewEntry += entry =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (_dialogueHistory.Previous != null && PreviousTranslatedLabel != null)
-                        {
-                            PreviousTranslatedLabel.Text = _dialogueHistory.Previous.TranslatedText;
-                            PreviousTranslatedLabel.Visibility = Visibility.Visible;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(entry.Speaker) && MainSpeakerBadge != null && MainSpeakerLabel != null)
-                        {
-                            MainSpeakerBadge.Visibility = Visibility.Visible;
-                            MainSpeakerLabel.Text = entry.Speaker;
-                        }
-                        else if (MainSpeakerBadge != null)
-                        {
-                            MainSpeakerBadge.Visibility = Visibility.Collapsed;
-                        }
-
-                        if (OriginalTextLabel != null) OriginalTextLabel.Text = entry.OriginalText;
-                        if (TranslatedTextLabel != null)
-                        {
-                            TranslatedTextLabel.Text = entry.TranslatedText;
-                            TranslationScrollViewer?.ScrollToTop();
-                        }
-
-                        if (_detachedSubtitleWindow != null && _detachedSubtitleWindow.IsLoaded)
-                        {
-                            _detachedSubtitleWindow.UpdateDialogue(
-                                entry.OriginalText, 
-                                entry.TranslatedText, 
-                                entry.Speaker, 
-                                _dialogueHistory.Previous?.TranslatedText);
-                        }
-
-                        if (_currentOverlayStyle.DisplayMode == Overlay.DialogueDisplayMode.Debug && MainDebugText != null)
-                        {
-                            MainDebugText.Visibility = Visibility.Visible;
-                            MainDebugText.Text = $"#{entry.SequenceId:D4} | Thời gian: {entry.FormattedTime}";
-                        }
-                        else if (MainDebugText != null)
-                        {
-                            MainDebugText.Visibility = Visibility.Collapsed;
-                        }
-                    });
-                };
+                // P0-2: Gỡ đăng ký handler cũ trước khi thêm lại để tránh gọi duplicate handler
+                _dialogueHistory.OnNewEntry -= OnDialogueHistoryNewEntry;
+                _dialogueHistory.OnNewEntry += OnDialogueHistoryNewEntry;
 
                 _engine = new TranslationEngine(_captureService, changeDetector, _ocrEngine, dialogueTracker, translationWorker);
+                _engine.ScanIntervalMs = _appConfig.ScanIntervalMs > 0 ? _appConfig.ScanIntervalMs : 300;
+
                 _engine.OnMetricsUpdated += metrics =>
                 {
                     Dispatcher.Invoke(() =>
@@ -275,6 +305,54 @@ namespace TranslateBot
             {
                 MessageBox.Show($"Lỗi khởi tạo: {ex.Message}");
             }
+        }
+
+        private void OnDialogueHistoryNewEntry(DialogueEntry entry)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (_dialogueHistory.Previous != null && PreviousTranslatedLabel != null)
+                {
+                    PreviousTranslatedLabel.Text = _dialogueHistory.Previous.TranslatedText;
+                    PreviousTranslatedLabel.Visibility = Visibility.Visible;
+                }
+
+                if (!string.IsNullOrWhiteSpace(entry.Speaker) && MainSpeakerBadge != null && MainSpeakerLabel != null)
+                {
+                    MainSpeakerBadge.Visibility = Visibility.Visible;
+                    MainSpeakerLabel.Text = entry.Speaker;
+                }
+                else if (MainSpeakerBadge != null)
+                {
+                    MainSpeakerBadge.Visibility = Visibility.Collapsed;
+                }
+
+                if (OriginalTextLabel != null) OriginalTextLabel.Text = entry.OriginalText;
+                if (TranslatedTextLabel != null)
+                {
+                    TranslatedTextLabel.Text = entry.TranslatedText;
+                    TranslationScrollViewer?.ScrollToTop();
+                }
+
+                if (_detachedSubtitleWindow != null && _detachedSubtitleWindow.IsLoaded)
+                {
+                    _detachedSubtitleWindow.UpdateDialogue(
+                        entry.OriginalText, 
+                        entry.TranslatedText, 
+                        entry.Speaker, 
+                        _dialogueHistory.Previous?.TranslatedText);
+                }
+
+                if (_currentOverlayStyle.DisplayMode == Overlay.DialogueDisplayMode.Debug && MainDebugText != null)
+                {
+                    MainDebugText.Visibility = Visibility.Visible;
+                    MainDebugText.Text = $"#{entry.SequenceId:D4} | Thời gian: {entry.FormattedTime}";
+                }
+                else if (MainDebugText != null)
+                {
+                    MainDebugText.Visibility = Visibility.Collapsed;
+                }
+            });
         }
 
         // ═══════════════════════════════════════════════════════════════════
@@ -1175,6 +1253,10 @@ namespace TranslateBot
             if (int.TryParse(item.Tag?.ToString(), out int ms))
             {
                 _appConfig.ScanIntervalMs = ms;
+                if (_engine != null)
+                {
+                    _engine.ScanIntervalMs = ms;
+                }
                 ConfigManager.Save(_appConfig);
             }
         }
@@ -1184,9 +1266,9 @@ namespace TranslateBot
             if (_isSyncingUiControls || AiModelCombo?.SelectedItem is not ComboBoxItem item) return;
             string model = item.Tag?.ToString() ?? "gemini-flash-latest";
             _appConfig.AiModel = model;
-            if (_translationProvider is GeminiProvider gp)
+            if (_translationRouter?.GeminiProvider != null)
             {
-                gp.ModelName = model;
+                _translationRouter.GeminiProvider.ModelName = model;
             }
             ConfigManager.Save(_appConfig);
         }
@@ -1196,11 +1278,14 @@ namespace TranslateBot
             if (_isSyncingUiControls || SourceLangCombo?.SelectedItem is not ComboBoxItem item) return;
             string lang = item.Tag?.ToString() ?? "auto";
             _appConfig.SourceLanguage = lang;
-            if (_translationProvider is GeminiProvider gp)
+            if (_translationRouter != null)
             {
-                gp.SourceLanguage = lang;
+                if (_translationRouter.GeminiProvider != null) _translationRouter.GeminiProvider.SourceLanguage = lang;
+                if (_translationRouter.DeepLProvider != null) _translationRouter.DeepLProvider.SourceLanguage = lang;
+                if (_translationRouter.FallbackProvider is GoogleWebTranslateProvider gwt) gwt.SourceLanguage = lang;
             }
             ConfigManager.Save(_appConfig);
+            _ = RestartEngineAsync(); // Khởi tạo lại OCR engine theo đúng ngôn ngữ nguồn mới
         }
 
         private void TargetLangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1208,9 +1293,11 @@ namespace TranslateBot
             if (_isSyncingUiControls || TargetLangCombo?.SelectedItem is not ComboBoxItem item) return;
             string lang = item.Tag?.ToString() ?? "vi";
             _appConfig.TargetLanguage = lang;
-            if (_translationProvider is GeminiProvider gp)
+            if (_translationRouter != null)
             {
-                gp.TargetLanguage = lang;
+                if (_translationRouter.GeminiProvider != null) _translationRouter.GeminiProvider.TargetLanguage = lang;
+                if (_translationRouter.DeepLProvider != null) _translationRouter.DeepLProvider.TargetLanguage = lang;
+                if (_translationRouter.FallbackProvider is GoogleWebTranslateProvider gwt) gwt.TargetLanguage = lang;
             }
             ConfigManager.Save(_appConfig);
         }
@@ -1222,24 +1309,66 @@ namespace TranslateBot
             _appConfig.OcrEngineType = engineType;
             ConfigManager.Save(_appConfig);
 
-            // Thông báo: cần khởi động lại bot để áp dụng engine mới
-            StatusText.Text = "⚙ Đã đổi engine OCR. Nhấn DỪNG rồi BẮT ĐẦU lại để áp dụng.";
-            StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
+            _ = RestartEngineAsync();
         }
 
-        // Factory method: tạo OCR engine theo loại đã chọn, fallback về Windows OCR nếu lỗi
+        public static string MapSourceLanguageToOcrTag(string? sourceLang)
+        {
+            if (string.IsNullOrWhiteSpace(sourceLang)) return "ja-JP"; // Mặc định cho TBCO (Visual Novel / FGO)
+
+            return sourceLang.Trim().ToLowerInvariant() switch
+            {
+                "ja" or "jp" or "japanese" => "ja-JP",
+                "en" or "english" => "en-US",
+                "zh" or "zh-cn" or "chinese" => "zh-Hans-CN",
+                "zh-tw" or "zh-hk" => "zh-Hant-TW",
+                "ko" or "korean" => "ko-KR",
+                "vi" or "vietnamese" => "vi-VN",
+                "auto" => "ja-JP", // Mặc định tự động nhận diện game Visual Novel / FGO là tiếng Nhật
+                _ => sourceLang.Contains('-') ? sourceLang : "ja-JP"
+            };
+        }
+
+        private IOcrEngine CreateSafeWindowsOcr(string preferredTag)
+        {
+            try
+            {
+                return new WindowsOcrEngine(preferredTag);
+            }
+            catch (NotSupportedException nse)
+            {
+                AppLogger.Warn($"[OCR_LANG_NOT_SUPPORTED] Gói ngôn ngữ {preferredTag} chưa có trên Windows: {nse.Message}");
+                try
+                {
+                    AppLogger.Info("[OCR_LANG_FALLBACK] Đang fallback về gói en-US...");
+                    var fallback = new WindowsOcrEngine("en-US");
+                    Dispatcher.Invoke(() =>
+                    {
+                        StatusText.Text = $"⚠ Windows thiếu gói OCR {preferredTag}! Tạm dùng en-US. Vui lòng cài gói trong Windows Settings.";
+                        StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
+                    });
+                    return fallback;
+                }
+                catch
+                {
+                    throw new NotSupportedException($"Không tìm thấy gói ngôn ngữ OCR {preferredTag} hoặc en-US trên Windows. Vui lòng cài đặt gói OCR trong Time & Language Settings của Windows.", nse);
+                }
+            }
+        }
+
+        // Factory method: tạo OCR engine theo loại đã chọn, fallback về Windows OCR nếu lỗi (P0-4)
         private IOcrEngine CreateOcrEngine(string engineType)
         {
+            string preferredTag = MapSourceLanguageToOcrTag(_appConfig.SourceLanguage);
+            IOcrEngine safeWindowsOcr = CreateSafeWindowsOcr(preferredTag);
+
             if (string.Equals(engineType, "OneOcr", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
                     var oneOcr = new OneOcrEngine();
-                    AppLogger.Info("[OCR_ENGINE] Đang sử dụng: OneOCR (thử nghiệm), tự động fallback về Windows OCR nếu lỗi khởi tạo.");
-                    // Bọc bằng OcrEngineWithFallback: OneOCR khởi tạo DLL native theo kiểu
-                    // lazy + async nên try/catch ở đây KHÔNG bắt được lỗi thật (xảy ra sau,
-                    // lúc gọi OCR lần đầu) - wrapper tự phát hiện và chuyển engine khi cần.
-                    return new OcrEngineWithFallback(oneOcr, new WindowsOcrEngine("en-US"));
+                    AppLogger.Info($"[OCR_ENGINE] Đang sử dụng: OneOCR (thử nghiệm, {preferredTag}), tự động fallback về Windows OCR nếu lỗi khởi tạo.");
+                    return new OcrEngineWithFallback(oneOcr, safeWindowsOcr);
                 }
                 catch (Exception ex)
                 {
@@ -1250,11 +1379,12 @@ namespace TranslateBot
                         StatusText.Text = $"OneOCR lỗi, đã chuyển về Windows OCR: {ex.Message}";
                         StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
                     });
+                    return safeWindowsOcr;
                 }
             }
 
-            AppLogger.Info("[OCR_ENGINE] Đang sử dụng: Windows OCR");
-            return new WindowsOcrEngine("en-US");
+            AppLogger.Info($"[OCR_ENGINE] Đang sử dụng: Windows OCR ({preferredTag})");
+            return safeWindowsOcr;
         }
 
         private void RestoreSettingsUiFromConfig()
@@ -1370,7 +1500,7 @@ namespace TranslateBot
                 }
 
                 UpdateProviderPanelsVisibility(provider);
-                InitializeBot();
+                _ = RestartEngineAsync();
             }
         }
 
@@ -1410,7 +1540,7 @@ namespace TranslateBot
             {
                 _deepLProvider.ApiKey = key;
             }
-            InitializeBot();
+            _ = RestartEngineAsync();
 
             string planType = key.EndsWith(":fx", StringComparison.OrdinalIgnoreCase) ? "Free Plan (:fx)" : "Pro Plan";
             MessageBox.Show($"Đã lưu DeepL Auth Key ({planType}) thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1458,7 +1588,7 @@ namespace TranslateBot
 
             if (dialog.ShowDialog() == true)
             {
-                InitializeBot();
+                _ = RestartEngineAsync();
                 MessageBox.Show("Đã cập nhật cấu hình API Key Pool thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -1795,10 +1925,15 @@ namespace TranslateBot
             // 4. Dừng engine và giải phóng tài nguyên nhanh chóng
             try
             {
-                _engine?.Stop();
+                _dialogueHistory.OnNewEntry -= OnDialogueHistoryNewEntry;
+                _engine?.Dispose();
                 _captureService?.Dispose();
                 _sessionManager.EndSession();
                 _ttsService.Dispose();
+                if (_ocrEngine is IDisposable dispOcr)
+                {
+                    dispOcr.Dispose();
+                }
             }
             catch { }
 

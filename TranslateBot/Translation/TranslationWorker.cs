@@ -10,7 +10,7 @@ using TranslateBot.Infrastructure;
 
 namespace TranslateBot.Translation
 {
-    public class TranslationWorker
+    public class TranslationWorker : IDisposable
     {
         private readonly ITranslationProvider _provider;
         private Channel<DialogueJob> _jobQueue;
@@ -27,7 +27,7 @@ namespace TranslateBot.Translation
         private int _currentConcurrency = 3;
         private int _consecutiveSuccesses = 0;
         private readonly object _concurrencyLock = new();
-        private SemaphoreSlim _concurrencyLimiter = new(3, 3);
+        private readonly DynamicConcurrencyLimiter _concurrencyLimiter = new(3);
 
         // Phase 20: Request Coalescing & Stale Prefetch Tracking
         private DialogueJob? _lastPrefetchJob;
@@ -73,7 +73,7 @@ namespace TranslateBot.Translation
             _jobQueue = CreateQueue();
             _reorderBuffer.Reset();
             _cts = new CancellationTokenSource();
-            _concurrencyLimiter = new SemaphoreSlim(_currentConcurrency, MaxWorkerCount);
+            _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
             if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
 
             _workerTasks = new Task[MaxWorkerCount];
@@ -150,6 +150,9 @@ namespace TranslateBot.Translation
                 Metrics?.RecordCacheHit();
                 job.IsTranslated = true;
                 job.State = DialogueState.Translated;
+                job.IsCacheHit = true;
+                job.LatencyMs = 0;
+                job.ProviderName = "MemoryCache";
                 AppLogger.Info($"[TRANSLATION_CACHED] #{job.SequenceId}");
                 _reorderBuffer.Submit(job, cached);
                 return;
@@ -197,9 +200,13 @@ namespace TranslateBot.Translation
                             translatedText = await _provider.TranslateAsync(job.NormalizedText, job.Context);
                         }
 
+                        sw.Stop();
                         isSuccess = !string.IsNullOrEmpty(translatedText);
                         job.IsTranslated = isSuccess;
                         job.State = DialogueState.Translated;
+                        job.IsCacheHit = false;
+                        job.LatencyMs = sw.Elapsed.TotalMilliseconds;
+                        job.ProviderName = (_provider as TranslationRouter)?.CurrentProviderName ?? "Gemini";
 
                         string finalResult = isSuccess 
                             ? translatedText 
@@ -265,6 +272,7 @@ namespace TranslateBot.Translation
                 if (_consecutiveSuccesses >= 5 && _currentConcurrency < MaxWorkerCount)
                 {
                     _currentConcurrency++;
+                    _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
                     _consecutiveSuccesses = 0;
                     if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
                     AppLogger.Info($"[CONCURRENCY_SCALED_UP] Tăng luồng dịch đồng thời lên {_currentConcurrency}");
@@ -281,6 +289,7 @@ namespace TranslateBot.Translation
                 if (_currentConcurrency > 1)
                 {
                     _currentConcurrency = 1;
+                    _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
                     if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
                     AppLogger.Warn($"[CONCURRENCY_THROTTLED] Giảm luồng dịch đồng thời về 1 để tránh bão lỗi{(isRateLimit ? " (429 Rate Limit)" : "")}");
                 }
@@ -300,6 +309,20 @@ namespace TranslateBot.Translation
             }
 
             return LongDialogueHandler.MergeTranslations(translatedChunks);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            try
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+            }
+            catch { }
+
+            _concurrencyLimiter.Dispose();
+            _translationMemory.Dispose();
         }
     }
 }

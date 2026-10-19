@@ -22,6 +22,11 @@ namespace TranslateBot.Dialogue
         // Stage 5: Context gửi kèm request dịch (previous lines, glossary, speaker)
         public Translation.TranslationContext? Context { get; set; }
 
+        // P1-5: Telemetry thật trả về cho UI / Overlay / Session
+        public double LatencyMs { get; set; }
+        public bool IsCacheHit { get; set; }
+        public string? ProviderName { get; set; }
+
         public DialogueJob(int sequenceId, string text, string normalizedText)
         {
             SequenceId = sequenceId;

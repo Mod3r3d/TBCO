@@ -42,31 +42,40 @@ namespace TranslateBot.OCR
 
         // Tô đen pixel trong các vùng exclusion đang bật.
         // frame: mảng byte BGRA, captureWidth/Height: kích thước frame đã capture.
-        // Các tọa độ exclusion là TƯƠNG ĐỐI so với frame (0,0 = góc trên trái frame).
-        public void ApplyExclusions(byte[] frame, int captureWidth, int captureHeight)
+        // offsetX, offsetY: tọa độ gốc của vùng capture (để quy đổi hệ tọa độ exclusion sang tọa độ cục bộ của frame, P0-5).
+        public void ApplyExclusions(byte[] frame, int captureWidth, int captureHeight, int offsetX = 0, int offsetY = 0)
         {
-            if (frame.Length == 0) return;
+            if (frame.Length == 0 || captureWidth <= 0 || captureHeight <= 0) return;
 
             int stride = captureWidth * 4; // BGRA = 4 bytes/pixel
 
             foreach (var ex in _exclusions.Where(e => e.Enabled))
             {
-                // Clamp vùng exclusion vào trong bounds của frame
-                int startX = Math.Max(0, ex.RegionX);
-                int startY = Math.Max(0, ex.RegionY);
-                int endX = Math.Min(captureWidth, ex.RegionX + ex.RegionWidth);
-                int endY = Math.Min(captureHeight, ex.RegionY + ex.RegionHeight);
+                // Quy đổi tọa độ exclusion sang tọa độ cục bộ của frame đã capture
+                int localX = ex.RegionX - offsetX;
+                int localY = ex.RegionY - offsetY;
 
-                // Tô đen từng dòng pixel trong vùng exclusion
+                // Tính phần giao (intersection) giữa vùng exclusion và frame capture
+                int startX = Math.Max(0, localX);
+                int startY = Math.Max(0, localY);
+                int endX = Math.Min(captureWidth, localX + ex.RegionWidth);
+                int endY = Math.Min(captureHeight, localY + ex.RegionHeight);
+
+                // Nếu không giao nhau thì bỏ qua
+                if (startX >= endX || startY >= endY) continue;
+
+                int rowBytes = (endX - startX) * 4;
+
+                // Tô đen từng dòng pixel trong phần giao
                 for (int y = startY; y < endY; y++)
                 {
                     int rowStart = y * stride + startX * 4;
-                    int rowEnd = y * stride + endX * 4;
 
-                    if (rowEnd > frame.Length) break;
-
-                    // Zero-out toàn bộ BGRA → pixel đen hoàn toàn
-                    Array.Clear(frame, rowStart, rowEnd - rowStart);
+                    if (rowStart + rowBytes <= frame.Length)
+                    {
+                        // Zero-out toàn bộ BGRA → pixel đen hoàn toàn
+                        Array.Clear(frame, rowStart, rowBytes);
+                    }
                 }
             }
         }
