@@ -231,6 +231,96 @@ namespace TranslateBot.Dialogue
             };
         }
 
+        /// <summary>
+        /// Phát hiện hiện tượng chữ cuộn dòng trong khung thoại Visual Novel/RPG (khi câu dài vượt quá số dòng cho phép,
+        /// dòng trên cuộn đi và dòng mới xuất hiện). Tìm phần giao nhau giữa đuôi câu cũ (existingText) và đầu câu mới (incomingText)
+        /// để ghép nối thành câu hoàn chỉnh thay vì bị cắt làm đôi.
+        /// </summary>
+        public static bool TryFindScrollOverlap(string existingText, string incomingText, out string mergedText)
+        {
+            mergedText = existingText;
+            if (string.IsNullOrWhiteSpace(existingText) || string.IsNullOrWhiteSpace(incomingText))
+                return false;
+
+            string normE = Normalize(existingText);
+            string normI = Normalize(incomingText);
+
+            // 1. Nếu incomingText là chuỗi con hoặc đã nằm trọn trong existingText (ví dụ OCR quét lại dòng cũ)
+            if (normE.EndsWith(normI, StringComparison.OrdinalIgnoreCase) || 
+                normE.Contains(normI, StringComparison.OrdinalIgnoreCase))
+            {
+                mergedText = existingText;
+                return true;
+            }
+
+            // 2. Tìm kiếm overlap theo từ (Word-level overlap) cho ngôn ngữ có khoảng trắng (Anh, Việt...)
+            var wordsE = normE.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var wordsI = normI.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (wordsE.Length >= 2 && wordsI.Length >= 2)
+            {
+                int maxCheck = Math.Min(wordsE.Length, wordsI.Length);
+                // Tìm từ số từ trùng lớn nhất giảm dần, yêu cầu ít nhất 2 từ liên tiếp khớp nhau
+                for (int count = maxCheck; count >= 2; count--)
+                {
+                    bool match = true;
+                    for (int k = 0; k < count; k++)
+                    {
+                        string wE = wordsE[wordsE.Length - count + k];
+                        string wI = wordsI[k];
+                        if (!wE.Equals(wI, StringComparison.OrdinalIgnoreCase) && LevenshteinDistance(wE, wI) > 1)
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    if (match)
+                    {
+                        // Overlap tìm thấy! Lấy các từ mới từ incomingText xuất hiện sau phần overlap
+                        if (count < wordsI.Length)
+                        {
+                            string newSuffix = string.Join(" ", wordsI.Skip(count));
+                            mergedText = normE + " " + newSuffix;
+                            return true;
+                        }
+                        else
+                        {
+                            mergedText = normE;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // 3. Tìm kiếm overlap theo ký tự (Character-level overlap) cho tiếng Nhật/Hoa (CJK)
+            int maxCharCheck = Math.Min(normE.Length, normI.Length);
+            for (int len = maxCharCheck; len >= 4; len--)
+            {
+                string suffixE = normE.Substring(normE.Length - len);
+                string prefixI = normI.Substring(0, len);
+
+                if (suffixE.Equals(prefixI, StringComparison.OrdinalIgnoreCase) || 
+                    (len >= 8 && LevenshteinDistance(suffixE, prefixI) <= 1))
+                {
+                    if (len < normI.Length)
+                    {
+                        string newSuffix = normI.Substring(len).TrimStart();
+                        bool needSpace = char.IsLetterOrDigit(normE[^1]) && char.IsLetterOrDigit(newSuffix[0]) && normE[^1] < 128;
+                        mergedText = needSpace ? normE + " " + newSuffix : normE + newSuffix;
+                        return true;
+                    }
+                    else
+                    {
+                        mergedText = normE;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private struct EditRunInfo
         {
             public int Distance;

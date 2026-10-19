@@ -8,7 +8,8 @@ namespace TranslateBot.Translation
         Game,       // Áp dụng cho 1 game cụ thể (VD: FGO)
         Story,      // Áp dụng cho 1 chapter/arc
         Character,  // Áp dụng cho 1 nhân vật cụ thể
-        Session     // Chỉ tồn tại trong phiên hiện tại
+        Session,    // Chỉ tồn tại trong phiên hiện tại
+        Context     // Ngữ cảnh địa điểm / bối cảnh (Orleans, Septem...)
     }
 
     // Mức độ ràng buộc:

@@ -166,20 +166,23 @@ namespace TranslateBot.Tests
             Assert.AreEqual(160, config.SubtitleWindowHeight);
             Assert.AreEqual(16, config.SubtitleFontSize);
             Assert.IsTrue(config.SubtitleTopmost);
-            Assert.AreEqual("gemini-3.5-flash", config.AiModel);
+            Assert.AreEqual("gemini-2.5-flash", config.AiModel);
         }
 
         [TestMethod]
         public void GeminiProvider_NormalizeModelName_ShouldMapToValidModels()
         {
-            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName(null));
-            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName(""));
-            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-flash-latest"));
-            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-3.5-flash"));
-            Assert.AreEqual("gemini-3.6-flash", GeminiProvider.NormalizeModelName("gemini-3.6-flash"));
-            Assert.AreEqual("gemini-3.1-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
-            Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName(null));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName(""));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-flash-latest"));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.5-flash"));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.6-flash"));
+            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
+            Assert.AreEqual("gemini-2.5-pro", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
             Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-2.5-flash"));
+            Assert.AreEqual("gemini-2.5-pro", GeminiProvider.NormalizeModelName("gemini-2.5-pro"));
+            Assert.AreEqual("gemini-3.8-flash", GeminiProvider.NormalizeModelName("gemini-3.8-flash"));
+            Assert.AreEqual("gemini-1.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-flash"));
         }
 
         [TestMethod]

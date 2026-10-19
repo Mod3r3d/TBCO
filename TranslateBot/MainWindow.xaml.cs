@@ -1146,14 +1146,20 @@ namespace TranslateBot
                 }
 
                 // AI Model
-                string curModel = _appConfig.AiModel ?? "gemini-flash-latest";
+                string curModel = GeminiProvider.NormalizeModelName(_appConfig.AiModel);
+                bool foundModel = false;
                 foreach (ComboBoxItem item in AiModelCombo.Items)
                 {
                     if (string.Equals(item.Tag?.ToString(), curModel, StringComparison.OrdinalIgnoreCase))
                     {
                         AiModelCombo.SelectedItem = item;
+                        foundModel = true;
                         break;
                     }
+                }
+                if (!foundModel && AiModelCombo.Items.Count > 0)
+                {
+                    AiModelCombo.SelectedIndex = 0;
                 }
             }
             finally

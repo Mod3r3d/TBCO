@@ -20,6 +20,8 @@ namespace TranslateBot.Dialogue
         private int _sequenceCounter = 0;
         private readonly Queue<DialogueJob> _completedQueue = new();
         private readonly DialogueDeduplicator _deduplicator = new();
+        private string? _lastFinalizedNormalized;
+        private DateTime _lastFinalizedTime = DateTime.MinValue;
 
         // Phase 3: Progressive Dialogue 2.0 & Adaptive Stabilization
         public StabilityConfig Config { get; set; }
@@ -31,14 +33,35 @@ namespace TranslateBot.Dialogue
 
         public double EffectiveStableDurationMs => GetEffectiveStableDuration();
 
+        private static bool EndsWithTerminalPunctuation(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return false;
+            string t = text.TrimEnd();
+            if (t.Length == 0) return false;
+            char last = t[^1];
+            return last == '.' || last == '!' || last == '?' || last == '。' || last == '！' || last == '？'
+                || last == '"' || last == '”' || last == '」' || last == '』';
+        }
+
         private double GetEffectiveStableDuration()
         {
             if (!Config.EnableAdaptive || CurrentDialogue == null) return Config.StableDurationMs;
 
-            int len = CurrentDialogue.NormalizedText.Length;
-            if (len > 50) return Config.StableDurationMs + 80;
-            if (len > 25) return Config.StableDurationMs + 40;
-            return Config.StableDurationMs;
+            double duration = Config.StableDurationMs;
+            string norm = CurrentDialogue.NormalizedText;
+            int len = norm.Length;
+
+            // Bù giờ typewriter: văn bản càng dài thì khoảng dừng giữa các ký tự/dòng càng lớn
+            if (len > 50) duration += 120;
+            else if (len > 25) duration += 60;
+
+            // Nếu câu CHƯA có dấu kết thúc câu (đang viết dở hoặc sắp xuống dòng), kiên nhẫn đợi thêm
+            if (!EndsWithTerminalPunctuation(norm))
+            {
+                duration += 280;
+            }
+
+            return Math.Min(duration, Config.MaxWaitMs);
         }
 
         public void ProcessOcrResult(string text)
@@ -63,6 +86,19 @@ namespace TranslateBot.Dialogue
                 // 1. Nếu chưa có câu nào đang theo dõi
                 if (_currentDialogue == null)
                 {
+                    // Kiểm tra xem câu mới có phải là phần cuộn dòng tiếp theo của câu vừa finalize không (trong vòng 2.5 giây)
+                    if (!string.IsNullOrEmpty(_lastFinalizedNormalized) && (DateTime.Now - _lastFinalizedTime).TotalMilliseconds < 2500)
+                    {
+                        if (TextSimilarity.TryFindScrollOverlap(_lastFinalizedNormalized, normalizedNew, out string stitched))
+                        {
+                            AppLogger.Info($"[TRACKER_SCROLL_RECONNECT] Nối câu #{_sequenceCounter} vừa kết thúc sớm với dòng mới: \"{stitched}\"");
+                            _currentDialogue = new DialogueJob(_sequenceCounter, stitched, stitched);
+                            _currentDialogue.State = DialogueState.Extending;
+                            _currentDialogue.LastSeenAt = DateTime.Now;
+                            return;
+                        }
+                    }
+
                     _sequenceCounter++;
                     _currentDialogue = new DialogueJob(_sequenceCounter, text, normalizedNew);
                     return;
@@ -87,7 +123,18 @@ namespace TranslateBot.Dialogue
                     return;
                 }
 
-                // 4. Section 9: OCR Correction
+                // 4. MỚI: Cuộn dòng (Scroll Overlap) — khi câu dài xuống dòng khiến dòng trên cuộn đi
+                if (TextSimilarity.TryFindScrollOverlap(currNorm, normalizedNew, out string mergedScroll))
+                {
+                    AppLogger.Info($"[TRACKER_SCROLL_MERGE] #{_currentDialogue.SequenceId} Ghép cuộn dòng: \"{mergedScroll}\"");
+                    _currentDialogue.RawText = mergedScroll;
+                    _currentDialogue.NormalizedText = mergedScroll;
+                    _currentDialogue.LastSeenAt = DateTime.Now;
+                    _currentDialogue.State = DialogueState.Extending;
+                    return;
+                }
+
+                // 5. Section 9: OCR Correction
                 if (TextSimilarity.IsLikelyOcrCorrection(currNorm, normalizedNew))
                 {
                     AppLogger.Info($"[TRACKER_OCR_CORRECTION] #{_currentDialogue.SequenceId} " +
@@ -99,7 +146,7 @@ namespace TranslateBot.Dialogue
                     return;
                 }
 
-                // 5. Chuyển câu thoại mới (Transition Flush)
+                // 6. Chuyển câu thoại mới (Transition Flush)
                 if (_currentDialogue != null)
                 {
                     _currentDialogue.State = DialogueState.Confirmed;
@@ -178,6 +225,9 @@ namespace TranslateBot.Dialogue
             _deduplicator.Record(CurrentDialogue.NormalizedText);
             AppLogger.Info($"[DIALOGUE_CONFIRMED] #{CurrentDialogue.SequenceId} ({reason}): \"{CurrentDialogue.NormalizedText}\"");
 
+            _lastFinalizedNormalized = CurrentDialogue.NormalizedText;
+            _lastFinalizedTime = DateTime.Now;
+
             _completedQueue.Enqueue(CurrentDialogue);
             CurrentDialogue = null;
         }
@@ -203,6 +253,8 @@ namespace TranslateBot.Dialogue
                 _currentDialogue = null;
                 _completedQueue.Clear();
                 _deduplicator.Reset();
+                _lastFinalizedNormalized = null;
+                _lastFinalizedTime = DateTime.MinValue;
             }
         }
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TranslateBot.Database;
 using TranslateBot.Infrastructure;
+using TranslateBot.Dialogue;
 using TranslateBot.OCR;
 using TranslateBot.Translation;
 
@@ -256,6 +257,51 @@ namespace TranslateBot.Tests
                     try { File.Delete(tempDb); } catch { }
                 }
             }
+        }
+
+        [TestMethod]
+        public void TextSimilarity_TryFindScrollOverlap_FgoScenario_StitchesCompleteSentence()
+        {
+            string line1 = "This is the story of a single future -what became of an island of Mystics that was reduced to the Land of the";
+            string line2 = "island of Mystics that was reduced to the Land of the Fae.";
+
+            bool success = TextSimilarity.TryFindScrollOverlap(line1, line2, out string merged);
+
+            Assert.IsTrue(success, "Phải nhận diện được phần trùng lặp khi câu dài xuống dòng");
+            Assert.IsTrue(merged.StartsWith("This is the story"), "Câu ghép phải giữ được đoạn mở đầu");
+            Assert.IsTrue(merged.EndsWith("Land of the Fae."), "Câu ghép phải chứa được đuôi câu Fae.");
+            Assert.IsFalse(merged.Contains("Land of the island"), "Không được để trùng lặp từ ngữ khi ghép");
+        }
+
+        [TestMethod]
+        public void TextSimilarity_TryFindScrollOverlap_JapaneseScenario_StitchesCompleteSentence()
+        {
+            string line1 = "新生ノーチラス号の工事も、本日をもって";
+            string line2 = "本日をもって終了する予定です。";
+
+            bool success = TextSimilarity.TryFindScrollOverlap(line1, line2, out string merged);
+
+            Assert.IsTrue(success);
+            Assert.AreEqual("新生ノーチラス号の工事も、本日をもって終了する予定です。", merged);
+        }
+
+        [TestMethod]
+        public void DialogueTracker_MultiLineScrolling_PreservesWholeSentence()
+        {
+            var tracker = new DialogueTracker();
+
+            // Khung 1: Câu thoại dài bắt đầu hiện 2 dòng đầu
+            tracker.ProcessOcrResult("This is the story of a single future -what became of an island of Mystics that was reduced to the Land of the");
+            Assert.IsNotNull(tracker.CurrentDialogue);
+
+            // Khung 2: Dòng 1 cuộn đi, dòng 3 xuất hiện
+            tracker.ProcessOcrResult("island of Mystics that was reduced to the Land of the Fae.");
+
+            // Kiểm tra tracker không bị tách câu mà ghép nối lại
+            Assert.IsNotNull(tracker.CurrentDialogue);
+            Assert.IsTrue(tracker.CurrentDialogue.NormalizedText.StartsWith("this is the story", StringComparison.OrdinalIgnoreCase));
+            Assert.IsTrue(tracker.CurrentDialogue.NormalizedText.EndsWith("land of the fae.", StringComparison.OrdinalIgnoreCase));
+            Assert.AreEqual(DialogueState.Extending, tracker.CurrentDialogue.State);
         }
     }
 }

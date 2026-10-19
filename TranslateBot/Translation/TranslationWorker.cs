@@ -123,18 +123,21 @@ namespace TranslateBot.Translation
                     _lastPrefetchJob = null;
                 }
 
-                // Huỷ các câu confirmed CŨ HƠN vẫn còn đang chờ (chưa dịch xong) - tránh dịch
-                // xong rồi hiển thị chỉ để bị đè lên gần như ngay lập tức (hiện tượng "nhảy
-                // nhanh" khi 1 câu dài làm dồn ứ hàng đợi phía sau).
+                // Quản lý hàng đợi confirmed: chỉ hủy bớt câu cũ nếu hàng đợi dồn ứ quá lớn
+                // (người chơi giữ nút SKIP hoặc tua nhanh hội thoại >= 4 câu)
                 lock (_pendingLock)
                 {
-                    foreach (var pending in _pendingConfirmedJobs)
+                    if (_pendingConfirmedJobs.Count >= 4)
                     {
-                        if (pending.SequenceId < job.SequenceId && !pending.IsTranslated && !pending.IsCancelled)
+                        var toDrop = _pendingConfirmedJobs.Take(_pendingConfirmedJobs.Count - 2).ToList();
+                        foreach (var pending in toDrop)
                         {
-                            pending.IsCancelled = true;
-                            Metrics?.RecordJobDropped();
-                            AppLogger.Info($"[COALESCE_STALE] Hủy câu #{pending.SequenceId} (còn chưa dịch xong) do đã có câu mới hơn #{job.SequenceId}");
+                            if (pending.SequenceId < job.SequenceId && !pending.IsTranslated && !pending.IsCancelled)
+                            {
+                                pending.IsCancelled = true;
+                                Metrics?.RecordJobDropped();
+                                AppLogger.Info($"[COALESCE_FAST_FORWARD] Bỏ qua câu cũ #{pending.SequenceId} do người chơi tua nhanh hội thoại.");
+                            }
                         }
                     }
                     // Chỉ giữ lại các job thật sự còn đang chờ, tránh danh sách phình vô hạn
