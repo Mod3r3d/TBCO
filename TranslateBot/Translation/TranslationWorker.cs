@@ -217,7 +217,19 @@ namespace TranslateBot.Translation
 
                         if (isSuccess)
                         {
-                            _translationMemory.Store(job.NormalizedText, translatedText);
+                            bool isDegradedFallback = job.ProviderName == "GoogleWebTranslate" &&
+                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWeb" &&
+                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWebTranslate";
+
+                            if (!isDegradedFallback)
+                            {
+                                _translationMemory.Store(job.NormalizedText, translatedText);
+                            }
+                            else
+                            {
+                                AppLogger.Warn($"[MEMORY_SKIP_FALLBACK] Không lưu bản dịch fallback thô từ Google Web Translate vào bộ nhớ dịch của #{job.SequenceId}");
+                            }
+
                             AppLogger.Info($"[TRANSLATION_DONE] #{job.SequenceId}");
                             ReportSuccess();
                         }

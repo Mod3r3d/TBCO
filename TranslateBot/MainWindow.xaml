@@ -572,11 +572,11 @@
                                        Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
                             <ComboBox Grid.Column="1" x:Name="AiModelCombo" Style="{StaticResource DarkComboBox}"
                                       SelectionChanged="AiModelCombo_SelectionChanged">
-                                <ComboBoxItem Content="Google Gemini 2.5 Flash (Khuyên dùng - Cực nhanh, thông minh &amp; hạn mức cao)" Tag="gemini-2.5-flash" IsSelected="True"/>
-                                <ComboBoxItem Content="Google Gemini 2.5 Pro (Dịch chuyên sâu - Văn phong trau chuốt, hiểu sâu ngữ cảnh)" Tag="gemini-2.5-pro"/>
-                                <ComboBoxItem Content="Google Gemini 3.8 Flash (Thế hệ mới nhất - Phản hồi siêu tốc &amp; Agentic)" Tag="gemini-3.8-flash"/>
-                                <ComboBoxItem Content="Google Gemini 1.5 Flash (Bản kinh điển - Ổn định, hỗ trợ mọi tài khoản)" Tag="gemini-1.5-flash"/>
-                                <ComboBoxItem Content="Google Gemini 1.5 Pro (Bản Pro kinh điển - Phân tích ngữ nghĩa chi tiết)" Tag="gemini-1.5-pro"/>
+                                <ComboBoxItem Content="Google Gemini 3.5 Flash (Khuyên dùng - Cân bằng tốc độ / chất lượng)" Tag="gemini-3.5-flash" IsSelected="True"/>
+                                <ComboBoxItem Content="Google Gemini 3.6 Flash (Mới nhất - Dịch thuật cao cấp)" Tag="gemini-3.6-flash"/>
+                                <ComboBoxItem Content="Google Gemini 3.1 Flash Lite (Nhanh nhất - Phản hồi tức thì)" Tag="gemini-3.1-flash-lite"/>
+                                <ComboBoxItem Content="Google Gemini 3.5 Flash Lite (Bản Lite thế hệ 3.5)" Tag="gemini-3.5-flash-lite"/>
+                                <ComboBoxItem Content="Google Gemini 3.1 Pro Preview (Chính xác cao, ngữ cảnh sâu)" Tag="gemini-3.1-pro-preview"/>
                             </ComboBox>
                         </Grid>
 

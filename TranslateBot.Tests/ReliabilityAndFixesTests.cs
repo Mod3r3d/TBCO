@@ -166,23 +166,22 @@ namespace TranslateBot.Tests
             Assert.AreEqual(160, config.SubtitleWindowHeight);
             Assert.AreEqual(16, config.SubtitleFontSize);
             Assert.IsTrue(config.SubtitleTopmost);
-            Assert.AreEqual("gemini-2.5-flash", config.AiModel);
+            Assert.AreEqual("gemini-3.5-flash", config.AiModel);
         }
 
         [TestMethod]
         public void GeminiProvider_NormalizeModelName_ShouldMapToValidModels()
         {
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName(null));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName(""));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-flash-latest"));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.5-flash"));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.6-flash"));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
-            Assert.AreEqual("gemini-2.5-pro", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
-            Assert.AreEqual("gemini-2.5-flash", GeminiProvider.NormalizeModelName("gemini-2.5-flash"));
-            Assert.AreEqual("gemini-2.5-pro", GeminiProvider.NormalizeModelName("gemini-2.5-pro"));
-            Assert.AreEqual("gemini-3.8-flash", GeminiProvider.NormalizeModelName("gemini-3.8-flash"));
-            Assert.AreEqual("gemini-1.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-flash"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName(null));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName(""));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-flash-latest"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-3.5-flash"));
+            Assert.AreEqual("gemini-3.6-flash", GeminiProvider.NormalizeModelName("gemini-3.6-flash"));
+            Assert.AreEqual("gemini-3.1-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
+            Assert.AreEqual("gemini-3.5-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.5-flash-lite"));
+            Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-flash"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-pro"));
         }
 
         [TestMethod]
@@ -202,6 +201,61 @@ namespace TranslateBot.Tests
             t.Start();
             t.Join(3000);
             Assert.IsFalse(t.IsAlive, "STA thread khởi tạo DetachedSubtitleWindow phải hoàn tất trong 3s");
+        }
+
+        [TestMethod]
+        public async Task TranslationRouter_InvalidKey400_ShouldMarkKeyInvalidAndTriggerFallback()
+        {
+            var key = new ApiCredential
+            {
+                Id = "key-test-invalid",
+                Provider = "Gemini",
+                Secret = "AIzaSyInvalidKey",
+                Status = ApiKeyStatus.Active
+            };
+            var keyPool = new ApiKeyPool(new[] { key });
+
+            var mockGemini = new MockGeminiFailingProvider(400, "{\"error\":{\"code\":400,\"message\":\"API key not valid.\",\"details\":[{\"reason\":\"API_KEY_INVALID\"}]}}");
+            var mockFallback = new MockFallbackProvider("Bản dịch dự phòng từ Google Web");
+
+            bool fallbackTriggered = false;
+            var router = new TranslationRouter(keyPool, mockGemini, mockFallback);
+            router.OnFallbackTriggered += (primary, fb, reason) =>
+            {
+                fallbackTriggered = true;
+            };
+
+            string result = await router.TranslateAsync("Hello world");
+
+            Assert.AreEqual("Bản dịch dự phòng từ Google Web", result);
+            Assert.IsTrue(fallbackTriggered, "Router phải kích hoạt sự kiện OnFallbackTriggered");
+            Assert.AreEqual(ApiKeyStatus.Invalid, key.Status, "Key trả về 400 API_KEY_INVALID phải được đánh dấu Invalid");
+        }
+
+        private class MockGeminiFailingProvider : GeminiProvider
+        {
+            private readonly int _code;
+            private readonly string _raw;
+
+            public MockGeminiFailingProvider(int code, string raw)
+            {
+                _code = code;
+                _raw = raw;
+                ThrowOnApiError = true;
+            }
+
+            public override Task<string> TranslateWithKeyAsync(string text, string apiKey, TranslationContext? context = null)
+            {
+                throw new GeminiApiException(_code, "API Error", null, _raw);
+            }
+        }
+
+        private class MockFallbackProvider : ITranslationProvider
+        {
+            private readonly string _result;
+            public MockFallbackProvider(string result) => _result = result;
+            public Task<string> TranslateAsync(string text) => Task.FromResult(_result);
+            public Task<string> TranslateAsync(string text, TranslationContext? context) => Task.FromResult(_result);
         }
 
         private class FailingTranslationProvider : ITranslationProvider

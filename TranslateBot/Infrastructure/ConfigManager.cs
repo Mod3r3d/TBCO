@@ -80,7 +80,7 @@ namespace TranslateBot.Infrastructure
         public int ScanIntervalMs { get; set; } = 300;
         public string SourceLanguage { get; set; } = "auto";
         public string TargetLanguage { get; set; } = "vi";
-        public string AiModel { get; set; } = "gemini-2.5-flash";
+        public string AiModel { get; set; } = "gemini-3.5-flash";
 
         // ── Translation Provider Selection ─────────────────────────────────
         // "Gemini" (Google Gemini AI), "DeepL" (DeepL API), "GoogleWeb" (Google Web Translate miễn phí)

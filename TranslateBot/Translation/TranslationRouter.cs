@@ -36,6 +36,8 @@ namespace TranslateBot.Translation
         public string CurrentProviderName { get; private set; } = "Gemini";
         public string? CurrentKeyId { get; private set; }
 
+        public event Action<string, string, string>? OnFallbackTriggered;
+
         public TranslationRouter(
             IApiKeyPool keyPool,
             GeminiProvider geminiProvider,
@@ -259,6 +261,7 @@ namespace TranslateBot.Translation
             CurrentProviderName = "GoogleWebTranslate";
             CurrentKeyId = null;
             AppLogger.Warn("[ROUTER_FALLBACK] Chuyển tiếp sang Google Web Translate để không ngắt quãng trải nghiệm.");
+            OnFallbackTriggered?.Invoke(PrimaryProvider, "GoogleWebTranslate", "Bộ dịch chính gặp sự cố, tạm chuyển sang Google Web Translate");
 
             var swFallback = Stopwatch.StartNew();
             try
@@ -319,14 +322,17 @@ namespace TranslateBot.Translation
                     _keyPool.ReportRateLimit(key, TimeSpan.FromSeconds(delay), "429 Quota Exceeded");
                     Metrics?.RecordTranslationRequest(sw.Elapsed.TotalMilliseconds, false, isRateLimit: true);
                 }
-                else if (ex.StatusCode == 401)
+                else if (ex.StatusCode == 401 ||
+                         (ex.StatusCode == 400 && (ex.RawResponse?.Contains("API_KEY_INVALID") == true ||
+                                                   ex.RawResponse?.Contains("API key not valid") == true ||
+                                                   ex.Message?.Contains("API key not valid") == true)))
                 {
-                    _keyPool.ReportInvalid(key, "401 Invalid Token / Unauthorized");
+                    _keyPool.ReportInvalid(key, $"HTTP {ex.StatusCode} Invalid API Key");
                     Metrics?.RecordTranslationRequest(sw.Elapsed.TotalMilliseconds, false);
                 }
                 else
                 {
-                    _keyPool.ReportTransientError(key, ex.StatusCode, ex.Message);
+                    _keyPool.ReportTransientError(key, ex.StatusCode, ex.Message ?? "Unknown error");
                     Metrics?.RecordTranslationRequest(sw.Elapsed.TotalMilliseconds, false);
                 }
                 return string.Empty;
@@ -335,7 +341,7 @@ namespace TranslateBot.Translation
             {
                 sw.Stop();
                 _healthTracker.ReportFailure("Gemini", ex.Message);
-                _keyPool.ReportTransientError(key, 0, ex.Message);
+                _keyPool.ReportTransientError(key, 0, ex.Message ?? "Unknown error");
                 Metrics?.RecordTranslationRequest(sw.Elapsed.TotalMilliseconds, false);
                 return string.Empty;
             }

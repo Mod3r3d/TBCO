@@ -73,19 +73,16 @@ namespace TranslateBot.Translation
 
         public static string NormalizeModelName(string? model)
         {
-            if (string.IsNullOrWhiteSpace(model)) return "gemini-2.5-flash";
+            if (string.IsNullOrWhiteSpace(model)) return "gemini-3.5-flash";
             string m = model.Trim();
-            if (m.Equals("gemini-flash-latest", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-3.5-flash", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-3.6-flash", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-3.1-flash-lite", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-3.5-flash-lite", StringComparison.OrdinalIgnoreCase))
+            if (m.Equals("gemini-flash-latest", StringComparison.OrdinalIgnoreCase))
             {
-                return "gemini-2.5-flash";
+                return "gemini-3.5-flash";
             }
-            if (m.Equals("gemini-3.1-pro-preview", StringComparison.OrdinalIgnoreCase))
+            if (m.Equals("gemini-1.5-flash", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-1.5-pro", StringComparison.OrdinalIgnoreCase))
             {
-                return "gemini-2.5-pro";
+                return "gemini-3.5-flash";
             }
             return m;
         }

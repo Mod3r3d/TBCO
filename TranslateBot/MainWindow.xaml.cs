@@ -236,6 +236,21 @@ namespace TranslateBot
                 {
                     PrimaryProvider = activeProvider
                 };
+
+                _keyPool.OnPoolStateChanged += () => Dispatcher.Invoke(UpdateApiKeyStatusUi);
+                _translationRouter.OnFallbackTriggered += (primary, fallbackProvider, reason) =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        UpdateApiKeyStatusUi();
+                        if (HotkeyHintText != null)
+                        {
+                            HotkeyHintText.Text = $"⚠️ {primary} không khả dụng -> Tạm dùng {fallbackProvider} (dịch máy cơ bản). Nhấn Ctrl+K để cập nhật API Key!";
+                            HotkeyHintText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
+                        }
+                    });
+                };
+
                 _translationProvider = _translationRouter;
                 var translationWorker = new TranslationWorker(_translationProvider);
 
@@ -300,6 +315,7 @@ namespace TranslateBot
 
                 StatusText.Text = "Sẵn sàng";
                 StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
+                UpdateApiKeyStatusUi();
             }
             catch (Exception ex)
             {
@@ -1420,14 +1436,29 @@ namespace TranslateBot
                 UpdateProviderPanelsVisibility(currentProvider);
 
                 // Đồng bộ Mô hình AI
-                if (!string.IsNullOrEmpty(_appConfig.AiModel) && AiModelCombo != null)
+                if (AiModelCombo != null)
                 {
-                    foreach (ComboBoxItem item in AiModelCombo.Items)
+                    bool matched = false;
+                    if (!string.IsNullOrEmpty(_appConfig.AiModel))
                     {
-                        if (string.Equals(item.Tag?.ToString(), _appConfig.AiModel, StringComparison.OrdinalIgnoreCase))
+                        foreach (ComboBoxItem item in AiModelCombo.Items)
                         {
-                            AiModelCombo.SelectedItem = item;
-                            break;
+                            if (string.Equals(item.Tag?.ToString(), _appConfig.AiModel, StringComparison.OrdinalIgnoreCase))
+                            {
+                                AiModelCombo.SelectedItem = item;
+                                matched = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!matched && AiModelCombo.Items.Count > 0)
+                    {
+                        AiModelCombo.SelectedIndex = 0;
+                        if (AiModelCombo.SelectedItem is ComboBoxItem defaultItem)
+                        {
+                            _appConfig.AiModel = defaultItem.Tag?.ToString() ?? "gemini-3.5-flash";
+                            ConfigManager.Save(_appConfig);
                         }
                     }
                 }
@@ -1585,6 +1616,31 @@ namespace TranslateBot
             _floatingToolbar?.SetTtsActive(_isTtsEnabled);
         }
 
+        private void UpdateApiKeyStatusUi()
+        {
+            if (ApiKeyStatusText == null) return;
+
+            var allCreds = _keyPool?.GetAllCredentials();
+            if (allCreds == null || allCreds.Count == 0)
+            {
+                ApiKeyStatusText.Text = "Chưa cài đặt API Key";
+                ApiKeyStatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B")); // Vàng cam
+                return;
+            }
+
+            var active = allCreds.Where(c => c.IsAvailable).ToList();
+            if (active.Count == 0)
+            {
+                ApiKeyStatusText.Text = "API Key không hợp lệ hoặc hết hạn!";
+                ApiKeyStatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF4444")); // Đỏ
+            }
+            else
+            {
+                ApiKeyStatusText.Text = $"Đã cấu hình ({active.Count}/{allCreds.Count} key sẵn sàng)";
+                ApiKeyStatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981")); // Xanh lá
+            }
+        }
+
         private void ApiKeyBtn_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UI.ApiKeyManagerWindow(_keyPool, _appConfig)
@@ -1595,6 +1651,7 @@ namespace TranslateBot
             if (dialog.ShowDialog() == true)
             {
                 _ = RestartEngineAsync();
+                UpdateApiKeyStatusUi();
                 MessageBox.Show("Đã cập nhật cấu hình API Key Pool thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
