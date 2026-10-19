@@ -121,6 +121,12 @@ namespace TranslateBot.Tests
         [TestMethod]
         public void FloatingToolbar_STA_Initialization_And_PositionSafety()
         {
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_ACTIONS")))
+            {
+                Assert.Inconclusive("Skipping WPF Window rendering test on headless GitHub Actions runner.");
+                return;
+            }
+
             var t = new System.Threading.Thread(() =>
             {
                 var toolbar = new UI.FloatingToolbar();
@@ -189,6 +195,12 @@ namespace TranslateBot.Tests
         [TestMethod]
         public void DetachedSubtitleWindow_STA_ShouldInitializeWithoutCrash()
         {
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_ACTIONS")))
+            {
+                Assert.Inconclusive("Skipping WPF Window rendering test on headless GitHub Actions runner.");
+                return;
+            }
+
             Exception? threadEx = null;
             var t = new System.Threading.Thread(() =>
             {
