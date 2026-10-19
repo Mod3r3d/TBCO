@@ -38,18 +38,26 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/TBCO-win-x64.zip
-          name: "TBCO v3.0.0 PRO - DeepL, Google Web & Safe Hotkeys"
+          name: "TBCO ${{ github.ref_name }} PRO - Gemini 3.x, Auto-Stitch Scroll & Quality Fixes"
           body: |
             ### 🎮 TBCO — Phiên Bản Dựng Sẵn (Đã đóng gói hoàn chỉnh)
             
             > 🟢 **Tải về:** Tải file **`TBCO-win-x64.zip`** ở mục **Assets** bên dưới.  
             > ⚠️ **Lưu ý:** KHÔNG tải file `Source code (zip)` vì đó chỉ là mã nguồn lập trình, không có file chạy `.exe`.
             
+            #### ✨ Điểm mới trong bản cập nhật này:
+            - **Google Gemini 3.x:** Hỗ trợ chính thức các mô hình Gemini 3.x (`gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.1-pro-preview`).
+            - **Loại bỏ bản cũ:** Xóa hoàn toàn các phiên bản 1.5 và 2.5 đã lỗi thời hoặc bị Google ngừng cấp cho API key mới.
+            - **Tự động ghép nối cuộn dòng (Auto-Stitch Scroll):** Xử lý triệt để hiện tượng câu thoại dài trong Visual Novel / JRPG (FGO 2 dòng/3 dòng) bị ngắt câu hoặc dịch thiếu đoạn đầu khi chữ bị đẩy dòng.
+            - **Phát hiện lỗi API Key & Cảnh báo trực quan:** Khi API Key bị lỗi, hệ thống tự động fallback sang Google Web Translate để không ngắt quãng trò chơi, đồng thời hiển thị cảnh báo đỏ/vàng trên giao diện để người chơi cập nhật key.
+            - **Khắc phục lỗi HTTP 404:** Sửa triệt để lỗi 404 khi bấm *"Kiểm tra Key đã chọn"* trong bảng Quản lý API Key Pool.
+            - **Tương thích đa kích thước màn hình:** Tối ưu hiển thị cho laptop 14 inch, 16 inch và màn hình có DPI cao.
+
             #### 📂 Hướng dẫn khởi chạy nhanh:
-            1. Giải nén file `TBCO-win-x64.zip`.
+            1. Tải và giải nén file `TBCO-win-x64.zip`.
             2. Mở thư mục `TBCO-win-x64`, nhấp đúp vào **`TBCO.exe`** (hoặc `KHOI_CHAY_TBCO.bat`).
-            3. Vào mục **[Cài đặt & API]** để chọn bộ dịch (Google Gemini, DeepL Translate hoặc Google Web Translate miễn phí).
-            4. Bấm **F1** để xem bảng phím tắt bất kỳ lúc nào!
+            3. Nhấn **Ctrl+K** vào **[Cài đặt & API]** để cấu hình API Key Gemini hoặc chọn DeepL / Google Web Translate miễn phí.
+            4. Bấm **F1** để xem bảng tra cứu phím tắt bất kỳ lúc nào!
           draft: false
           prerelease: false
 
