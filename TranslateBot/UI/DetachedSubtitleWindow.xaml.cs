@@ -14,6 +14,7 @@ namespace TranslateBot.UI
     public partial class DetachedSubtitleWindow : Window
     {
         public bool IsLocked { get; private set; } = false;
+        public bool ShowSpeakerBadge { get; set; } = false;
         private double _currentFontSize = 16.0;
 
         // Callbacks gửi sự kiện về cho MainWindow
@@ -53,7 +54,7 @@ namespace TranslateBot.UI
         {
             void Apply()
             {
-                if (!string.IsNullOrWhiteSpace(speaker))
+                if (ShowSpeakerBadge && !string.IsNullOrWhiteSpace(speaker))
                 {
                     SpeakerBadge.Visibility = Visibility.Visible;
                     SpeakerText.Text = speaker;

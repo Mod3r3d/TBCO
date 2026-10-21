@@ -687,6 +687,8 @@
                                           Style="{StaticResource AutoHostCheckBox}" Click="TtsToggleCheckBox_Click"/>
                                 <CheckBox x:Name="SessionLogCheckBox" Content="Lưu nhật ký phiên (.jsonl &amp; CSV)" 
                                           Style="{StaticResource AutoHostCheckBox}" IsChecked="True" Click="SessionLogCheckBox_Click"/>
+                                <CheckBox x:Name="ShowSpeakerBadgeCheckBox" Content="Hiện nhãn tên nhân vật trên phụ đề" 
+                                          Style="{StaticResource AutoHostCheckBox}" Click="ShowSpeakerBadgeCheckBox_Click"/>
                             </StackPanel>
                         </Grid>
 

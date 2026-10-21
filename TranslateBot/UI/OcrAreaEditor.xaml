@@ -44,9 +44,12 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <Button x:Name="AddAreaBtn" Content="+ Thêm vùng OCR"
+                    <Button x:Name="AddAreaBtn" Content="+ Vùng Thoại (Dialogue)"
                             Style="{StaticResource EditorButton}" Background="#3B82F6"
-                            Click="AddAreaBtn_Click" Margin="0,0,8,0"/>
+                            Click="AddAreaBtn_Click" Margin="0,0,6,0"/>
+                    <Button x:Name="AddSpeakerAreaBtn" Content="+ Vùng Tên (Speaker)"
+                            Style="{StaticResource EditorButton}" Background="#10B981"
+                            Click="AddSpeakerAreaBtn_Click" Margin="0,0,6,0"/>
                     <Button x:Name="RemoveAreaBtn" Content="Xóa"
                             Style="{StaticResource EditorButton}" Background="#EF4444"
                             Click="RemoveAreaBtn_Click"/>
@@ -73,7 +76,10 @@
                 <StackPanel Grid.Row="4" Orientation="Horizontal">
                     <Button x:Name="ToggleAreaBtn" Content="Bật/Tắt"
                             Style="{StaticResource EditorButton}" Background="#8B5CF6"
-                            Click="ToggleAreaBtn_Click" Margin="0,0,8,0"/>
+                            Click="ToggleAreaBtn_Click" Margin="0,0,6,0"/>
+                    <Button x:Name="ChangeTypeBtn" Content="Đổi loại (Thoại ⇄ Tên)"
+                            Style="{StaticResource EditorButton}" Background="#0284C7"
+                            Click="ChangeTypeBtn_Click" Margin="0,0,6,0"/>
                     <Button x:Name="ReselectAreaBtn" Content="Khoanh lại"
                             Style="{StaticResource EditorButton}" Background="#F59E0B"
                             Click="ReselectAreaBtn_Click"/>

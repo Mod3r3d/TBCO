@@ -69,11 +69,36 @@ namespace TranslateBot.UI
             // Yêu cầu MainWindow mở RegionSelector, trả kết quả qua callback
             bool opened = RequestRegionSelection?.Invoke((x, y, w, h) =>
             {
-                int count = _areaManager.Areas.Count + 1;
+                int count = _areaManager.Areas.Count(a => a.Type == OcrAreaType.Dialogue) + 1;
                 var area = new OcrArea
                 {
                     Name = $"Dialogue {count}",
                     Type = OcrAreaType.Dialogue,
+                    RegionX = x,
+                    RegionY = y,
+                    RegionWidth = w,
+                    RegionHeight = h
+                };
+                _areaManager.Add(area);
+                OnAreasChanged?.Invoke();
+                Dispatcher.Invoke(RefreshAreaList);
+            }) ?? false;
+
+            if (!opened)
+            {
+                MessageBox.Show("Không thể mở RegionSelector.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void AddSpeakerAreaBtn_Click(object sender, RoutedEventArgs e)
+        {
+            bool opened = RequestRegionSelection?.Invoke((x, y, w, h) =>
+            {
+                int count = _areaManager.Areas.Count(a => a.Type == OcrAreaType.Speaker) + 1;
+                var area = new OcrArea
+                {
+                    Name = $"Speaker {count}",
+                    Type = OcrAreaType.Speaker,
                     RegionX = x,
                     RegionY = y,
                     RegionWidth = w,
@@ -108,6 +133,26 @@ namespace TranslateBot.UI
                 if (area != null)
                 {
                     _areaManager.SetEnabled(area.Id, !area.Enabled);
+                    OnAreasChanged?.Invoke();
+                    RefreshAreaList();
+                }
+            }
+        }
+
+        private void ChangeTypeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (AreaListView.SelectedItem is AreaDisplayItem selected)
+            {
+                var area = _areaManager.Areas.FirstOrDefault(a => a.Id == selected.Id);
+                if (area != null)
+                {
+                    area.Type = area.Type switch
+                    {
+                        OcrAreaType.Dialogue => OcrAreaType.Speaker,
+                        OcrAreaType.Speaker => OcrAreaType.Narration,
+                        OcrAreaType.Narration => OcrAreaType.Dialogue,
+                        _ => OcrAreaType.Dialogue
+                    };
                     OnAreasChanged?.Invoke();
                     RefreshAreaList();
                 }

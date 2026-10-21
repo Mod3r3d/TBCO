@@ -126,6 +126,7 @@ namespace TranslateBot.UI
                         Status = ApiKeyStatus.Active
                     };
                     _keyPool.AddOrUpdateCredential(cred);
+                    AutoPersistCredentials();
                     RefreshList();
                     StatusMessageText.Text = $"Đã thêm key [{cred.Id}]";
                 }
@@ -162,6 +163,10 @@ namespace TranslateBot.UI
                 }
             }
 
+            if (added > 0)
+            {
+                AutoPersistCredentials();
+            }
             RefreshList();
             StatusMessageText.Text = $"Đã dán và thêm thành công {added} API Key mới.";
         }
@@ -182,6 +187,7 @@ namespace TranslateBot.UI
                 if (!string.IsNullOrEmpty(result))
                 {
                     selected.Model.RecordSuccess(TimeSpan.FromMilliseconds(200));
+                    AutoPersistCredentials();
                     RefreshList();
                     MessageBox.Show($"Key [{selected.Id}] HOẠT ĐỘNG TỐT!\nKết quả dịch thử: {result}", "Kiểm tra thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -195,12 +201,14 @@ namespace TranslateBot.UI
                 if (ex.StatusCode == 429)
                 {
                     selected.Model.RecordCooldown(TimeSpan.FromSeconds(60), "Test 429 Quota Exceeded");
+                    AutoPersistCredentials();
                     RefreshList();
                     MessageBox.Show($"Key [{selected.Id}] báo HẾT QUOTA (HTTP 429). Key đã chuyển sang Cooldown.", "Lỗi 429", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else if (ex.StatusCode == 401 || (ex.StatusCode == 400 && (ex.RawResponse?.Contains("API_KEY_INVALID") == true || ex.RawResponse?.Contains("API key not valid") == true)))
                 {
                     selected.Model.RecordInvalid("Test: Invalid API Key");
+                    AutoPersistCredentials();
                     RefreshList();
                     MessageBox.Show($"Key [{selected.Id}] KHÔNG HỢP LỆ (Google từ chối mã API Key này). Vui lòng kiểm tra lại key lấy từ Google AI Studio.", "Lỗi API Key", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
@@ -235,6 +243,7 @@ namespace TranslateBot.UI
             {
                 selected.Model.Status = ApiKeyStatus.Disabled;
             }
+            AutoPersistCredentials();
             RefreshList();
         }
 
@@ -251,15 +260,34 @@ namespace TranslateBot.UI
             if (confirm == MessageBoxResult.Yes)
             {
                 _keyPool.RemoveCredential(selected.Id);
+                AutoPersistCredentials();
                 RefreshList();
                 StatusMessageText.Text = $"Đã xóa key [{selected.Id}]";
             }
         }
 
+        private void AutoPersistCredentials()
+        {
+            try
+            {
+                var creds = _keyPool.GetAllCredentials();
+                ConfigManager.SaveCredentials(_config, creds);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[API_KEY_MANAGER] Lỗi tự động lưu credentials: {ex.Message}");
+            }
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            AutoPersistCredentials();
+            base.OnClosing(e);
+        }
+
         private void SaveAndApplyBtn_Click(object sender, RoutedEventArgs e)
         {
-            var creds = _keyPool.GetAllCredentials();
-            ConfigManager.SaveCredentials(_config, creds);
+            AutoPersistCredentials();
             StatusMessageText.Text = "Đã lưu và áp dụng cấu hình Pool.";
             DialogResult = true;
             Close();
@@ -267,6 +295,7 @@ namespace TranslateBot.UI
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = true;
             Close();
         }
     }

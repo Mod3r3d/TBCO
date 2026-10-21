@@ -58,7 +58,7 @@ namespace TranslateBot.Dialogue
             // Nếu câu CHƯA có dấu kết thúc câu (đang viết dở hoặc sắp xuống dòng), kiên nhẫn đợi thêm
             if (!EndsWithTerminalPunctuation(norm))
             {
-                duration += 280;
+                duration += 350;
             }
 
             return Math.Min(duration, Config.MaxWaitMs);
@@ -86,12 +86,13 @@ namespace TranslateBot.Dialogue
                 // 1. Nếu chưa có câu nào đang theo dõi
                 if (_currentDialogue == null)
                 {
-                    // Kiểm tra xem câu mới có phải là phần cuộn dòng tiếp theo của câu vừa finalize không (trong vòng 2.5 giây)
-                    if (!string.IsNullOrEmpty(_lastFinalizedNormalized) && (DateTime.Now - _lastFinalizedTime).TotalMilliseconds < 2500)
+                    // Tự động ghép câu tiếp diễn: nếu câu vừa finalize kết thúc lửng lơ hoặc cuộn dòng trong vòng 3.5 giây
+                    if (!string.IsNullOrEmpty(_lastFinalizedNormalized) && (DateTime.Now - _lastFinalizedTime).TotalMilliseconds < 3500)
                     {
-                        if (TextSimilarity.TryFindScrollOverlap(_lastFinalizedNormalized, normalizedNew, out string stitched))
+                        if (TextSimilarity.TryMergeContinuation(_lastFinalizedNormalized, normalizedNew, out string stitched))
                         {
-                            AppLogger.Info($"[TRACKER_SCROLL_RECONNECT] Nối câu #{_sequenceCounter} vừa kết thúc sớm với dòng mới: \"{stitched}\"");
+                            _sequenceCounter++;
+                            AppLogger.Info($"[TRACKER_CONTINUATION_MERGE] Nối vế dở dang #{_sequenceCounter} với câu mới: \"{stitched}\"");
                             _currentDialogue = new DialogueJob(_sequenceCounter, stitched, stitched);
                             _currentDialogue.State = DialogueState.Extending;
                             _currentDialogue.LastSeenAt = DateTime.Now;
@@ -123,10 +124,10 @@ namespace TranslateBot.Dialogue
                     return;
                 }
 
-                // 4. MỚI: Cuộn dòng (Scroll Overlap) — khi câu dài xuống dòng khiến dòng trên cuộn đi
-                if (TextSimilarity.TryFindScrollOverlap(currNorm, normalizedNew, out string mergedScroll))
+                // 4. Ghép cuộn dòng / nối câu dở dang (Scroll Overlap & Incomplete Continuation)
+                if (TextSimilarity.TryMergeContinuation(currNorm, normalizedNew, out string mergedScroll))
                 {
-                    AppLogger.Info($"[TRACKER_SCROLL_MERGE] #{_currentDialogue.SequenceId} Ghép cuộn dòng: \"{mergedScroll}\"");
+                    AppLogger.Info($"[TRACKER_SCROLL_MERGE] #{_currentDialogue.SequenceId} Ghép cuộn dòng / tiếp diễn: \"{mergedScroll}\"");
                     _currentDialogue.RawText = mergedScroll;
                     _currentDialogue.NormalizedText = mergedScroll;
                     _currentDialogue.LastSeenAt = DateTime.Now;

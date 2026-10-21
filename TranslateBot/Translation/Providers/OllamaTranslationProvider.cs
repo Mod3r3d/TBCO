@@ -116,6 +116,7 @@ namespace TranslateBot.Translation.Providers
         {
             return $"Bạn là một dịch giả game chuyên nghiệp (Visual Novel, Anime, RPG).\n" +
                    $"Dịch câu thoại game sau sang {targetLanguage.ToUpperInvariant()}.\n" +
+                   $"QUY TẮC XƯNG HÔ: Bắt buộc nhất quán theo 'ta - cậu' hoặc 'tôi - cậu'. Tuyệt đối không dùng 'bạn' kiểu chatbot.\n" +
                    $"CHỈ TRẢ VỀ BẢN DỊCH, tuyệt đối không giải thích hay thêm bớt.";
         }
 

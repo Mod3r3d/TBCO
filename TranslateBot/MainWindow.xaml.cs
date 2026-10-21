@@ -265,7 +265,7 @@ namespace TranslateBot
                         string provider = job.ProviderName ?? _translationRouter?.CurrentProviderName ?? activeProvider;
 
                         _dialogueHistory.Add(job.SequenceId, job.RawText, result, speaker, latency);
-                        _overlayWindow?.UpdateDialogue(job.RawText, result, speaker, job.SequenceId, latency, cacheHit);
+                        _overlayWindow?.UpdateDialogue(job.RawText, result, speaker, job.SequenceId, latency, cacheHit, _dialogueHistory.Previous?.TranslatedText);
                         _detachedSubtitleWindow?.UpdateDialogue(job.RawText, result, speaker, _dialogueHistory.Previous?.TranslatedText);
 
                         // Stage 7: Tự động ghi session log và đọc TTS nếu bật (kèm telemetry thật, P1-5)
@@ -313,6 +313,9 @@ namespace TranslateBot
                 _engine.SetDialogueHistory(_dialogueHistory);
                 _engine.LoadTranslationData();  // Load glossary.json + characters.json
 
+                RestoreCaptureFromConfig();
+                RestoreOcrAreasFromConfig();
+
                 StatusText.Text = "Sẵn sàng";
                 StatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
                 UpdateApiKeyStatusUi();
@@ -333,7 +336,7 @@ namespace TranslateBot
                     PreviousTranslatedLabel.Visibility = Visibility.Visible;
                 }
 
-                if (!string.IsNullOrWhiteSpace(entry.Speaker) && MainSpeakerBadge != null && MainSpeakerLabel != null)
+                if (_appConfig.ShowSpeakerBadge && !string.IsNullOrWhiteSpace(entry.Speaker) && MainSpeakerBadge != null && MainSpeakerLabel != null)
                 {
                     MainSpeakerBadge.Visibility = Visibility.Visible;
                     MainSpeakerLabel.Text = entry.Speaker;
@@ -470,7 +473,7 @@ namespace TranslateBot
                 if (!string.IsNullOrEmpty(result))
                 {
                     TranslatedTextLabel.Text = result;
-                    _overlayWindow?.UpdateDialogue(textToTranslate, result, _dialogueHistory.Current?.Speaker, 0, 0, false);
+                    _overlayWindow?.UpdateDialogue(textToTranslate, result, _dialogueHistory.Current?.Speaker, 0, 0, false, _dialogueHistory.Previous?.TranslatedText);
                     _detachedSubtitleWindow?.UpdateDialogue(textToTranslate, result, _dialogueHistory.Current?.Speaker, _dialogueHistory.Previous?.TranslatedText);
                     StatusText.Text = "Đã dịch lại xong";
                 }
@@ -645,6 +648,37 @@ namespace TranslateBot
                     _appConfig.CaptureWidth = w;
                     _appConfig.CaptureHeight = h;
                 }
+
+                // Tự động đồng bộ vùng vừa quét vào Quản lý vùng OCR (OcrAreaManager)
+                if (_engine != null)
+                {
+                    var existingDialogue = _engine.OcrAreaManager.Areas.FirstOrDefault(a => a.Type == OCR.OcrAreaType.Dialogue);
+                    if (existingDialogue != null)
+                    {
+                        existingDialogue.RegionX = x;
+                        existingDialogue.RegionY = y;
+                        existingDialogue.RegionWidth = w;
+                        existingDialogue.RegionHeight = h;
+                        existingDialogue.Enabled = true;
+                    }
+                    else
+                    {
+                        var newDialogueArea = new OCR.OcrArea
+                        {
+                            Id = "dialogue-main",
+                            Name = "Vùng Thoại (Chính)",
+                            Type = OCR.OcrAreaType.Dialogue,
+                            RegionX = x,
+                            RegionY = y,
+                            RegionWidth = w,
+                            RegionHeight = h,
+                            Enabled = true
+                        };
+                        _engine.OcrAreaManager.Add(newDialogueArea);
+                    }
+                    _appConfig.OcrAreas = _engine.OcrAreaManager.ToList();
+                }
+
                 ConfigManager.Save(_appConfig);
                 UpdateWindowInfoDisplay();
             });
@@ -896,6 +930,7 @@ namespace TranslateBot
                     _detachedSubtitleWindow.SetFontSize(_appConfig.SubtitleFontSize > 0 ? _appConfig.SubtitleFontSize : 16);
                     _detachedSubtitleWindow.SetTopmost(_appConfig.SubtitleTopmost);
                     _detachedSubtitleWindow.SetLocked(_isOverlayLocked);
+                    _detachedSubtitleWindow.ShowSpeakerBadge = _appConfig.ShowSpeakerBadge;
                     _detachedSubtitleWindow.SetTargetWindow(_selectedWindow?.Title ?? _appConfig.TargetWindowTitle ?? "Toàn màn hình");
 
                     string currentOriginal = OriginalTextLabel != null ? OriginalTextLabel.Text : "";
@@ -944,6 +979,7 @@ namespace TranslateBot
             {
                 _overlayWindow = new Overlay.OverlayWindow();
                 _overlayWindow.TargetGameWindowHandle = _selectedWindow?.Handle ?? IntPtr.Zero;
+                _overlayWindow.ShowSpeakerBadge = _appConfig.ShowSpeakerBadge;
 
                 _overlayWindow.ApplyStyle(_currentOverlayStyle);
 
@@ -1215,6 +1251,7 @@ namespace TranslateBot
             OverlayToggleCheckBox.IsChecked = _appConfig.OverlayEnabled;
             TtsToggleCheckBox.IsChecked = _appConfig.TtsEnabled;
             SessionLogCheckBox.IsChecked = _appConfig.AutoSaveSession;
+            if (ShowSpeakerBadgeCheckBox != null) ShowSpeakerBadgeCheckBox.IsChecked = _appConfig.ShowSpeakerBadge;
 
             SyncUiControlsWithStyle();
             UpdateLockButtonsDisplay();
@@ -1267,6 +1304,16 @@ namespace TranslateBot
             _appConfig.AutoSaveSession = SessionLogCheckBox.IsChecked == true;
             _sessionManager.AutoSave = _appConfig.AutoSaveSession;
             ConfigManager.Save(_appConfig);
+        }
+
+        private void ShowSpeakerBadgeCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            bool show = ShowSpeakerBadgeCheckBox.IsChecked == true;
+            _appConfig.ShowSpeakerBadge = show;
+            ConfigManager.Save(_appConfig);
+            if (_overlayWindow != null) _overlayWindow.ShowSpeakerBadge = show;
+            if (_detachedSubtitleWindow != null) _detachedSubtitleWindow.ShowSpeakerBadge = show;
+            if (MainSpeakerBadge != null && !show) MainSpeakerBadge.Visibility = Visibility.Collapsed;
         }
 
         private void ScanIntervalCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1648,10 +1695,11 @@ namespace TranslateBot
                 Owner = this
             };
 
-            if (dialog.ShowDialog() == true)
+            bool? dialogResult = dialog.ShowDialog();
+            _ = RestartEngineAsync();
+            UpdateApiKeyStatusUi();
+            if (dialogResult == true)
             {
-                _ = RestartEngineAsync();
-                UpdateApiKeyStatusUi();
                 MessageBox.Show("Đã cập nhật cấu hình API Key Pool thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -1965,6 +2013,53 @@ namespace TranslateBot
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            // 0. Lưu toàn bộ trạng thái cấu hình hiện tại (vị trí cửa sổ, overlay, phụ đề tách rời, vùng quét, credentials)
+            try
+            {
+                if (_overlayWindow != null)
+                {
+                    _appConfig.OverlayWidth = _overlayWindow.Width;
+                    _appConfig.OverlayHeight = _overlayWindow.Height;
+                    if (_overlayWindow.Left > 0 && _overlayWindow.Top > 0)
+                    {
+                        _appConfig.OverlayX = _overlayWindow.Left;
+                        _appConfig.OverlayY = _overlayWindow.Top;
+                    }
+                    _appConfig.OverlayEnabled = _overlayWindow.IsVisible;
+                }
+
+                if (_detachedSubtitleWindow != null)
+                {
+                    _appConfig.SubtitleWindowWidth = _detachedSubtitleWindow.Width;
+                    _appConfig.SubtitleWindowHeight = _detachedSubtitleWindow.Height;
+                    if (_detachedSubtitleWindow.Left > 0 && _detachedSubtitleWindow.Top > 0)
+                    {
+                        _appConfig.SubtitleWindowX = _detachedSubtitleWindow.Left;
+                        _appConfig.SubtitleWindowY = _detachedSubtitleWindow.Top;
+                    }
+                    _appConfig.IsSubtitleDetached = _detachedSubtitleWindow.IsVisible;
+                }
+
+                if (_engine != null)
+                {
+                    _appConfig.OcrAreas = _engine.OcrAreaManager.ToList();
+                    _appConfig.ExclusionAreas = _engine.ExclusionManager.ToList();
+                }
+
+                if (_keyPool != null)
+                {
+                    ConfigManager.SaveCredentials(_appConfig, _keyPool.GetAllCredentials());
+                }
+                else
+                {
+                    ConfigManager.Save(_appConfig);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[SHUTDOWN_SAVE_CONFIG_ERROR] Không thể lưu cấu hình khi tắt: {ex.Message}");
+            }
+
             // 1. Ẩn cửa sổ ngay tức thì để người dùng thấy app tắt không bị đơ
             this.Hide();
 

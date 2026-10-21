@@ -15,6 +15,7 @@ namespace TranslateBot.Overlay
 
         public Action? OnRequestOpenHistory { get; set; }
         public Action<OverlayStyle, bool, Rect>? OnOverlayConfigChanged { get; set; }
+        public bool ShowSpeakerBadge { get; set; } = false;
 
         private string _lastOriginal = "";
         private string _lastTranslated = "Vùng phụ đề game sẵn sàng...";
@@ -82,6 +83,11 @@ namespace TranslateBot.Overlay
             OriginalLabel.Foreground = style.SecondaryTextBrush;
             OriginalLabel.FontSize = style.OriginalFontSize;
             OriginalLabel.FontFamily = new FontFamily(style.FontFamily);
+
+            // Previous translated text (dòng trước hiển thị mờ để hỗ trợ câu dài)
+            PreviousTranslatedLabel.Foreground = style.SecondaryTextBrush;
+            PreviousTranslatedLabel.FontSize = Math.Max(12, style.FontSize - 5);
+            PreviousTranslatedLabel.FontFamily = new FontFamily(style.FontFamily);
 
             // Speaker badge
             SpeakerBadge.Background = style.SpeakerBadgeBrush;
@@ -246,9 +252,21 @@ namespace TranslateBot.Overlay
         // Dialogue Updating & Rendering
         // ═══════════════════════════════════════════════════════════════════
 
+        private string? _previousTranslated;
+
         public void UpdateDialogue(string original, string translated, string? speaker = null, 
-            int sequenceId = 0, double latencyMs = 0, bool isCacheHit = false)
+            int sequenceId = 0, double latencyMs = 0, bool isCacheHit = false, string? previous = null)
         {
+            if (!string.IsNullOrWhiteSpace(previous))
+            {
+                _previousTranslated = previous;
+            }
+            else if (!string.IsNullOrWhiteSpace(_lastTranslated) && _lastTranslated != translated && 
+                     _lastTranslated != "Vùng phụ đề game sẵn sàng..." && _lastTranslated != "...")
+            {
+                _previousTranslated = _lastTranslated;
+            }
+
             _lastOriginal = original ?? "";
             _lastTranslated = translated ?? "";
             _lastSpeaker = speaker;
@@ -264,8 +282,19 @@ namespace TranslateBot.Overlay
             TranslatedLabel.Text = string.IsNullOrWhiteSpace(_lastTranslated) ? "..." : _lastTranslated;
             OriginalLabel.Text = _lastOriginal;
 
-            // Speaker badge
-            if (!string.IsNullOrWhiteSpace(_lastSpeaker))
+            // Dòng phụ đề trước đó (giúp người chơi đọc kịp trọn vẹn câu thoại dài nhiều dòng)
+            if (!string.IsNullOrWhiteSpace(_previousTranslated) && _previousTranslated != _lastTranslated)
+            {
+                PreviousTranslatedLabel.Visibility = Visibility.Visible;
+                PreviousTranslatedLabel.Text = _previousTranslated;
+            }
+            else
+            {
+                PreviousTranslatedLabel.Visibility = Visibility.Collapsed;
+            }
+
+            // Speaker badge (chỉ hiện khi người dùng bật ShowSpeakerBadge trong cấu hình)
+            if (ShowSpeakerBadge && !string.IsNullOrWhiteSpace(_lastSpeaker))
             {
                 SpeakerBadge.Visibility = Visibility.Visible;
                 SpeakerLabel.Text = _lastSpeaker;

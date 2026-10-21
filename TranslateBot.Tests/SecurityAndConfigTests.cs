@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TranslateBot.Infrastructure;
 using TranslateBot.Infrastructure.Security;
@@ -5,8 +8,28 @@ using TranslateBot.Infrastructure.Security;
 namespace TranslateBot.Tests
 {
     [TestClass]
+    [DoNotParallelize]
     public class SecurityAndConfigTests
     {
+        private string? _tempConfigFile;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _tempConfigFile = Path.Combine(Path.GetTempPath(), $"tbco_test_{Guid.NewGuid():N}.json");
+            ConfigManager.CustomConfigPath = _tempConfigFile;
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            ConfigManager.CustomConfigPath = null;
+            if (!string.IsNullOrEmpty(_tempConfigFile) && File.Exists(_tempConfigFile))
+            {
+                try { File.Delete(_tempConfigFile); } catch { }
+            }
+        }
+
         [TestMethod]
         public void SecretVault_EncryptAndDecrypt_PreservesOriginalText()
         {
@@ -72,6 +95,40 @@ namespace TranslateBot.Tests
 
             string retrieved = ConfigManager.GetEffectiveApiKey(config);
             Assert.AreEqual("MySuperSecretNewKey", retrieved);
+        }
+
+        [TestMethod]
+        public void ConfigManager_SaveAndLoadCredentials_PoolRoundtrip()
+        {
+            var config = new AppConfig();
+            var creds = new List<Translation.ApiCredential>
+            {
+                new Translation.ApiCredential
+                {
+                    Id = "gemini-01",
+                    Provider = "Gemini",
+                    Secret = "AIzaSySecretKeyOne12345",
+                    Status = Translation.ApiKeyStatus.Active
+                },
+                new Translation.ApiCredential
+                {
+                    Id = "gemini-02",
+                    Provider = "Gemini",
+                    Secret = "AIzaSySecretKeyTwo67890",
+                    Status = Translation.ApiKeyStatus.Disabled
+                }
+            };
+
+            ConfigManager.SaveCredentials(config, creds);
+
+            var loadedConfig = ConfigManager.Load();
+            var loadedCreds = ConfigManager.LoadCredentials(loadedConfig);
+
+            Assert.AreEqual(2, loadedCreds.Count);
+            Assert.AreEqual("AIzaSySecretKeyOne12345", loadedCreds[0].Secret);
+            Assert.AreEqual(Translation.ApiKeyStatus.Active, loadedCreds[0].Status);
+            Assert.AreEqual("AIzaSySecretKeyTwo67890", loadedCreds[1].Secret);
+            Assert.AreEqual(Translation.ApiKeyStatus.Disabled, loadedCreds[1].Status);
         }
     }
 }

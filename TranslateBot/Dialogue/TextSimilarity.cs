@@ -232,6 +232,19 @@ namespace TranslateBot.Dialogue
         }
 
         /// <summary>
+        /// Kiểm tra xem văn bản có kết thúc bằng dấu ngắt câu hoàn chỉnh hay không (. ! ? 。 ！ ？ ” " 」 』 …)
+        /// </summary>
+        public static bool EndsWithTerminalPunctuation(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return false;
+            string t = text.Trim();
+            if (t.Length == 0) return false;
+            char last = t[^1];
+            return last == '.' || last == '!' || last == '?' || last == '。' || last == '！' || last == '？'
+                || last == '"' || last == '”' || last == '」' || last == '』' || last == '…';
+        }
+
+        /// <summary>
         /// Phát hiện hiện tượng chữ cuộn dòng trong khung thoại Visual Novel/RPG (khi câu dài vượt quá số dòng cho phép,
         /// dòng trên cuộn đi và dòng mới xuất hiện). Tìm phần giao nhau giữa đuôi câu cũ (existingText) và đầu câu mới (incomingText)
         /// để ghép nối thành câu hoàn chỉnh thay vì bị cắt làm đôi.
@@ -253,16 +266,28 @@ namespace TranslateBot.Dialogue
                 return true;
             }
 
+            // 1b. Nếu incomingText bắt đầu bằng existingText (chữ đang mở rộng thêm từ vựng)
+            if (normI.StartsWith(normE, StringComparison.OrdinalIgnoreCase))
+            {
+                mergedText = incomingText;
+                return true;
+            }
+
             // 2. Tìm kiếm overlap theo từ (Word-level overlap) cho ngôn ngữ có khoảng trắng (Anh, Việt...)
             var wordsE = normE.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             var wordsI = normI.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            if (wordsE.Length >= 2 && wordsI.Length >= 2)
+            if (wordsE.Length >= 1 && wordsI.Length >= 1)
             {
                 int maxCheck = Math.Min(wordsE.Length, wordsI.Length);
-                // Tìm từ số từ trùng lớn nhất giảm dần, yêu cầu ít nhất 2 từ liên tiếp khớp nhau
-                for (int count = maxCheck; count >= 2; count--)
+                for (int count = maxCheck; count >= 1; count--)
                 {
+                    // Nếu chỉ còn 1 từ overlap, yêu cầu từ đó phải dài ít nhất 3 ký tự và khớp chính xác
+                    if (count == 1 && (wordsE[^1].Length < 3 || !wordsE[^1].Equals(wordsI[0], StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
                     bool match = true;
                     for (int k = 0; k < count; k++)
                     {
@@ -295,13 +320,13 @@ namespace TranslateBot.Dialogue
 
             // 3. Tìm kiếm overlap theo ký tự (Character-level overlap) cho tiếng Nhật/Hoa (CJK)
             int maxCharCheck = Math.Min(normE.Length, normI.Length);
-            for (int len = maxCharCheck; len >= 4; len--)
+            for (int len = maxCharCheck; len >= 3; len--)
             {
                 string suffixE = normE.Substring(normE.Length - len);
                 string prefixI = normI.Substring(0, len);
 
                 if (suffixE.Equals(prefixI, StringComparison.OrdinalIgnoreCase) || 
-                    (len >= 8 && LevenshteinDistance(suffixE, prefixI) <= 1))
+                    (len >= 6 && LevenshteinDistance(suffixE, prefixI) <= 1))
                 {
                     if (len < normI.Length)
                     {
@@ -319,6 +344,43 @@ namespace TranslateBot.Dialogue
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Tự động ghép nối câu thoại dở dang khi câu trước chưa có dấu kết thúc câu và dòng mới xuất hiện tiếp nối.
+        /// </summary>
+        public static bool TryMergeContinuation(string previousText, string incomingText, out string mergedText)
+        {
+            mergedText = previousText;
+            if (string.IsNullOrWhiteSpace(previousText) || string.IsNullOrWhiteSpace(incomingText))
+                return false;
+
+            // 1. Thử tìm overlap trước
+            if (TryFindScrollOverlap(previousText, incomingText, out mergedText))
+            {
+                return true;
+            }
+
+            // 2. Nếu câu trước đã có dấu chấm kết thúc câu hoàn chỉnh -> là câu độc lập mới, không tự ý ghép
+            if (EndsWithTerminalPunctuation(previousText))
+            {
+                return false;
+            }
+
+            // 3. Nếu câu trước chưa kết thúc câu (kết thúc lửng lơ hoặc dấu phẩy, từ nối...)
+            string normP = Normalize(previousText);
+            string normI = Normalize(incomingText);
+
+            if (normP.Equals(normI, StringComparison.OrdinalIgnoreCase))
+            {
+                mergedText = normP;
+                return true;
+            }
+
+            bool isEnglishOrLatin = normP.Length > 0 && normP[^1] < 128;
+            bool needSpace = isEnglishOrLatin && char.IsLetterOrDigit(normP[^1]) && char.IsLetterOrDigit(normI[0]);
+            mergedText = needSpace ? normP + " " + normI : normP + normI;
+            return true;
         }
 
         private struct EditRunInfo

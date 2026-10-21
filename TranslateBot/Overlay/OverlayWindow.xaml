@@ -123,6 +123,15 @@
                                        FontStyle="Italic" TextWrapping="Wrap" VerticalAlignment="Center"/>
                         </StackPanel>
 
+                        <!-- Previous Translated Line (Dòng phụ đề trước đó, mờ nhẹ để người chơi kịp đọc câu dài) -->
+                        <TextBlock x:Name="PreviousTranslatedLabel" Text="" 
+                                   FontSize="13" Opacity="0.65" TextWrapping="Wrap" Margin="0,0,0,4"
+                                   Visibility="Collapsed">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#000000" BlurRadius="4" Opacity="0.7" Direction="270" ShadowDepth="1"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+
                         <!-- Translated Text (Bản dịch tiếng Việt) -->
                         <TextBlock x:Name="TranslatedLabel" Text="Vùng phụ đề game sẵn sàng..." 
                                    FontSize="20" FontWeight="Medium" TextWrapping="Wrap">

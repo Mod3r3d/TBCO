@@ -303,5 +303,82 @@ namespace TranslateBot.Tests
             Assert.IsTrue(tracker.CurrentDialogue.NormalizedText.EndsWith("land of the fae.", StringComparison.OrdinalIgnoreCase));
             Assert.AreEqual(DialogueState.Extending, tracker.CurrentDialogue.State);
         }
+
+        [TestMethod]
+        public void TextSimilarity_TryMergeContinuation_NoOverlapIncompleteSentence_ShouldStitch()
+        {
+            string line1 = "The Holy Grail War was originally created by";
+            string line2 = "the Three Founding Families to reach the Root.";
+
+            bool success = TextSimilarity.TryMergeContinuation(line1, line2, out string merged);
+
+            Assert.IsTrue(success);
+            Assert.AreEqual("The Holy Grail War was originally created by the Three Founding Families to reach the Root.", merged);
+        }
+
+        [TestMethod]
+        public void TextSimilarity_TryMergeContinuation_CompletedSentence_ShouldNotMerge()
+        {
+            string sentence1 = "The battle has ended.";
+            string sentence2 = "We must prepare for the next mission.";
+
+            bool success = TextSimilarity.TryMergeContinuation(sentence1, sentence2, out _);
+
+            Assert.IsFalse(success, "Hai câu có dấu chấm hoàn chỉnh độc lập không được tự ý gộp.");
+        }
+
+        [TestMethod]
+        public void OcrAreaManager_SelectRegion_SyncsDialogueAreaCorrectly()
+        {
+            var areaManager = new OCR.OcrAreaManager();
+            Assert.AreEqual(0, areaManager.Areas.Count);
+
+            // Giả lập người dùng quét vùng lần 1 qua Ctrl+F8
+            int x1 = 100, y1 = 200, w1 = 800, h1 = 150;
+            var existing = areaManager.Areas.FirstOrDefault(a => a.Type == OCR.OcrAreaType.Dialogue);
+            if (existing != null)
+            {
+                existing.RegionX = x1;
+            }
+            else
+            {
+                areaManager.Add(new OCR.OcrArea
+                {
+                    Id = "dialogue-main",
+                    Name = "Vùng Thoại (Chính)",
+                    Type = OCR.OcrAreaType.Dialogue,
+                    RegionX = x1,
+                    RegionY = y1,
+                    RegionWidth = w1,
+                    RegionHeight = h1,
+                    Enabled = true
+                });
+            }
+
+            Assert.AreEqual(1, areaManager.Areas.Count);
+            Assert.AreEqual(OCR.OcrAreaType.Dialogue, areaManager.Areas[0].Type);
+            Assert.AreEqual(100, areaManager.Areas[0].RegionX);
+            Assert.AreEqual(800, areaManager.Areas[0].RegionWidth);
+
+            // Giả lập người dùng quét lại vùng lần 2 qua Ctrl+F8 (cập nhật tọa độ)
+            int x2 = 120, y2 = 220, w2 = 850, h2 = 160;
+            var dialogueArea = areaManager.Areas.FirstOrDefault(a => a.Type == OCR.OcrAreaType.Dialogue);
+            Assert.IsNotNull(dialogueArea);
+            dialogueArea.RegionX = x2;
+            dialogueArea.RegionY = y2;
+            dialogueArea.RegionWidth = w2;
+            dialogueArea.RegionHeight = h2;
+
+            Assert.AreEqual(1, areaManager.Areas.Count, "Không được nhân đôi area khi quét lại vùng thoại");
+            Assert.AreEqual(120, areaManager.Areas[0].RegionX);
+            Assert.AreEqual(850, areaManager.Areas[0].RegionWidth);
+        }
+
+        [TestMethod]
+        public void AppConfig_ShowSpeakerBadge_DefaultsToFalse()
+        {
+            var config = new Infrastructure.AppConfig();
+            Assert.IsFalse(config.ShowSpeakerBadge, "Mặc định không hiện nhãn tên người nói trên bảng dịch để tránh gây vướng");
+        }
     }
 }

@@ -153,7 +153,7 @@ namespace TranslateBot.Translation
                    $"NHIỆM VỤ:\n" +
                    $"1. Tự động sửa các lỗi chính tả phổ biến do OCR (ví dụ: 'witn' -> 'with', 'rn' -> 'm').\n" +
                    $"2. Loại bỏ từ rác hoặc nút bấm giao diện không phải lời thoại.\n" +
-                   $"3. DỊCH THOÁT Ý THEO ĐÚNG GIỌNG ĐIỆU NHÂN VẬT & NGỮ CẢNH: Văn phong tự nhiên, trôi chảy, đúng phong cách FGO vietsub.\n" +
+                   $"3. NHẤT QUÁN XƯNG HÔ THEO 'TA - CẬU' HOẶC 'TÔI - CẬU': Tuyệt đối không dùng 'bạn' kiểu chatbot. Dịch thoát ý tự nhiên, đúng phong cách vietsub.\n" +
                    $"4. CHỈ TRẢ VỀ BẢN DỊCH {targetLanguage.ToUpperInvariant()}. Tuyệt đối KHÔNG giải thích, KHÔNG thêm lời mở đầu.";
         }
     }

@@ -11,12 +11,38 @@ namespace TranslateBot.Infrastructure
     {
         private static string? _appDataDir;
 
+        private static bool IsTestEnvironment()
+        {
+            try
+            {
+                string? entry = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
+                if (entry != null && (entry.Contains("testhost", StringComparison.OrdinalIgnoreCase) || entry.Contains("test", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+                string friendly = AppDomain.CurrentDomain.FriendlyName;
+                return friendly.Contains("testhost", StringComparison.OrdinalIgnoreCase) || friendly.Contains("test", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static string AppDataDir
         {
             get
             {
                 if (_appDataDir == null)
                 {
+                    if (IsTestEnvironment())
+                    {
+                        string testDir = Path.Combine(Path.GetTempPath(), "TBCO_TestRun");
+                        Directory.CreateDirectory(testDir);
+                        _appDataDir = testDir;
+                        return _appDataDir;
+                    }
+
                     string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                     _appDataDir = Path.Combine(localAppData, "TBCO");
                     try
@@ -41,6 +67,12 @@ namespace TranslateBot.Infrastructure
         {
             string appDataConfig = Path.Combine(AppDataDir, "config.json");
             string legacyConfig = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+
+            // Không thực hiện copy từ thư mục build trong môi trường test
+            if (IsTestEnvironment())
+            {
+                return appDataConfig;
+            }
 
             // Migration một lần: nếu có config cũ ở thư mục app mà LocalAppData chưa có
             if (!File.Exists(appDataConfig) && File.Exists(legacyConfig))

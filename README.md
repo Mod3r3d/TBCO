@@ -1,4 +1,4 @@
-# TBCO — Translate Bot Conversation by OCR (v3.0.3 PRO)
+# TBCO — Translate Bot Conversation by OCR (v3.0.4 PRO)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -8,15 +8,15 @@
   <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(x64)-0078D6?logo=windows" alt="Platform Windows" />
   <img src="https://img.shields.io/badge/.NET-8.0%20WPF-512BD4?logo=dotnet" alt=".NET 8" />
   <img src="https://img.shields.io/badge/AI-Gemini%203.x%20%7C%20DeepL%20%7C%20Google%20Web%20%7C%20Ollama-4285F4?logo=google" alt="AI Providers" />
-  <img src="https://img.shields.io/badge/Release-v3.0.3%20PRO-10B981" alt="Version 3.0.3" />
-  <img src="https://img.shields.io/badge/Tests-137%2F137%20Passing-success" alt="Tests 137" />
+  <img src="https://img.shields.io/badge/Release-v3.0.4%20PRO-10B981" alt="Version 3.0.4" />
+  <img src="https://img.shields.io/badge/Tests-142%2F142%20Passing-success" alt="Tests 142" />
 </p>
 
 ---
 
 ## ⚡ Tải Về Nhanh (Download)
 
-> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.0.3)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.0.3/TBCO-win-x64.zip)
+> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.0.4)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.0.4/TBCO-win-x64.zip)
 
 > [!IMPORTANT]
 > **DÀNH CHO NGƯỜI CHƠI GAME (KHÔNG PHẢI LẬP TRÌNH VIÊN):**
@@ -38,6 +38,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### 1. 🔑 Multi-Key Pool & Khả Năng Tự Phục Hồi (Self-Healing)
 - **Quản lý đa khóa API**: Xoay vòng linh hoạt nhiều key Gemini (Round-robin leasing).
+- **Tự động lưu tức thì (Auto-Persistence)**: Mọi thao tác thêm, xóa, bật/tắt hoặc dán hàng loạt API Key và toàn bộ thiết lập ứng dụng đều được tự động lưu vĩnh viễn trên đĩa, không bao giờ bị mất hoặc reset khi tắt app.
 - **Tự động xử lý lỗi 429 / 400**: Khi một key chạm hạn mức (HTTP 429), hệ thống tự động đưa vào danh sách chờ nguội (cooldown timer) và chuyển mượt sang key tiếp theo. Key không hợp lệ (`API_KEY_INVALID` 400) sẽ được đánh dấu cảnh báo và tự động fallback sang Google Web Translate để không ngắt quãng trận game.
 - **Bảo mật Secret Vault (Windows DPAPI)**: Mọi khóa API (Gemini, DeepL) được mã hóa bằng thuật toán DPAPI của Windows, không bao giờ lưu plaintext trong ổ cứng.
 
@@ -75,12 +76,14 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### 8. 🪟 Giao Diện Độc Lập & Bảng Phím Tắt Tiện Dụng
 - **Cửa sổ phụ đề tách rời (Detached Subtitle)**: Phong cách Dark Glassmorphism, trong suốt xuyên chuột (`Click-Through`), ghim nổi trên cùng.
+- **Phụ đề gọn gàng không che khuất màn hình**: Hỗ trợ ẩn nhãn tên người nói trên bảng dịch (mặc định tắt) để giao diện luôn thoáng sạch, không vướng mắt khi đọc thoại. Đồng thời câu dịch từ AI được tinh lọc loại bỏ tiền tố tên nhân vật bị lặp.
+- **Đồng bộ vùng quét tức thì**: Kéo chọn vùng bằng `Ctrl + F8` sẽ tự động đồng bộ và lưu vào danh sách Quản lý Vùng OCR.
 - **Bảng tra cứu phím tắt (Hotkey Cheatsheet)**: Nhấn **[F1]** hoặc nút `[⌨ Phím tắt]` trên màn hình để mở bảng tra cứu phím trực quan.
 - **Hệ thống phím an toàn (không xung đột gõ văn bản Windows)**:
   - `F6`: Bật/Tắt quét liên tục tự động (Hook Loop).
   - `F7`: Chụp và dịch 1 khung hình.
   - `F8`: Chụp nhanh lưu ảnh & dịch tức thì (Snapshot).
-  - `Ctrl+F8`: Chọn vùng quét OCR mới.
+  - `Ctrl+F8`: Chọn và lưu vùng quét OCR thoại mới.
   - `F9`: Khóa/Mở khóa xuyên chuột phụ đề (Click-Through).
   - `F10`: Ẩn/Hiện thanh phụ đề nổi (Overlay HUD).
   - `F11`: Tách rời / Gắn lại cửa sổ phụ đề độc lập.
@@ -117,7 +120,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### Biên dịch & Chạy kiểm thử tự động
 ```powershell
-# Chạy toàn bộ 137 test cases
+# Chạy toàn bộ 142 test cases
 dotnet test TranslateBot.Tests\TranslateBot.Tests.csproj
 
 # Biên dịch Release

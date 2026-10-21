@@ -76,6 +76,7 @@ namespace TranslateBot.Infrastructure
         // ── AutoHost UI & System Settings ──────────────────────────────────
         public bool AlwaysOnTop { get; set; } = false;
         public bool AutoCopyToClipboard { get; set; } = false;
+        public bool ShowSpeakerBadge { get; set; } = false;
         public string MainTheme { get; set; } = "AutoHostDark"; // AutoHostDark, FgoChaldea, HighContrast, Light
         public int ScanIntervalMs { get; set; } = 300;
         public string SourceLanguage { get; set; } = "auto";
@@ -311,6 +312,20 @@ namespace TranslateBot.Infrastructure
                 }
                 string json = JsonConvert.SerializeObject(config, Formatting.Indented);
                 File.WriteAllText(path, json);
+
+                // Đồng bộ phụ cho bản Portable nếu có file config.json cạnh file exe
+                if (string.IsNullOrEmpty(CustomConfigPath))
+                {
+                    try
+                    {
+                        string legacyConfig = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+                        if (File.Exists(legacyConfig) && !string.Equals(path, legacyConfig, StringComparison.OrdinalIgnoreCase))
+                        {
+                            File.WriteAllText(legacyConfig, json);
+                        }
+                    }
+                    catch { }
+                }
             }
             catch (Exception ex)
             {
