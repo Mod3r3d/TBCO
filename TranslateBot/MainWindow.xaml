@@ -340,7 +340,7 @@
                 <TextBlock x:Name="BrandTitleText" Text="TBCO" ToolTip="TBCO (Translate Bot Conversation by OCR)" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}" 
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="0,0,12,0">
-                    <TextBlock Text="v3.0 PRO" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
+                    <TextBlock Text="v3.0" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
                 </Border>
 
                 <!-- Status pill -->
@@ -546,8 +546,35 @@
             <TabItem Header="BỘ MÁY AI &amp; NGÔN NGỮ" Style="{StaticResource SegmentedTabItem}">
                 <Border Style="{StaticResource SectionCard}" x:Name="Card2" Margin="0,8,0,0" MinHeight="185">
                     <StackPanel>
-                        <!-- Row 0: Bộ dịch thuật (Translation Provider) -->
+                        <!-- Row 0A: Hồ sơ Game (Game Profile) -->
                         <Grid Margin="0,6,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Hồ sơ Game:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="GameProfileCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="GameProfileCombo_SelectionChanged" Margin="0,0,8,0"/>
+                            <Button Grid.Column="2" x:Name="RefreshProfilesBtn" Content="Tải lại" 
+                                    Style="{StaticResource DarkButton}" Click="RefreshProfilesBtn_Click" ToolTip="Quét lại các hồ sơ game trong %LOCALAPPDATA%\TBCO\profiles"/>
+                        </Grid>
+
+                        <!-- Row 0B: Phân cảnh (Active Scene) nếu có -->
+                        <Grid x:Name="ActiveSceneRow" Margin="0,0,0,10" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Phân cảnh:" VerticalAlignment="Center" 
+                                       Foreground="{DynamicResource BrushTextPrimary}" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Column="1" x:Name="ActiveSceneCombo" Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="ActiveSceneCombo_SelectionChanged"/>
+                        </Grid>
+
+                        <!-- Row 0: Bộ dịch thuật (Translation Provider) -->
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="*"/>

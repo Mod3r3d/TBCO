@@ -129,5 +129,35 @@ namespace TranslateBot.Infrastructure
             }
             return dir;
         }
+
+        public static string GetProfilesDirectory()
+        {
+            string dir = Path.Combine(AppDataDir, "profiles");
+            try
+            {
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                string appDirProfiles = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profiles");
+                if (Directory.Exists(appDirProfiles) && Directory.GetFiles(dir, "*.json").Length == 0)
+                {
+                    foreach (var file in Directory.GetFiles(appDirProfiles, "*.json"))
+                    {
+                        try
+                        {
+                            File.Copy(file, Path.Combine(dir, Path.GetFileName(file)), overwrite: false);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[PROFILES_DIR_ERROR] Không thể tạo thư mục profiles: {ex.Message}");
+            }
+            return dir;
+        }
     }
 }

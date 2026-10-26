@@ -79,6 +79,10 @@ namespace TranslateBot.Infrastructure
         public bool ShowSpeakerBadge { get; set; } = false;
         public string MainTheme { get; set; } = "AutoHostDark"; // AutoHostDark, FgoChaldea, HighContrast, Light
         public int ScanIntervalMs { get; set; } = 300;
+        // ── Stage 2: Game Profile & Scene Selection ────────────────────────
+        public string? ActiveProfileId { get; set; } = "fgo-jp";
+        public string? ActiveSceneName { get; set; }
+
         public string SourceLanguage { get; set; } = "auto";
         public string TargetLanguage { get; set; } = "vi";
         public string AiModel { get; set; } = "gemini-3.5-flash";

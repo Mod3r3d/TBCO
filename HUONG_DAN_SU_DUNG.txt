@@ -1,5 +1,5 @@
 ========================================================================
-                          HƯỚNG DẪN SỬ DỤNG TBCO (v3.0 PRO)
+                          HƯỚNG DẪN SỬ DỤNG TBCO (v3.0)
 ========================================================================
 
 TBCO là ứng dụng dịch thuật hội thoại game thời gian thực (hỗ trợ tối ưu cho 
@@ -85,7 +85,26 @@ Bấm [F1] hoặc click vào nút [⌨ Phím tắt] trên cửa sổ phụ đề
   - F1:      Mở Bảng tra cứu phím tắt (Hotkey Cheatsheet).
 
 ------------------------------------------------------------------------
-5. TÙY BIẾN THUẬT NGỮ & NHÂN VẬT
+5. HỒ SƠ GAME (GAME PROFILES) & PHÂN CẢNH (SCENES)
+------------------------------------------------------------------------
+- TBCO tích hợp sẵn hệ thống Game Profiles tại Tab 2 [Khu Vực & Hồ Sơ Game]:
+  * Fate/Grand Order (JP / NA): Tự động cấu hình vùng thoại, vùng tên người nói,
+    bộ lọc màu vàng tên Servant và thuật ngữ FGO.
+  * Visual Novel (Generic): Tối ưu cho game visual novel, đọc rõ font chữ nhỏ.
+  * Genshin Impact: Cấu hình chuẩn cho game nhập vai kỳ ảo.
+- Bạn có thể chọn Phân cảnh (Scene) như Chaldea, Lostbelt... để tự động áp dụng
+  các thuật ngữ riêng của từng chương hồi mà không làm bẩn từ điển gốc.
+
+------------------------------------------------------------------------
+6. QUY TẮC XƯNG HÔ & VĂN PHONG TIẾNG VIỆT CHUẨN
+------------------------------------------------------------------------
+- AI được huấn luyện theo quy tắc xưng hô vietsub cao cấp:
+  * Nhất quán cặp xưng hô "ta - cậu" hoặc "tôi - cậu", loại bỏ xưng hô "bạn" thô cứng.
+  * Tôn trọng danh xưng đặc thù: Senpai - em, Master - tôi/thần, sư phụ - đồ nhi.
+  * Tự động nối các câu thoại cuộn dở dang và loại bỏ ký tự rác UI (SKIP, AUTO, LOG).
+
+------------------------------------------------------------------------
+7. TÙY BIẾN THUẬT NGỮ & NHÂN VẬT
 ------------------------------------------------------------------------
 - characters.json: Chứa danh sách nhân vật, cách xưng hô, văn phong dịch riêng biệt.
 - glossary.json: Chứa bảng tra cứu thuật ngữ chuyên ngành game (Noble Phantasm, Servant,

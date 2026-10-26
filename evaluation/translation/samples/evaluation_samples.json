@@ -1,0 +1,638 @@
+[
+  {
+    "sampleId": "fgo_001",
+    "gameId": "fate_grand_order",
+    "sceneId": "prologue_fuyuki",
+    "speakerId": "mash",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "SKIP 先輩、敵の反応が急激に上昇しています！注意してください！",
+    "sourceCleaned": "先輩、敵の反応が急激に上昇しています！注意してください！",
+    "speakerProfile": {
+      "name": "Mash Kyrielight",
+      "speakingStyle": "Lễ phép, quan tâm, nghiêm túc, phong cách hộ vệ Shielder",
+      "preferredPronouns": "em - Senpai",
+      "addressingRules": "Gọi Master là Senpai, xưng em"
+    },
+    "previousLines": [
+      {
+        "speaker": "Mash",
+        "original": "前方にサーヴァント反応を確認しました。",
+        "translated": "Em phát hiện có phản ứng Servant ở phía trước."
+      }
+    ],
+    "glossary": [
+      { "source": "先輩", "target": "Senpai", "level": "Locked" },
+      { "source": "サーヴァント", "target": "Servant", "level": "Locked" }
+    ],
+    "lockedTerms": ["Senpai"],
+    "forbiddenTerms": ["bạn", "tiền bối"],
+    "expectedPronounPairs": [["em", "senpai"], ["em", "Senpai"]],
+    "referenceTranslations": [
+      "Senpai, phản ứng của kẻ địch đang tăng vọt! Xin hãy cẩn thận!",
+      "Senpai, năng lượng của kẻ địch đang tăng lên nhanh chóng! Hãy chú ý ạ!",
+      "Senpai, phản ứng địch đang tăng vọt! Xin hãy cẩn thận!"
+    ],
+    "category": "fgo_combat",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra xưng hô Senpai - em và giữ nguyên danh xưng Senpai theo văn hóa FGO"
+  },
+  {
+    "sampleId": "fgo_002",
+    "gameId": "fate_grand_order",
+    "sceneId": "chaldea_command_room",
+    "speakerId": "da_vinci",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "AUTO カルデアからの通信だよ。状況はどうだい、マスター？",
+    "sourceCleaned": "カルデアからの通信だよ。状況はどうだい、マスター？",
+    "speakerProfile": {
+      "name": "Leonardo da Vinci",
+      "speakingStyle": "Tự tin, thông thái, thân thiện nhưng sắc sảo",
+      "preferredPronouns": "tôi - Master",
+      "addressingRules": "Gọi nhân vật chính là Master"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "カルデア", "target": "Chaldea", "level": "Locked" },
+      { "source": "マスター", "target": "Master", "level": "Locked" }
+    ],
+    "lockedTerms": ["Chaldea", "Master"],
+    "forbiddenTerms": ["bạn", "chủ nhân"],
+    "expectedPronounPairs": [["tôi", "master"], ["tôi", "Master"]],
+    "referenceTranslations": [
+      "Đường truyền từ Chaldea đây. Tình hình thế nào rồi, Master?",
+      "Liên lạc từ Chaldea đây. Tình hình bên đó sao rồi, Master?",
+      "Đây là liên lạc từ Chaldea. Tình hình thế nào rồi, Master?"
+    ],
+    "category": "fgo_command",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra giữ nguyên Chaldea và Master, không dịch Master thành 'chủ nhân' hay 'thầy'"
+  },
+  {
+    "sampleId": "fgo_003",
+    "gameId": "fate_grand_order",
+    "sceneId": "battle_climax",
+    "speakerId": "saber_artoria",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "我が剣をマスターに捧げよう。束ねるは星の息吹――エクスカリバー！",
+    "sourceCleaned": "我が剣をマスターに捧げよう。束ねるは星の息吹――エクスカリバー！",
+    "speakerProfile": {
+      "name": "Artoria Pendragon",
+      "speakingStyle": "Trang nghiêm, hiệp sĩ đạo, dũng mãnh",
+      "preferredPronouns": "ta - Master / tôi - Master",
+      "addressingRules": "Gọi Master là Master hoặc Chủ nhân"
+    },
+    "previousLines": [
+      {
+        "speaker": "Artoria",
+        "original": "宝具展開の許可を。",
+        "translated": "Xin hãy cho phép ta khai mở Bảo Khí."
+      }
+    ],
+    "glossary": [
+      { "source": "マスター", "target": "Master", "level": "Locked" },
+      { "source": "エクスカリバー", "target": "Excalibur", "level": "Locked" }
+    ],
+    "lockedTerms": ["Master", "Excalibur"],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta", "master"], ["tôi", "master"]],
+    "referenceTranslations": [
+      "Ta xin dâng thanh kiếm này cho Master. Kết tinh hơi thở của những vì sao―― Excalibur!",
+      "Tôi xin dâng thanh kiếm này cho Master. Hội tụ hơi thở của các vì tinh tú―― Excalibur!",
+      "Thanh kiếm này xin dâng lên Master. Kết tinh hơi thở của vì sao―― Excalibur!"
+    ],
+    "category": "noble_phantasm",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra tên Bảo Khí Excalibur và phong thái hiệp sĩ trung kiên"
+  },
+  {
+    "sampleId": "fgo_004",
+    "gameId": "fate_grand_order",
+    "sceneId": "babylonia_throne",
+    "speakerId": "gilgamesh",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "フン、雑種め。王の前に立つ栄誉を噛み締めるがいい。",
+    "sourceCleaned": "フン、雑種め。王の前に立つ栄誉を噛み締めるがいい。",
+    "speakerProfile": {
+      "name": "Gilgamesh",
+      "speakingStyle": "Kiêu ngạo, đế vương, khinh miệt kẻ yếu",
+      "preferredPronouns": "bản vương/ta - ngươi/tạp chủng",
+      "addressingRules": "Gọi kẻ khác là tạp chủng (雑種)"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "雑種", "target": "lũ tạp chủng", "level": "Preferred" }
+    ],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn", "anh bạn"],
+    "expectedPronounPairs": [["ta", "ngươi"], ["bản vương", "ngươi"], ["ta", "tạp chủng"]],
+    "referenceTranslations": [
+      "Hừ, lũ tạp chủng. Hãy khắc ghi vinh dự được đứng trước mặt Bản Vương đi.",
+      "Hừ, lũ tạp chủng. Hãy biết trân trọng vinh hạnh được diện kiến trước mặt Vương.",
+      "Hừ, lũ hạ đẳng. Hãy khắc sâu vinh dự được đứng trước mặt ta."
+    ],
+    "category": "fgo_royalty",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra phong thái đế vương và danh xưng khinh miệt (ta - ngươi / bản vương)"
+  },
+  {
+    "sampleId": "fgo_005",
+    "gameId": "fate_grand_order",
+    "sceneId": "shadow_island",
+    "speakerId": "scathach",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "まだまだ修行が足りんな、我が弟子よ。槍の軌道に迷いがある。",
+    "sourceCleaned": "まだまだ修行が足りんな、我が弟子よ。槍の軌道に迷いがある。",
+    "speakerProfile": {
+      "name": "Scathach",
+      "speakingStyle": "Nghiêm khắc, sư phụ, uy nghi chiến binh",
+      "preferredPronouns": "ta - đồ nhi/ngươi",
+      "addressingRules": "Gọi Cu Chulainn là đồ nhi"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "我が弟子", "target": "đồ nhi của ta", "level": "Preferred" }
+    ],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta", "đồ nhi"], ["sư phụ", "đồ nhi"], ["ta", "ngươi"]],
+    "referenceTranslations": [
+      "Vẫn còn tu luyện chưa đủ đâu, đồ nhi của ta. Đường thương của ngươi còn vướng do dự đấy.",
+      "Luyện tập vẫn còn kém lắm, đồ nhi của ta. Quỹ đạo thương của ngươi vẫn còn lưỡng lự.",
+      "Ngươi vẫn tu luyện chưa tới đâu, đồ nhi của ta. Đường giáo còn chứa đầy sự do dự."
+    ],
+    "category": "master_disciple",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra ngữ cảnh sư phụ - đồ nhi (ta - đồ nhi / đồ nhi của ta)"
+  },
+  {
+    "sampleId": "fgo_006",
+    "gameId": "fate_grand_order",
+    "sceneId": "shadow_island",
+    "speakerId": "cu_chulainn",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "勘弁してくださいよ、師匠。手加減って言葉を覚えてほしいもんだぜ。",
+    "sourceCleaned": "勘弁してくださいよ、師匠。手加減って言葉を覚えてほしいもんだぜ。",
+    "speakerProfile": {
+      "name": "Cu Chulainn",
+      "speakingStyle": "Phóng khoáng, cởi mở, kính nể sư phụ",
+      "preferredPronouns": "con/tôi - sư phụ",
+      "addressingRules": "Gọi Scathach là sư phụ (師匠)"
+    },
+    "previousLines": [
+      {
+        "speaker": "Scathach",
+        "original": "まだまだ修行が足りんな、我が弟子よ。",
+        "translated": "Vẫn còn tu luyện chưa đủ đâu, đồ nhi của ta."
+      }
+    ],
+    "glossary": [
+      { "source": "師匠", "target": "sư phụ", "level": "Locked" }
+    ],
+    "lockedTerms": ["sư phụ"],
+    "forbiddenTerms": ["bạn", "thầy giáo"],
+    "expectedPronounPairs": [["con", "sư phụ"], ["tôi", "sư phụ"], ["đồ nhi", "sư phụ"]],
+    "referenceTranslations": [
+      "Xin sư phụ tha cho con đi. Con ước gì sư phụ biết thế nào là nương tay đấy.",
+      "Tha cho tôi đi mà, sư phụ. Ước gì người học được hai chữ 'nương tay' thì tốt biết mấy.",
+      "Sư phụ tha cho con đi mà. Mong sư phụ biết nương tay một chút."
+    ],
+    "category": "master_disciple",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra phản hồi của đệ tử đối với sư phụ (xưng hô sư phụ nhất quán)"
+  },
+  {
+    "sampleId": "vn_007",
+    "gameId": "visual_novel_general",
+    "sceneId": "school_rooftop_afternoon",
+    "speakerId": "protagonist",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "大丈夫か？顔色が悪いぞ。無理しなくていいんだからな。",
+    "sourceCleaned": "大丈夫か？顔色が悪いぞ。無理しなくていいんだからな。",
+    "speakerProfile": {
+      "name": "Protagonist",
+      "speakingStyle": "Ân cần, ấm áp, bạn bè thân thiết",
+      "preferredPronouns": "tôi - cậu / ta - cậu",
+      "addressingRules": "Không dùng bạn"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["cậu"], ["tôi", "cậu"], ["ta", "cậu"]],
+    "referenceTranslations": [
+      "Cậu có sao không? Sắc mặt trông tệ quá đấy. Không cần phải cố quá đâu.",
+      "Cậu ổn chứ? Mặt mũi nhợt nhạt thế kia. Đừng có ép bản thân quá nhé.",
+      "Cậu không sao chứ? Trông sắc mặt tệ lắm. Không cần phải gắng gượng đâu đấy."
+    ],
+    "category": "vn_romance",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra xưng hô bạn bè/cặp đôi kiểu VN (tuyệt đối không dùng 'bạn')"
+  },
+  {
+    "sampleId": "vn_008",
+    "gameId": "visual_novel_general",
+    "sceneId": "school_rooftop_afternoon",
+    "speakerId": "heroine",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "ありがとう。でも…私、ここで諦めたくないの。",
+    "sourceCleaned": "ありがとう。でも…私、ここで諦めたくないの。",
+    "speakerProfile": {
+      "name": "Heroine",
+      "speakingStyle": "Dịu dàng nhưng kiên định",
+      "preferredPronouns": "tớ/mình/em - cậu",
+      "addressingRules": "Xưng hô ngọt ngào, tự nhiên"
+    },
+    "previousLines": [
+      {
+        "speaker": "Protagonist",
+        "original": "大丈夫か？無理しなくていいんだからな。",
+        "translated": "Cậu có sao không? Không cần phải cố quá đâu đấy."
+      }
+    ],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["tớ", "cậu"], ["mình", "cậu"], ["tôi", "cậu"]],
+    "referenceTranslations": [
+      "Cảm ơn cậu. Nhưng mà... tớ không muốn bỏ cuộc ở đây đâu.",
+      "Cảm ơn cậu. Nhưng... mình không muốn từ bỏ ngay tại lúc này.",
+      "Cảm ơn cậu nhé. Nhưng mà... tôi không muốn bỏ cuộc ở đây."
+    ],
+    "category": "vn_romance",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra tính kết nối ngữ cảnh đối thoại (coherence) từ câu trước"
+  },
+  {
+    "sampleId": "vn_009",
+    "gameId": "visual_novel_general",
+    "sceneId": "classroom_morning",
+    "speakerId": "childhood_friend",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "LOG もう、相変わらず鈍感なんだから！",
+    "sourceCleaned": "もう、相変わらず鈍感なんだから！",
+    "speakerProfile": {
+      "name": "Childhood Friend",
+      "speakingStyle": "Hơi tsundere, thân mật, hờn dỗi đáng yêu",
+      "preferredPronouns": "tớ - cậu",
+      "addressingRules": "Trêu đùa thân thiết"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["cậu"]],
+    "referenceTranslations": [
+      "Trời ạ, cậu lúc nào cũng chậm hiểu như thế cả!",
+      "Thật là, cậu vẫn cứ ngốc nghếch vô tâm như mọi khi vậy!",
+      "Trời đất, cậu vẫn cứ vô tâm như xưa giờ thế đấy!"
+    ],
+    "category": "vn_tsundere",
+    "isOfficialReference": true,
+    "notes": "Chuyển ngữ thán từ もう (Thật là / Trời ạ) và lọc bỏ rác UI LOG"
+  },
+  {
+    "sampleId": "scroll_010",
+    "gameId": "visual_novel_general",
+    "sceneId": "confession_scene",
+    "speakerId": "protagonist",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "たとえ世界中を敵に回すことになろうとも――",
+    "sourceCleaned": "たとえ世界中を敵に回すことになろうとも――",
+    "speakerProfile": {
+      "name": "Protagonist",
+      "speakingStyle": "Quyết liệt, hào hùng, bảo vệ người thương",
+      "preferredPronouns": "ta - cậu / tôi - em",
+      "addressingRules": "Câu dang dở chuẩn bị ghép vế sau"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [],
+    "referenceTranslations": [
+      "Cho dù có phải đối đầu với cả thế giới đi chăng nữa――",
+      "Dẫu cho có biến cả thế giới này thành kẻ thù――",
+      "Dù cho có phải quay lưng lại với toàn bộ thế giới――"
+    ],
+    "category": "scroll_incomplete",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra khả năng dịch mượt vế câu dở dang để nối vào câu kế tiếp"
+  },
+  {
+    "sampleId": "scroll_011",
+    "gameId": "visual_novel_general",
+    "sceneId": "confession_scene",
+    "speakerId": "protagonist",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "俺はお前を守り抜くと誓ったんだ。",
+    "sourceCleaned": "俺はお前を守り抜くと誓ったんだ。",
+    "speakerProfile": {
+      "name": "Protagonist",
+      "speakingStyle": "Quyết tâm, chân thành",
+      "preferredPronouns": "tôi - em / ta - cậu",
+      "addressingRules": "Ghép với vế trước 'たとえ世界中を...'"
+    },
+    "previousLines": [
+      {
+        "speaker": "Protagonist",
+        "original": "たとえ世界中を敵に回すことになろうとも――",
+        "translated": "Cho dù có phải đối đầu với cả thế giới đi chăng nữa――"
+      }
+    ],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta", "cậu"], ["tôi", "em"], ["anh", "em"]],
+    "referenceTranslations": [
+      "Ta đã thề rằng sẽ bảo vệ cậu đến cùng.",
+      "Tôi đã thề rằng nhất định sẽ che chở cho em đến hơi thở cuối cùng.",
+      "Ta đã lập lời thề sẽ bảo vệ cậu trọn vẹn."
+    ],
+    "category": "scroll_completion",
+    "isOfficialReference": true,
+    "notes": "Vế thứ 2 hoàn thiện câu cuộn, kiểm tra tính mạch lạc ngữ pháp"
+  },
+  {
+    "sampleId": "combat_012",
+    "gameId": "action_rpg",
+    "sceneId": "boss_fight_phase2",
+    "speakerId": "boss_enemy",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "チッ、小癪な真似を…！だが、これで終いだ！",
+    "sourceCleaned": "チッ、小癪な真似を…！だが、これで終いだ！",
+    "speakerProfile": {
+      "name": "Dark Lord",
+      "speakingStyle": "Hung hãn, áp đảo, khinh miệt",
+      "preferredPronouns": "ta - các ngươi/ngươi",
+      "addressingRules": "Đối địch gay gắt"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta"], ["ngươi"]],
+    "referenceTranslations": [
+      "Chậc, trò vặt vãnh...! Nhưng đến đây là tàn cuộc rồi!",
+      "Chậc, lũ nhãi nhép lắm chiêu trò...! Nhưng mọi chuyện kết thúc ở đây rồi!",
+      "Hừ, giở mấy trò ranh mãnh...! Nhưng đây sẽ là dấu chấm hết của ngươi!"
+    ],
+    "category": "combat_exclamation",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra thán từ チッ (Chậc / Tặc lưỡi) và không khí chiến đấu căng thẳng"
+  },
+  {
+    "sampleId": "combat_013",
+    "gameId": "action_rpg",
+    "sceneId": "dungeon_ambush",
+    "speakerId": "ally_warrior",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "くっ、囲まれたか…！おい、背中は任せたぞ！",
+    "sourceCleaned": "くっ、囲まれたか…！おい、背中は任せたぞ！",
+    "speakerProfile": {
+      "name": "Warrior Companion",
+      "speakingStyle": "Nhiệt huyết, tin cậy, đồng đội cùng vào sinh ra tử",
+      "preferredPronouns": "ta - cậu / tôi - cậu",
+      "addressingRules": "Tuyệt đối không dùng bạn"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta", "cậu"], ["tôi", "cậu"]],
+    "referenceTranslations": [
+      "Khốn khiếp, bị bao vây rồi sao...! Này, ta giao lưng cho cậu đấy!",
+      "Chết tiệt, bị vây ráp rồi...! Này, phía sau lưng trông cậy vào cậu đấy nhé!",
+      "Hừ, rơi vào vòng vây rồi à...! Này, sau lưng phó thác cho cậu đấy!"
+    ],
+    "category": "combat_ally",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra xưng hô đồng đội chiến trường (ta - cậu / tôi - cậu)"
+  },
+  {
+    "sampleId": "ocr_noise_014",
+    "gameId": "visual_novel_general",
+    "sceneId": "street_evening",
+    "speakerId": "senior_detective",
+    "sourceLanguage": "en",
+    "targetLanguage": "vi",
+    "ocrRaw": "l need you to stay focused... We don't have much tirne left. [AUTO]",
+    "sourceCleaned": "I need you to stay focused... We don't have much time left.",
+    "speakerProfile": {
+      "name": "Senior Detective",
+      "speakingStyle": "Dạn dày kinh nghiệm, nghiêm túc chỉ đạo",
+      "preferredPronouns": "ta - cậu / tôi - cậu",
+      "addressingRules": "Không dùng bạn"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta", "cậu"], ["tôi", "cậu"]],
+    "referenceTranslations": [
+      "Ta cần cậu phải tập trung... Chúng ta không còn nhiều thời gian nữa đâu.",
+      "Tôi cần cậu giữ vững sự tập trung... Thời gian của chúng ta không còn nhiều nữa.",
+      "Ta cần cậu tập trung cao độ... Chúng ta sắp hết thời gian rồi."
+    ],
+    "category": "ocr_noise_repair",
+    "isOfficialReference": true,
+    "notes": "Tự động sửa lỗi OCR tiếng Anh 'l' -> 'I', 'tirne' -> 'time', bỏ tag [AUTO]"
+  },
+  {
+    "sampleId": "en_fgo_015",
+    "gameId": "fate_grand_order",
+    "sceneId": "rayshift_sequence",
+    "speakerId": "dr_roman",
+    "sourceLanguage": "en",
+    "targetLanguage": "vi",
+    "ocrRaw": "Master, the coordinates of the singularity are verified. Rayshift commencing in 3, 2, 1...",
+    "sourceCleaned": "Master, the coordinates of the singularity are verified. Rayshift commencing in 3, 2, 1...",
+    "speakerProfile": {
+      "name": "Dr. Romani Archaman",
+      "speakingStyle": "Nhiệt tình, chu đáo, hỗ trợ từ tổng bộ",
+      "preferredPronouns": "tôi - Master",
+      "addressingRules": "Gọi nhân vật chính là Master"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "Master", "target": "Master", "level": "Locked" },
+      { "source": "singularity", "target": "Điểm kỳ dị", "level": "Locked" },
+      { "source": "Rayshift", "target": "Rayshift", "level": "Locked" }
+    ],
+    "lockedTerms": ["Master", "Rayshift", "kỳ dị"],
+    "forbiddenTerms": ["bạn", "chủ nhân"],
+    "expectedPronounPairs": [["tôi", "master"], ["tôi", "Master"]],
+    "referenceTranslations": [
+      "Master, tọa độ của Điểm kỳ dị đã được xác thực. Quá trình Rayshift bắt đầu sau 3, 2, 1...",
+      "Master, tọa độ Điểm kỳ dị đã được kiểm chứng. Bắt đầu Rayshift sau 3, 2, 1...",
+      "Master, tọa độ của Điểm kỳ dị đã được xác nhận. Tiến hành Rayshift trong 3, 2, 1..."
+    ],
+    "category": "en_scifi",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra thuật ngữ kỹ thuật FGO: Singularity (Điểm kỳ dị), Rayshift, Master"
+  },
+  {
+    "sampleId": "fgo_016",
+    "gameId": "fate_grand_order",
+    "sceneId": "fuyuki_graveyard",
+    "speakerId": "caster_cu",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "よぉ、マスターちゃん。しがないキャスター稼業だが、付き合ってやるぜ。",
+    "sourceCleaned": "よぉ、マスターちゃん。しがないキャスター稼業だが、付き合ってやるぜ。",
+    "speakerProfile": {
+      "name": "Cu Chulainn (Caster)",
+      "speakingStyle": "Bất cần đời, thân thiện dí dỏm, phong thái đàn anh",
+      "preferredPronouns": "ta - nhóc Master / tôi - cậu",
+      "addressingRules": "Gọi Master thân mật (マスターちゃん)"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "キャスター", "target": "Caster", "level": "Locked" },
+      { "source": "マスター", "target": "Master", "level": "Locked" }
+    ],
+    "lockedTerms": ["Master", "Caster"],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta"], ["tôi"]],
+    "referenceTranslations": [
+      "Yo, Master bé nhỏ. Dù nghề Caster này chẳng lấy gì làm vẻ vang, nhưng ta sẽ theo hầu cậu một chuyến.",
+      "Yo, nhóc Master. Dù ta chỉ là một Caster hèn mọn, nhưng cứ yên tâm đồng hành nhé.",
+      "Yo, Master nhỏ. Dù chỉ là một Caster mọn, nhưng ta sẽ sát cánh cùng nhóc."
+    ],
+    "category": "fgo_casual",
+    "isOfficialReference": true,
+    "notes": "Giữ đúng danh xưng Caster và sắc thái lãng tử của Caster Cu"
+  },
+  {
+    "sampleId": "vn_017",
+    "gameId": "visual_novel_general",
+    "sceneId": "evening_walk",
+    "speakerId": "kohai",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "先輩と一緒に帰れるなんて、夢みたいです…えへへ。",
+    "sourceCleaned": "先輩と一緒に帰れるなんて、夢みたいです…えへへ。",
+    "speakerProfile": {
+      "name": "Kohai Girl",
+      "speakingStyle": "Ngượng ngùng, đáng yêu, kính trọng đàn anh",
+      "preferredPronouns": "em - Senpai / em - anh",
+      "addressingRules": "Gọi là Senpai"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "先輩", "target": "Senpai", "level": "Locked" }
+    ],
+    "lockedTerms": ["Senpai"],
+    "forbiddenTerms": ["bạn", "tiền bối"],
+    "expectedPronounPairs": [["em", "senpai"], ["em", "Senpai"]],
+    "referenceTranslations": [
+      "Được về chung đường với Senpai cứ như một giấc mơ vậy... he he.",
+      "Có thể cùng về nhà với Senpai thế này, cứ ngỡ như là mơ vậy... hi hi.",
+      "Được cùng Senpai đi về thế này, cứ như đang mơ vậy ạ... hi hi."
+    ],
+    "category": "vn_kohai",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra đại từ hậu bối em - Senpai và tiếng cười bẽn lẽn"
+  },
+  {
+    "sampleId": "fgo_018",
+    "gameId": "fate_grand_order",
+    "sceneId": "interlude_fgo",
+    "speakerId": "edmond_dantes",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "クハハハハ！我が共犯者よ、待たせたな！",
+    "sourceCleaned": "クハハハハ！我が共犯者よ、待たせたな！",
+    "speakerProfile": {
+      "name": "Edmond Dantes",
+      "speakingStyle": "Cuồng nhiệt, ngông cuồng, bảo vệ linh hồn",
+      "preferredPronouns": "ta - kẻ đồng lõa / ta - ngươi",
+      "addressingRules": "Gọi Master là Kẻ đồng lõa (我が共犯者)"
+    },
+    "previousLines": [],
+    "glossary": [
+      { "source": "共犯者", "target": "Kẻ đồng lõa", "level": "Locked" }
+    ],
+    "lockedTerms": ["đồng lõa"],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["ta"]],
+    "referenceTranslations": [
+      "Kuhahaha! Kẻ đồng lõa của ta ơi, để ngươi phải chờ lâu rồi!",
+      "Kuhahahaha! Kẻ đồng lõa của ta, ta để cậu đợi lâu rồi chứ gì!",
+      "Kuhahaha! Kẻ đồng lõa của ta, để ngươi đợi lâu rồi!"
+    ],
+    "category": "fgo_avenger",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra điệu cười đặc trưng Kuhahaha và danh hiệu Kẻ đồng lõa của Bá tước Monte Cristo"
+  },
+  {
+    "sampleId": "en_vn_019",
+    "gameId": "visual_novel_general",
+    "sceneId": "dramatic_farewell",
+    "speakerId": "female_lead",
+    "sourceLanguage": "en",
+    "targetLanguage": "vi",
+    "ocrRaw": "Don't look at me like that. You know this was the only way to save everyone.",
+    "sourceCleaned": "Don't look at me like that. You know this was the only way to save everyone.",
+    "speakerProfile": {
+      "name": "Heroine",
+      "speakingStyle": "Nghẹn ngào, hy sinh, đau đớn",
+      "preferredPronouns": "tôi - cậu / em - anh",
+      "addressingRules": "Cấm dùng bạn"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["bạn"],
+    "expectedPronounPairs": [["tôi", "cậu"], ["ta", "cậu"], ["em", "anh"]],
+    "referenceTranslations": [
+      "Đừng nhìn tôi bằng ánh mắt đó. Cậu biết đây là cách duy nhất để cứu tất cả mọi người mà.",
+      "Đừng nhìn ta như vậy. Cậu rõ ràng biết rằng đây là con đường duy nhất cứu vớt tất cả.",
+      "Đừng nhìn em bằng ánh mắt đó. Cậu biết đây là cách duy nhất để cứu mọi người mà."
+    ],
+    "category": "vn_drama",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra câu thoại tiếng Anh kịch tính, dịch mượt mà không dùng đại từ 'bạn'"
+  },
+  {
+    "sampleId": "fgo_020",
+    "gameId": "fate_grand_order",
+    "sceneId": "chaldea_corridor",
+    "speakerId": "gordolf",
+    "sourceLanguage": "ja",
+    "targetLanguage": "vi",
+    "ocrRaw": "ええい、何をぼさっとしているのだね君たちは！早く持ち場に戻りたまえ！",
+    "sourceCleaned": "ええい、何をぼさっとしているのだね君たちは！早く持ち場に戻りたまえ！",
+    "speakerProfile": {
+      "name": "Gordolf Musik",
+      "speakingStyle": "Quát tháo, hách dịch ngoài miệng nhưng tốt bụng bên trong, thủ trưởng",
+      "preferredPronouns": "ta - các cậu / ta - các ngươi",
+      "addressingRules": "Xưng hô cấp trên với cấp dưới"
+    },
+    "previousLines": [],
+    "glossary": [],
+    "lockedTerms": [],
+    "forbiddenTerms": ["các bạn"],
+    "expectedPronounPairs": [["ta", "các cậu"], ["ta", "các ngươi"]],
+    "referenceTranslations": [
+      "Trời đất ơi, các người còn đứng ngây ra đó làm gì hả! Mau mau trở về vị trí làm việc đi!",
+      "Kìa, các cậu còn đứng đực mặt ra đó làm chi! Mau chóng quay lại vị trí cho ta!",
+      "Thật là, mấy đứa còn ngơ ngác cái gì đấy! Khẩn trương trở về vị trí làm việc mau!"
+    ],
+    "category": "fgo_comedy",
+    "isOfficialReference": true,
+    "notes": "Kiểm tra phong thái chỉ huy quý tộc hài hước của Tư lệnh Gordolf"
+  }
+]

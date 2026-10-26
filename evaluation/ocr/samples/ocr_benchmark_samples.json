@@ -1,0 +1,90 @@
+[
+  {
+    "SampleId": "fgo-01-dialogue",
+    "ProfileId": "fgo-jp",
+    "GameName": "Fate/Grand Order",
+    "Category": "StandardDialogue",
+    "GroundTruthText": "先輩、敵性反応を確認しました。戦闘態勢に入ってください！",
+    "ProperNouns": ["先輩", "戦闘態勢"],
+    "Preset": 0,
+    "Width": 520,
+    "Height": 110
+  },
+  {
+    "SampleId": "fgo-02-speaker",
+    "ProfileId": "fgo-jp",
+    "GameName": "Fate/Grand Order",
+    "Category": "SpeakerName",
+    "GroundTruthText": "【マシュ・キリエライト】",
+    "ProperNouns": ["マシュ"],
+    "Preset": 0,
+    "Width": 260,
+    "Height": 60
+  },
+  {
+    "SampleId": "fgo-03-clipped",
+    "ProfileId": "fgo-jp",
+    "GameName": "Fate/Grand Order",
+    "Category": "ClippedEdge",
+    "GroundTruthText": "この先は危険です。マスター、今すぐ引き返しましょう！",
+    "ProperNouns": ["マスター"],
+    "Preset": 0,
+    "Width": 500,
+    "Height": 90
+  },
+  {
+    "SampleId": "vn-01-dark-bg",
+    "ProfileId": "vn-generic",
+    "GameName": "Visual Novel",
+    "Category": "DarkBackground",
+    "GroundTruthText": "I could never forget the look in her eyes that evening.",
+    "ProperNouns": ["evening"],
+    "Preset": 1,
+    "Width": 480,
+    "Height": 100
+  },
+  {
+    "SampleId": "vn-02-light-bg",
+    "ProfileId": "vn-generic",
+    "GameName": "Visual Novel",
+    "Category": "LightBackground",
+    "GroundTruthText": "The sun rose above the horizon, warming the frozen battlefield.",
+    "ProperNouns": ["horizon"],
+    "Preset": 1,
+    "Width": 480,
+    "Height": 100
+  },
+  {
+    "SampleId": "vn-03-small-text",
+    "ProfileId": "vn-generic",
+    "GameName": "Visual Novel",
+    "Category": "SmallText",
+    "GroundTruthText": "Could it be that she remembered what happened yesterday?",
+    "ProperNouns": ["yesterday"],
+    "Preset": 1,
+    "Width": 460,
+    "Height": 80
+  },
+  {
+    "SampleId": "genshin-01-dialogue",
+    "ProfileId": "genshin-en",
+    "GameName": "Genshin Impact",
+    "Category": "StandardDialogue",
+    "GroundTruthText": "Paimon thinks we should investigate the Statue of The Seven first.",
+    "ProperNouns": ["Paimon", "Statue of The Seven"],
+    "Preset": 2,
+    "Width": 520,
+    "Height": 110
+  },
+  {
+    "SampleId": "ui-01-noise",
+    "ProfileId": "fgo-jp",
+    "GameName": "Fate/Grand Order",
+    "Category": "UiNoise",
+    "GroundTruthText": "令呪をもって命ずる。我がサーヴァントよ、宝具を展開せよ！",
+    "ProperNouns": ["令呪", "宝具"],
+    "Preset": 0,
+    "Width": 500,
+    "Height": 120
+  }
+]

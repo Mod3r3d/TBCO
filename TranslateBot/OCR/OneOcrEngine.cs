@@ -302,6 +302,7 @@ namespace TranslateBot.OCR
         {
             Bitmap? bitmap = null;
             BitmapData? bitmapData = null;
+            var sw = Stopwatch.StartNew();
 
             try
             {
@@ -377,28 +378,36 @@ namespace TranslateBot.OCR
                     sb.Append(lineText);
                 }
 
+                sw.Stop();
                 return new OcrResult
                 {
                     Text = sb.ToString(),
+                    RawText = sb.ToString(),
+                    EngineName = "OneOCR",
+                    LatencyMs = sw.Elapsed.TotalMilliseconds,
+                    Success = true,
                     IsTextClipped = false
                 };
             }
             catch (DllNotFoundException ex)
             {
+                sw.Stop();
                 AppLogger.Error($"[ONEOCR] DLL not found: {ex.Message}");
                 _isAvailable = false;
-                return OcrResult.Empty;
+                return OcrResult.CreateFailure("OneOCR", $"DLL not found: {ex.Message}", sw.Elapsed.TotalMilliseconds);
             }
             catch (BadImageFormatException ex)
             {
+                sw.Stop();
                 AppLogger.Warn($"[ONEOCR] BadImageFormat (bitness mismatch?): {ex.Message}");
                 _isAvailable = false;
-                return OcrResult.Empty;
+                return OcrResult.CreateFailure("OneOCR", $"BadImageFormat: {ex.Message}", sw.Elapsed.TotalMilliseconds);
             }
             catch (Exception ex)
             {
+                sw.Stop();
                 AppLogger.Error($"[ONEOCR] RunOcr error: {ex.Message}");
-                return OcrResult.Empty;
+                return OcrResult.CreateFailure("OneOCR", ex.Message, sw.Elapsed.TotalMilliseconds);
             }
             finally
             {

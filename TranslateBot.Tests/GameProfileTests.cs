@@ -323,5 +323,64 @@ namespace TranslateBot.Tests
             profile.Scenes.Clear();
             Assert.IsNull(profile.GetActiveScene());
         }
+
+        [TestMethod]
+        public void AppConfig_ActiveProfileId_SerializesAndDeserializesCorrectly()
+        {
+            var config = new AppConfig
+            {
+                ActiveProfileId = "blue-archive",
+                ActiveSceneName = "Kivotos-Rooftop"
+            };
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(config);
+            var deserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<AppConfig>(json);
+
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual("blue-archive", deserialized.ActiveProfileId);
+            Assert.AreEqual("Kivotos-Rooftop", deserialized.ActiveSceneName);
+        }
+
+        [TestMethod]
+        public void AppPaths_GetProfilesDirectory_ResolvesInsideAppDataDir()
+        {
+            string profDir = AppPaths.GetProfilesDirectory();
+            Assert.IsTrue(Directory.Exists(profDir), $"Thư mục profiles phải tồn tại: {profDir}");
+            Assert.IsTrue(profDir.EndsWith("profiles", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [TestMethod]
+        public void GameProfileManager_DefaultProfiles_ContainEssentialFgoAndVnProfiles()
+        {
+            var defaults = GameProfileManager.CreateDefaultProfiles();
+            Assert.IsTrue(defaults.Count >= 4, "Bộ profile mặc định phải có ít nhất 4 profiles");
+
+            var fgoJp = defaults.FirstOrDefault(p => p.Id == "fgo-jp");
+            Assert.IsNotNull(fgoJp);
+            Assert.AreEqual("ja", fgoJp.SourceLanguage);
+            Assert.IsTrue(fgoJp.Characters.Any(c => c.Name.Contains("Mash")));
+            Assert.IsTrue(fgoJp.Glossary.Any(g => g.Source == "Master" && g.Level == GlossaryLevel.Locked));
+
+            var vn = defaults.FirstOrDefault(p => p.Id == "vn-generic");
+            Assert.IsNotNull(vn);
+            Assert.AreEqual("Visual Novel", vn.GameName);
+        }
+
+        [TestMethod]
+        public void ApplyGameProfile_SynchronizesContextAndGlossaryToEngine()
+        {
+            var engine = CreateTestEngine();
+            var defaults = GameProfileManager.CreateDefaultProfiles();
+            var fgoProfile = defaults.First(p => p.Id == "fgo-jp");
+
+            engine.ApplyGameProfile(fgoProfile);
+
+            Assert.AreEqual("Fate/Grand Order", engine.FgoContextEngine.GameName);
+            Assert.AreEqual(fgoProfile.OcrAreas.Count, engine.OcrAreaManager.Areas.Count);
+            Assert.AreEqual(fgoProfile.ExclusionAreas.Count, engine.ExclusionManager.Exclusions.Count);
+            Assert.AreEqual(fgoProfile.Characters.Count, engine.CharacterProfileManager.Profiles.Count);
+            Assert.AreEqual(fgoProfile.Glossary.Count, engine.GlossaryManager.Entries.Count);
+            Assert.AreEqual("fgo-jp", engine.CurrentGameProfile?.Id);
+        }
     }
 }

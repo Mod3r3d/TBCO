@@ -313,6 +313,20 @@ namespace TranslateBot
                 _engine.SetDialogueHistory(_dialogueHistory);
                 _engine.LoadTranslationData();  // Load glossary.json + characters.json
 
+                // Stage 2: Tích hợp Game Profile vào runtime khởi tạo
+                _engine.GameProfileManager.LoadAllProfiles();
+                string targetProfileId = _appConfig.ActiveProfileId ?? "fgo-jp";
+                var activeProfile = _engine.GameProfileManager.GetProfile(targetProfileId)
+                    ?? _engine.GameProfileManager.Profiles.FirstOrDefault();
+                if (activeProfile != null)
+                {
+                    _engine.ApplyGameProfile(activeProfile);
+                    if (!string.IsNullOrEmpty(_appConfig.ActiveSceneName))
+                    {
+                        _engine.SwitchScene(_appConfig.ActiveSceneName);
+                    }
+                }
+
                 RestoreCaptureFromConfig();
                 RestoreOcrAreasFromConfig();
 
@@ -1461,6 +1475,9 @@ namespace TranslateBot
             _isSyncingUiControls = true;
             try
             {
+                // Stage 2: Đồng bộ danh sách Hồ sơ Game (Game Profiles)
+                PopulateGameProfilesUi();
+
                 // Đồng bộ Nhà cung cấp dịch (Translation Provider)
                 string currentProvider = _appConfig.TranslationProvider ?? "Gemini";
                 if (TranslationProviderCombo != null)
@@ -1628,6 +1645,150 @@ namespace TranslateBot
 
             string planType = key.EndsWith(":fx", StringComparison.OrdinalIgnoreCase) ? "Free Plan (:fx)" : "Pro Plan";
             MessageBox.Show($"Đã lưu DeepL Auth Key ({planType}) thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // Stage 2: Game Profile & Scene Handlers
+        // ═══════════════════════════════════════════════════════════════════
+
+        private void PopulateGameProfilesUi()
+        {
+            if (GameProfileCombo == null || _engine == null) return;
+
+            bool prevSync = _isSyncingUiControls;
+            _isSyncingUiControls = true;
+            try
+            {
+                GameProfileCombo.Items.Clear();
+
+                var profiles = _engine.GameProfileManager.Profiles;
+                string activeId = _appConfig.ActiveProfileId ?? "fgo-jp";
+
+                ComboBoxItem? selectedItem = null;
+
+                foreach (var p in profiles)
+                {
+                    var item = new ComboBoxItem
+                    {
+                        Content = $"{p.Name} ({p.GameName})",
+                        Tag = p.Id
+                    };
+                    GameProfileCombo.Items.Add(item);
+
+                    if (string.Equals(p.Id, activeId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedItem = item;
+                    }
+                }
+
+                if (selectedItem != null)
+                {
+                    GameProfileCombo.SelectedItem = selectedItem;
+                }
+                else if (GameProfileCombo.Items.Count > 0)
+                {
+                    GameProfileCombo.SelectedIndex = 0;
+                }
+
+                UpdateActiveScenesUi();
+            }
+            finally
+            {
+                _isSyncingUiControls = prevSync;
+            }
+        }
+
+        private void UpdateActiveScenesUi()
+        {
+            if (ActiveSceneRow == null || ActiveSceneCombo == null || _engine == null) return;
+
+            var activeProfile = _engine.CurrentGameProfile ?? _engine.GameProfileManager.ActiveProfile;
+            if (activeProfile != null && activeProfile.Scenes.Count > 0)
+            {
+                ActiveSceneRow.Visibility = Visibility.Visible;
+                ActiveSceneCombo.Items.Clear();
+
+                ComboBoxItem? defaultSceneItem = null;
+                string activeSceneName = _appConfig.ActiveSceneName ?? activeProfile.ActiveSceneName ?? "";
+
+                foreach (var s in activeProfile.Scenes)
+                {
+                    var item = new ComboBoxItem
+                    {
+                        Content = s.Name,
+                        Tag = s.Name
+                    };
+                    ActiveSceneCombo.Items.Add(item);
+
+                    if (string.Equals(s.Name, activeSceneName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        defaultSceneItem = item;
+                    }
+                }
+
+                if (defaultSceneItem != null)
+                {
+                    ActiveSceneCombo.SelectedItem = defaultSceneItem;
+                }
+                else if (ActiveSceneCombo.Items.Count > 0)
+                {
+                    ActiveSceneCombo.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                ActiveSceneRow.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void GameProfileCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isSyncingUiControls || GameProfileCombo?.SelectedItem is not ComboBoxItem item || _engine == null) return;
+
+            string profileId = item.Tag?.ToString() ?? "";
+            var profile = _engine.GameProfileManager.GetProfile(profileId);
+            if (profile != null)
+            {
+                _appConfig.ActiveProfileId = profile.Id;
+                _engine.ApplyGameProfile(profile);
+
+                UpdateActiveScenesUi();
+
+                // Đồng bộ ngôn ngữ nếu profile chỉ định SourceLanguage khác với cấu hình hiện tại
+                bool needRestart = false;
+                if (!string.IsNullOrEmpty(profile.SourceLanguage) &&
+                    !string.Equals(profile.SourceLanguage, _appConfig.SourceLanguage, StringComparison.OrdinalIgnoreCase))
+                {
+                    _appConfig.SourceLanguage = profile.SourceLanguage;
+                    needRestart = true;
+                }
+
+                ConfigManager.Save(_appConfig);
+
+                if (needRestart)
+                {
+                    _ = RestartEngineAsync();
+                }
+            }
+        }
+
+        private void ActiveSceneCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isSyncingUiControls || ActiveSceneCombo?.SelectedItem is not ComboBoxItem item || _engine == null) return;
+
+            string sceneName = item.Tag?.ToString() ?? "";
+            _engine.SwitchScene(sceneName);
+            _appConfig.ActiveSceneName = sceneName;
+            ConfigManager.Save(_appConfig);
+        }
+
+        private void RefreshProfilesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_engine == null) return;
+
+            _engine.GameProfileManager.LoadAllProfiles();
+            PopulateGameProfilesUi();
+            MessageBox.Show($"Đã quét lại danh sách hồ sơ: {_engine.GameProfileManager.Profiles.Count} hồ sơ khả dụng.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void CopyTextBtn_Click(object sender, RoutedEventArgs e)

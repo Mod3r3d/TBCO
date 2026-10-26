@@ -93,6 +93,7 @@ namespace TranslateBot.OCR
                 return Task.FromResult(OcrResult.Empty);
             }
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             try
             {
                 lock (_lock)
@@ -112,17 +113,26 @@ namespace TranslateBot.OCR
                     using var page = _engine.Process(pix);
 
                     string text = page.GetText()?.Trim() ?? string.Empty;
+                    float confidence = page.GetMeanConfidence();
+                    sw.Stop();
+
                     return Task.FromResult(new OcrResult
                     {
                         Text = text,
-                        IsTextClipped = false
+                        RawText = text,
+                        IsTextClipped = false,
+                        Confidence = confidence,
+                        EngineName = "Tesseract",
+                        LatencyMs = sw.Elapsed.TotalMilliseconds,
+                        Success = true
                     });
                 }
             }
             catch (Exception ex)
             {
+                sw.Stop();
                 AppLogger.Error($"[TESSERACT_OCR_ERROR] Lỗi xử lý nhận diện: {ex.Message}");
-                return Task.FromResult(OcrResult.Empty);
+                return Task.FromResult(OcrResult.CreateFailure("Tesseract", ex.Message, sw.Elapsed.TotalMilliseconds));
             }
         }
 

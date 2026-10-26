@@ -1,4 +1,4 @@
-# TBCO — Translate Bot Conversation by OCR (v3.0.4 PRO)
+# TBCO — Translate Bot Conversation by OCR (v3.0.5)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -8,15 +8,15 @@
   <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(x64)-0078D6?logo=windows" alt="Platform Windows" />
   <img src="https://img.shields.io/badge/.NET-8.0%20WPF-512BD4?logo=dotnet" alt=".NET 8" />
   <img src="https://img.shields.io/badge/AI-Gemini%203.x%20%7C%20DeepL%20%7C%20Google%20Web%20%7C%20Ollama-4285F4?logo=google" alt="AI Providers" />
-  <img src="https://img.shields.io/badge/Release-v3.0.4%20PRO-10B981" alt="Version 3.0.4" />
-  <img src="https://img.shields.io/badge/Tests-142%2F142%20Passing-success" alt="Tests 142" />
+  <img src="https://img.shields.io/badge/Release-v3.0.5-10B981" alt="Version 3.0.5" />
+  <img src="https://img.shields.io/badge/Tests-177%2F177%20Passing-success" alt="Tests 177" />
 </p>
 
 ---
 
 ## ⚡ Tải Về Nhanh (Download)
 
-> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.0.4)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.0.4/TBCO-win-x64.zip)
+> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.0.5)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.0.5/TBCO-win-x64.zip)
 
 > [!IMPORTANT]
 > **DÀNH CHO NGƯỜI CHƠI GAME (KHÔNG PHẢI LẬP TRÌNH VIÊN):**
@@ -34,7 +34,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ---
 
-## 🚀 Các Tính Năng Đột Phá Trên TBCO 3.0 PRO
+## 🚀 Các Tính Năng Đột Phá Trên TBCO 3.0
 
 ### 1. 🔑 Multi-Key Pool & Khả Năng Tự Phục Hồi (Self-Healing)
 - **Quản lý đa khóa API**: Xoay vòng linh hoạt nhiều key Gemini (Round-robin leasing).
@@ -118,12 +118,35 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ## 🛠️ Dành Cho Nhà Phát Triển
 
+### Kiến Trúc Hệ Thống (Layered Architecture)
+1. **Tầng Hạ Tầng (Infrastructure):**
+   - Chụp màn hình (Win32 BitBlt & PrintWindow, Window-relative coordinates).
+   - OCR Engine (`WindowsOcrEngine`, `OneOcrEngine`, `TesseractOcrEngine`, `OcrEngineWithFallback`).
+   - Cấu hình & Bảo mật (`ConfigManager`, Windows DPAPI Secret Vault, `AppPaths`).
+2. **Tầng Nghiệp Vụ Game (Domain & Game Logic):**
+   - Game Profiles (`GameProfileManager`, Auto Game Detector).
+   - Hồ sơ nhân vật & Xưng hô (`CharacterProfileManager`, `SpeakerResolver`).
+   - Thuật ngữ ngữ cảnh (`GlossaryManager`, `FgoContextEngine`).
+   - Điều phối dịch thuật (`TranslationRouter`, `TranslationWorker`, `ReorderBuffer`).
+3. **Tầng Giao Diện (Presentation):**
+   - WPF MVVM Main Window, Tabbed Settings & Management.
+   - Floating Subtitle HUD & Detached Subtitle Window (Click-through, Per-Monitor DPI).
+4. **Tầng Đánh Giá & Kiểm Định (Evaluation & Benchmarks):**
+   - Translation Quality Harness (`EvaluationRunner`, `EvaluationScorer`).
+   - OCR Benchmark Suite (`OcrBenchmarkRunner`, `OcrEvaluator`).
+
 ### Biên dịch & Chạy kiểm thử tự động
 ```powershell
-# Chạy toàn bộ 142 test cases
+# Chạy toàn bộ 170 unit & integration test cases
 dotnet test TranslateBot.Tests\TranslateBot.Tests.csproj
 
-# Biên dịch Release
+# Chạy bộ Translation Quality Harness (đo lường xưng hô, glossary, văn phong)
+powershell -ExecutionPolicy Bypass -File evaluation\run-harness.ps1
+
+# Chạy bộ OCR Benchmark Suite (so sánh CER/WER/Latency giữa các engine)
+powershell -ExecutionPolicy Bypass -File evaluation\run-ocr-benchmark.ps1
+
+# Biên dịch bản Release
 dotnet build -c Release
 ```
 

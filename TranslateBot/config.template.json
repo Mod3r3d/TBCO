@@ -1,6 +1,6 @@
 {
   "Project": "TBCO (Translate Bot Conversation by OCR)",
-  "Version": "3.0.0",
+  "Version": "3.0.5",
   "AppConfig": {
     "AutoStart": false,
     "TargetWindowHandle": 0,
@@ -8,8 +8,17 @@
     "TargetProcessName": "",
     "UseWindowRelative": true,
     "ActiveProfileId": "fgo-jp",
+    "ActiveSceneName": null,
     "SourceLanguage": "ja",
     "TargetLanguage": "vi",
+    "TranslationProvider": "Gemini",
+    "AiModel": "gemini-1.5-flash",
+    "OcrEngineType": "WindowsOcr",
+    "MainTheme": "AutoHostDark",
+    "ScanIntervalMs": 300,
+    "ShowSpeakerBadge": false,
+    "AutoCopyToClipboard": false,
+    "AlwaysOnTop": false,
     "OfflineMode": false,
     "EnablePrefetch": false
   },
@@ -27,7 +36,7 @@
     "CustomApi": {
       "Endpoint": "http://localhost:1234/v1/chat/completions",
       "ApiKey": "",
-      "Model": "local-model"
+      "Model": "qwen2.5-72b-instruct"
     },
     "Ollama": {
       "Endpoint": "http://localhost:11434/api/generate",

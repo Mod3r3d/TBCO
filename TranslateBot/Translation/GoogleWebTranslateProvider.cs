@@ -32,7 +32,7 @@ namespace TranslateBot.Translation
             return TranslateAsync(text, null);
         }
 
-        public async Task<string> TranslateAsync(string text, TranslationContext? context)
+        public virtual async Task<string> TranslateAsync(string text, TranslationContext? context)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;

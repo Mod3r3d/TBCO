@@ -50,6 +50,7 @@ namespace TranslateBot.Translation
 
         public TranslationMemory Memory => _translationMemory;
         public int CurrentConcurrency => _currentConcurrency;
+        public string ActiveProfileId { get; set; } = "global";
 
         public TranslationWorker(ITranslationProvider provider)
         {
@@ -146,8 +147,9 @@ namespace TranslateBot.Translation
                 }
             }
 
-            // Stage 5: Check Translation Memory trước khi gửi API
-            string? cached = _translationMemory.TryGetTranslation(job.NormalizedText);
+            // Stage 5 & Giai đoạn 4: Check Translation Memory có xét Game Profile trước khi gửi API
+            string activeProfile = job.Context?.GameName ?? ActiveProfileId;
+            string? cached = _translationMemory.TryGetTranslation(job.NormalizedText, activeProfile);
             if (cached != null)
             {
                 Metrics?.RecordCacheHit();
@@ -156,7 +158,7 @@ namespace TranslateBot.Translation
                 job.IsCacheHit = true;
                 job.LatencyMs = 0;
                 job.ProviderName = "MemoryCache";
-                AppLogger.Info($"[TRANSLATION_CACHED] #{job.SequenceId}");
+                AppLogger.Info($"[TRANSLATION_CACHED] [{activeProfile}] #{job.SequenceId}");
                 _reorderBuffer.Submit(job, cached);
                 return;
             }
@@ -192,24 +194,36 @@ namespace TranslateBot.Translation
                     {
                         job.State = DialogueState.Translating;
                         string translatedText;
+                        TranslationResult transResult;
+
+                        var req = new TranslationRequest(
+                            job.NormalizedText, 
+                            job.Context, 
+                            sequenceId: job.SequenceId, 
+                            cancellationToken: token);
 
                         // Stage 5: Long dialogue handling (Section 28)
                         if (LongDialogueHandler.IsLongDialogue(job.NormalizedText))
                         {
                             translatedText = await TranslateLongDialogueAsync(job);
+                            transResult = TranslationResult.CreateSuccess(
+                                translatedText, 
+                                (_provider as TranslationRouter)?.CurrentProviderName ?? "Gemini", 
+                                latency: sw.Elapsed.TotalMilliseconds);
                         }
                         else
                         {
-                            translatedText = await _provider.TranslateAsync(job.NormalizedText, job.Context);
+                            transResult = await _provider.TranslateRequestAsync(req);
+                            translatedText = transResult.Text;
                         }
 
                         sw.Stop();
-                        isSuccess = !string.IsNullOrEmpty(translatedText);
+                        isSuccess = transResult.IsSuccess && !string.IsNullOrWhiteSpace(translatedText);
                         job.IsTranslated = isSuccess;
                         job.State = DialogueState.Translated;
-                        job.IsCacheHit = false;
-                        job.LatencyMs = sw.Elapsed.TotalMilliseconds;
-                        job.ProviderName = (_provider as TranslationRouter)?.CurrentProviderName ?? "Gemini";
+                        job.IsCacheHit = transResult.IsCacheHit;
+                        job.LatencyMs = transResult.LatencyMs > 0 ? transResult.LatencyMs : sw.Elapsed.TotalMilliseconds;
+                        job.ProviderName = transResult.ProviderName;
 
                         string finalResult = isSuccess 
                             ? translatedText 
@@ -217,20 +231,36 @@ namespace TranslateBot.Translation
 
                         if (isSuccess)
                         {
-                            bool isDegradedFallback = job.ProviderName == "GoogleWebTranslate" &&
+                            // Stage 3 & Giai đoạn 4: Phân loại cache entry, không để fallback thô thành canonical
+                            bool isDegradedFallback = transResult.IsFallback || (transResult.ProviderName == "GoogleWebTranslate" &&
                                                       (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWeb" &&
-                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWebTranslate";
+                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWebTranslate");
+
+                            string jobProfile = job.Context?.GameName ?? ActiveProfileId;
+                            var memEntry = new TranslationMemoryEntry
+                            {
+                                NormalizedText = job.NormalizedText,
+                                OriginalText = job.RawText,
+                                Translation = translatedText,
+                                ProfileId = jobProfile,
+                                Speaker = job.Context?.SpeakerName,
+                                Provider = transResult.ProviderName ?? "Unknown",
+                                Model = transResult.ModelName,
+                                EntryType = isDegradedFallback ? CacheEntryType.FallbackDegraded : CacheEntryType.ModelOutput,
+                                IsFallback = isDegradedFallback,
+                                IsUserApproved = false
+                            };
 
                             if (!isDegradedFallback)
                             {
-                                _translationMemory.Store(job.NormalizedText, translatedText);
+                                _translationMemory.Store(memEntry);
                             }
                             else
                             {
-                                AppLogger.Warn($"[MEMORY_SKIP_FALLBACK] Không lưu bản dịch fallback thô từ Google Web Translate vào bộ nhớ dịch của #{job.SequenceId}");
+                                AppLogger.Warn($"[MEMORY_SKIP_FALLBACK] Không lưu bản dịch fallback từ {transResult.ProviderName} vào canonical cache của #{job.SequenceId}");
                             }
 
-                            AppLogger.Info($"[TRANSLATION_DONE] #{job.SequenceId}");
+                            AppLogger.Info($"[TRANSLATION_DONE] #{job.SequenceId} ({job.ProviderName})");
                             ReportSuccess();
                         }
                         else
@@ -259,7 +289,7 @@ namespace TranslateBot.Translation
                         AppLogger.Error($"[TRANSLATION_ERROR] #{job.SequenceId}: {ex.Message}");
                         ReportFailure(isRateLimit);
 
-                        if (!job.IsPrefetch)
+                        if (!job.IsPrefetch && !job.IsCancelled)
                         {
                             _reorderBuffer.Submit(job, $"[Lỗi kết nối API]\n{job.RawText}");
                         }

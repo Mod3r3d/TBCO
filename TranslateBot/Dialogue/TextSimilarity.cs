@@ -54,6 +54,17 @@ namespace TranslateBot.Dialogue
             if (tokenOverlap < TokenOverlapThreshold)
                 return false; // Từ vựng khác nhau quá nhiều -> chắc chắn là câu khác
 
+            // Lớp 2.5 (Giai đoạn 4): Kiểm tra điểm câu / dấu kết thúc câu (Terminal Punctuation)
+            // Nếu 1 câu là nghi vấn (?) còn 1 câu là khẳng định (.) hoặc cảm thán (!),
+            // thì đây là 2 câu có ngữ khí đối lập, không thể là lỗi OCR correction thông thường.
+            if (EndsWithTerminalPunctuation(a) && EndsWithTerminalPunctuation(b))
+            {
+                char p1 = a.Trim()[^1];
+                char p2 = b.Trim()[^1];
+                if ((p1 == '?' || p2 == '?' || p1 == '？' || p2 == '？') && p1 != p2)
+                    return false;
+            }
+
             // Lớp 3 (đắt hơn, CHỈ chạy khi đã qua 2 lớp lọc rẻ ở trên): char-level
             // similarity qua Levenshtein distance + edit runs analysis.
             var editInfo = LevenshteinWithEditRuns(a, b);

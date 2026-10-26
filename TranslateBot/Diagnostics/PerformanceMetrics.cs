@@ -140,9 +140,43 @@ namespace TranslateBot.Diagnostics
             }
         }
 
+        public PerformanceSnapshot CreateSnapshot()
+        {
+            lock (_calcLock)
+            {
+                return new PerformanceSnapshot(
+                    LoopFps,
+                    OcrSkipPercentage,
+                    AvgCaptureLatencyMs,
+                    AvgDiffLatencyMs,
+                    AvgOcrLatencyMs,
+                    AvgProviderLatencyMs,
+                    CacheHitRate,
+                    RateLimit429Count,
+                    DroppedJobsCount,
+                    ActiveConcurrency,
+                    QueueDepth,
+                    TotalTranslationRequests);
+            }
+        }
+
         public override string ToString()
         {
             return $"FPS: {LoopFps:F1} | Skip OCR: {OcrSkipPercentage:F0}% | Cap: {AvgCaptureLatencyMs:F1}ms | Diff: {AvgDiffLatencyMs:F2}ms | OCR: {AvgOcrLatencyMs:F0}ms | Trans: {AvgProviderLatencyMs:F0}ms | Cache: {CacheHitRate:F0}% | 429: {RateLimit429Count}";
         }
     }
+
+    public readonly record struct PerformanceSnapshot(
+        double LoopFps,
+        double OcrSkipPercentage,
+        double AvgCaptureLatencyMs,
+        double AvgDiffLatencyMs,
+        double AvgOcrLatencyMs,
+        double AvgProviderLatencyMs,
+        double CacheHitRate,
+        long RateLimit429Count,
+        long DroppedJobsCount,
+        int ActiveConcurrency,
+        int QueueDepth,
+        long TotalRequests);
 }

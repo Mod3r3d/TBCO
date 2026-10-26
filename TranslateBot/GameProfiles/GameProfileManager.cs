@@ -37,7 +37,7 @@ namespace TranslateBot.GameProfiles
 
         public GameProfileManager(string? profilesDirectory = null)
         {
-            _profilesDirectory = profilesDirectory ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profiles");
+            _profilesDirectory = profilesDirectory ?? AppPaths.GetProfilesDirectory();
         }
 
         /// <summary>

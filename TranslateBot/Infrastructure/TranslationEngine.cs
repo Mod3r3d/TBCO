@@ -302,7 +302,14 @@ namespace TranslateBot.Infrastructure
             swOcr.Stop();
             _metrics.RecordOcrExecuted(swOcr.Elapsed.TotalMilliseconds);
 
-            _dialogueTracker.ProcessOcrResult(ocrResult.Text);
+            if (!ocrResult.Success)
+            {
+                AppLogger.Warn($"[OCR_ERROR] Engine '{ocrResult.EngineName ?? "Unknown"}' thất bại: {ocrResult.ErrorMessage}");
+            }
+            else
+            {
+                _dialogueTracker.ProcessOcrResult(ocrResult.Text);
+            }
             FlushPendingTranslations();
             return true;
         }
@@ -352,6 +359,12 @@ namespace TranslateBot.Infrastructure
                 var ocrResult = await _ocrEngine.ExtractTextAsync(processed.Pixels, processed.Width, processed.Height);
                 swOcr.Stop();
                 _metrics.RecordOcrExecuted(swOcr.Elapsed.TotalMilliseconds);
+
+                if (!ocrResult.Success)
+                {
+                    AppLogger.Warn($"[OCR_ERROR] Area '{area.Name}' engine '{ocrResult.EngineName ?? "Unknown"}' thất bại: {ocrResult.ErrorMessage}");
+                    continue;
+                }
 
                 string text = ocrResult.Text;
                 if (string.IsNullOrWhiteSpace(text)) continue;

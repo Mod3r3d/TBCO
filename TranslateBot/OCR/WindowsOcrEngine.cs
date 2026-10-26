@@ -47,6 +47,7 @@ namespace TranslateBot.OCR
             if (bgraPixels == null || bgraPixels.Length == 0)
                 return OcrResult.Empty;
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             try
             {
                 byte[] pixelsForOcr = bgraPixels;
@@ -91,16 +92,44 @@ namespace TranslateBot.OCR
                         $"Vùng chụp hiện tại: {width}×{height}px");
                 }
 
+                var boxes = new System.Collections.Generic.List<OcrBoundingBox>();
+                if (result.Lines != null)
+                {
+                    foreach (var line in result.Lines)
+                    {
+                        if (line.Words != null)
+                        {
+                            foreach (var w in line.Words)
+                            {
+                                boxes.Add(new OcrBoundingBox
+                                {
+                                    X = (float)w.BoundingRect.X,
+                                    Y = (float)w.BoundingRect.Y,
+                                    Width = (float)w.BoundingRect.Width,
+                                    Height = (float)w.BoundingRect.Height
+                                });
+                            }
+                        }
+                    }
+                }
+
+                sw.Stop();
                 return new OcrResult
                 {
                     Text = result.Text,
-                    IsTextClipped = isClipped
+                    RawText = result.Text,
+                    IsTextClipped = isClipped,
+                    EngineName = "WindowsOCR",
+                    LatencyMs = sw.Elapsed.TotalMilliseconds,
+                    Success = true,
+                    BoundingBoxes = boxes
                 };
             }
             catch (Exception ex)
             {
+                sw.Stop();
                 Infrastructure.AppLogger.Error($"[LỖI OCR] {ex.Message}");
-                return OcrResult.Empty;
+                return OcrResult.CreateFailure("WindowsOCR", ex.Message, sw.Elapsed.TotalMilliseconds);
             }
         }
 

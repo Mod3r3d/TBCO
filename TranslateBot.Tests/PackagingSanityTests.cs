@@ -96,9 +96,13 @@ namespace TranslateBot.Tests
             var rootEl = doc.RootElement;
 
             Assert.IsTrue(rootEl.TryGetProperty("Version", out var verEl));
-            Assert.AreEqual("3.0.0", verEl.GetString());
+            Assert.IsTrue(verEl.GetString()?.StartsWith("3.0") == true, $"Version must be 3.0.x, got: {verEl.GetString()}");
 
-            Assert.IsTrue(rootEl.TryGetProperty("AppConfig", out _));
+            Assert.IsTrue(rootEl.TryGetProperty("AppConfig", out var appConfigEl));
+            var appConfig = JsonSerializer.Deserialize<AppConfig>(appConfigEl.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            Assert.IsNotNull(appConfig);
+            Assert.AreEqual("fgo-jp", appConfig.ActiveProfileId);
+
             Assert.IsTrue(rootEl.TryGetProperty("TranslationProviders", out var provEl));
             Assert.IsTrue(provEl.TryGetProperty("Gemini", out _));
             Assert.IsTrue(provEl.TryGetProperty("DeepL", out _));

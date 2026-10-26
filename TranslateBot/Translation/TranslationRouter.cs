@@ -65,80 +65,148 @@ namespace TranslateBot.Translation
 
         public async Task<string> TranslateAsync(string text, TranslationContext? context)
         {
-            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+            var request = new TranslationRequest(text, context);
+            var result = await TranslateRequestAsync(request);
+            return result.Text;
+        }
 
-            // 0. Chế độ Offline Mode: Chỉ dịch qua Local AI (Ollama) mà không gọi Cloud
+        // Stage 3: Hợp đồng dữ liệu translation có kiểu rõ ràng và metadata snapshot theo request
+        public async Task<TranslationResult> TranslateRequestAsync(TranslationRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Text))
+            {
+                return TranslationResult.CreateFailure(PrimaryProvider, TranslationStatus.EmptyOutput, "Văn bản yêu cầu rỗng");
+            }
+
+            var swTotal = Stopwatch.StartNew();
+
+            // 0. Chế độ Offline Mode: Chỉ dịch qua Local AI (Ollama)
             if (OfflineMode)
             {
-                string local = await TryTranslateWithLocalAiAsync(text, context);
-                if (!string.IsNullOrEmpty(local)) return local;
+                var localSw = Stopwatch.StartNew();
+                string local = await TryTranslateWithLocalAiAsync(request.Text, request.Context);
+                localSw.Stop();
+                if (!string.IsNullOrEmpty(local))
+                {
+                    CurrentProviderName = "LocalAI";
+                    return TranslationResult.CreateSuccess(local, "LocalAI", "Ollama", localSw.Elapsed.TotalMilliseconds);
+                }
                 AppLogger.Warn("[ROUTER_OFFLINE] Đang ở chế độ Offline nhưng không thể dịch qua Local AI.");
-                return string.Empty;
+                return TranslationResult.CreateFailure("LocalAI", TranslationStatus.ProviderError, "Offline Mode: Không thể dịch qua Local AI", localSw.Elapsed.TotalMilliseconds);
             }
 
             // A. Nếu người dùng chọn DeepL làm Primary
             if (PrimaryProvider.Equals("DeepL", StringComparison.OrdinalIgnoreCase))
             {
-                string deepL = await TryTranslateWithDeepLAsync(text, context);
-                if (!string.IsNullOrEmpty(deepL)) return deepL;
+                var dSw = Stopwatch.StartNew();
+                string deepL = await TryTranslateWithDeepLAsync(request.Text, request.Context);
+                dSw.Stop();
+                if (!string.IsNullOrEmpty(deepL))
+                {
+                    return TranslationResult.CreateSuccess(deepL, "DeepL", "DeepL-API", dSw.Elapsed.TotalMilliseconds);
+                }
 
                 // Fallback 1: Gemini Key Pool
-                string gemini = await TryTranslateWithGeminiPoolAsync(text, context);
-                if (!string.IsNullOrEmpty(gemini)) return gemini;
+                var (gemini, gemKey) = await TryTranslateWithGeminiPoolWithKeyAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(gemini))
+                {
+                    OnFallbackTriggered?.Invoke("DeepL", "Gemini", "DeepL gặp sự cố -> Fallback sang Gemini");
+                    return TranslationResult.CreateFallback(gemini, "DeepL", "Gemini", "DeepL không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
                 // Fallback 2: Custom API / Local AI
-                string custom = await TryTranslateWithCustomApiAsync(text, context);
-                if (!string.IsNullOrEmpty(custom)) return custom;
+                string custom = await TryTranslateWithCustomApiAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(custom))
+                {
+                    OnFallbackTriggered?.Invoke("DeepL", "CustomAPI", "Gemini không khả dụng -> Fallback sang Custom API");
+                    return TranslationResult.CreateFallback(custom, "DeepL", "CustomAPI", "Gemini không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                string local = await TryTranslateWithLocalAiAsync(text, context);
-                if (!string.IsNullOrEmpty(local)) return local;
+                string local = await TryTranslateWithLocalAiAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(local))
+                {
+                    OnFallbackTriggered?.Invoke("DeepL", "LocalAI", "Custom API không khả dụng -> Fallback sang Local AI");
+                    return TranslationResult.CreateFallback(local, "DeepL", "LocalAI", "Custom API không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
                 // Fallback cuối: Google Web Translate
-                return await TryTranslateWithFallbackAsync(text, context);
+                string web = await TryTranslateWithFallbackAsync(request.Text, request.Context);
+                return TranslationResult.CreateFallback(web, "DeepL", "GoogleWebTranslate", "Toàn bộ AI Provider không khả dụng", swTotal.Elapsed.TotalMilliseconds);
             }
 
             // B. Nếu người dùng chọn GoogleWeb làm Primary
             if (PrimaryProvider.Equals("GoogleWeb", StringComparison.OrdinalIgnoreCase) ||
                 PrimaryProvider.Equals("GoogleWebTranslate", StringComparison.OrdinalIgnoreCase))
             {
-                string web = await TryTranslateWithFallbackAsync(text, context);
-                if (!string.IsNullOrEmpty(web)) return web;
+                var wSw = Stopwatch.StartNew();
+                string web = await TryTranslateWithFallbackAsync(request.Text, request.Context);
+                wSw.Stop();
+                if (!string.IsNullOrEmpty(web))
+                {
+                    return TranslationResult.CreateSuccess(web, "GoogleWebTranslate", "WebAPI", wSw.Elapsed.TotalMilliseconds);
+                }
 
                 // Fallback: Gemini -> DeepL
-                string gemini = await TryTranslateWithGeminiPoolAsync(text, context);
-                if (!string.IsNullOrEmpty(gemini)) return gemini;
+                var (gemini, gemKey) = await TryTranslateWithGeminiPoolWithKeyAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(gemini))
+                {
+                    return TranslationResult.CreateFallback(gemini, "GoogleWeb", "Gemini", "GoogleWeb không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                string deepL = await TryTranslateWithDeepLAsync(text, context);
-                if (!string.IsNullOrEmpty(deepL)) return deepL;
+                string deepL = await TryTranslateWithDeepLAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(deepL))
+                {
+                    return TranslationResult.CreateFallback(deepL, "GoogleWeb", "DeepL", "Gemini không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                return string.Empty;
+                return TranslationResult.CreateFailure("GoogleWebTranslate", TranslationStatus.ProviderError, "Không thể dịch qua Google Web Translate", swTotal.Elapsed.TotalMilliseconds);
             }
 
             // C. Mặc định: Gemini làm Primary
             {
-                string gemini = await TryTranslateWithGeminiPoolAsync(text, context);
-                if (!string.IsNullOrEmpty(gemini)) return gemini;
+                var (gemini, gemKey) = await TryTranslateWithGeminiPoolWithKeyAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(gemini))
+                {
+                    return TranslationResult.CreateSuccess(gemini, "Gemini", _geminiProvider.ModelName, swTotal.Elapsed.TotalMilliseconds, keyId: gemKey?.Id);
+                }
 
-                string deepL = await TryTranslateWithDeepLAsync(text, context);
-                if (!string.IsNullOrEmpty(deepL)) return deepL;
+                // Fallback 1: DeepL
+                string deepL = await TryTranslateWithDeepLAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(deepL))
+                {
+                    OnFallbackTriggered?.Invoke("Gemini", "DeepL", "Gemini Key Pool cạn kiệt hoặc lỗi -> Fallback sang DeepL");
+                    return TranslationResult.CreateFallback(deepL, "Gemini", "DeepL", "Gemini Key Pool cạn kiệt hoặc lỗi", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                string custom = await TryTranslateWithCustomApiAsync(text, context);
-                if (!string.IsNullOrEmpty(custom)) return custom;
+                // Fallback 2: Custom API
+                string custom = await TryTranslateWithCustomApiAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(custom))
+                {
+                    OnFallbackTriggered?.Invoke("Gemini", "CustomAPI", "DeepL không khả dụng -> Fallback sang Custom API");
+                    return TranslationResult.CreateFallback(custom, "Gemini", "CustomAPI", "DeepL không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                string local = await TryTranslateWithLocalAiAsync(text, context);
-                if (!string.IsNullOrEmpty(local)) return local;
+                // Fallback 3: Local AI
+                string local = await TryTranslateWithLocalAiAsync(request.Text, request.Context);
+                if (!string.IsNullOrEmpty(local))
+                {
+                    OnFallbackTriggered?.Invoke("Gemini", "LocalAI", "Custom API không khả dụng -> Fallback sang Local AI");
+                    return TranslationResult.CreateFallback(local, "Gemini", "LocalAI", "Custom API không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
 
-                return await TryTranslateWithFallbackAsync(text, context);
+                // Fallback cuối: Google Web Translate
+                string web = await TryTranslateWithFallbackAsync(request.Text, request.Context);
+                return TranslationResult.CreateFallback(web, "Gemini", "GoogleWebTranslate", "Toàn bộ AI Provider không khả dụng", swTotal.Elapsed.TotalMilliseconds);
             }
         }
 
-        public async Task<string> TryTranslateWithGeminiPoolAsync(string text, TranslationContext? context)
+        public async Task<(string result, ApiCredential? key)> TryTranslateWithGeminiPoolWithKeyAsync(string text, TranslationContext? context)
         {
             var primaryKey = _keyPool.AcquireKey("Gemini");
             if (primaryKey != null)
             {
                 var result = await TryTranslateWithGeminiKeyAsync(primaryKey, text, context);
-                if (!string.IsNullOrEmpty(result)) return result;
+                if (!string.IsNullOrEmpty(result)) return (result, primaryKey);
 
                 // Nếu key ban đầu bị 429 hoặc lỗi, thử ngay key tiếp theo trong Pool
                 var secondaryKey = _keyPool.AcquireKey("Gemini");
@@ -148,10 +216,16 @@ namespace TranslateBot.Translation
                     if (Metrics != null) Metrics.KeyRotationsCount++;
 
                     var result2 = await TryTranslateWithGeminiKeyAsync(secondaryKey, text, context);
-                    if (!string.IsNullOrEmpty(result2)) return result2;
+                    if (!string.IsNullOrEmpty(result2)) return (result2, secondaryKey);
                 }
             }
-            return string.Empty;
+            return (string.Empty, null);
+        }
+
+        public async Task<string> TryTranslateWithGeminiPoolAsync(string text, TranslationContext? context)
+        {
+            var (result, _) = await TryTranslateWithGeminiPoolWithKeyAsync(text, context);
+            return result;
         }
 
         public async Task<string> TryTranslateWithDeepLAsync(string text, TranslationContext? context)

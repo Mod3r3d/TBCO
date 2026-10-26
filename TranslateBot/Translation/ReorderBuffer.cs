@@ -14,7 +14,11 @@ namespace TranslateBot.Translation
     public class ReorderBuffer
     {
         private int _latestDispatchedSequence = -1;
+        private long _droppedLateCount = 0;
         private readonly object _lock = new();
+
+        public int LatestDispatchedSequence => _latestDispatchedSequence;
+        public long DroppedLateJobCount => _droppedLateCount;
 
         public Action<DialogueJob, string>? OnOrderedResult { get; set; }
 
@@ -30,6 +34,7 @@ namespace TranslateBot.Translation
                 }
                 else
                 {
+                    _droppedLateCount++;
                     // Câu cũ về muộn hơn câu đã có trên màn hình -> Bỏ qua để không bị giật lùi phụ đề
                     AppLogger.Info($"[LATE_TRANSLATION_DROPPED] #{job.SequenceId} đến muộn hơn #{_latestDispatchedSequence}, bỏ qua.");
                 }
@@ -41,6 +46,7 @@ namespace TranslateBot.Translation
             lock (_lock)
             {
                 _latestDispatchedSequence = -1;
+                _droppedLateCount = 0;
             }
         }
     }
