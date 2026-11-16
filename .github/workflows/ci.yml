@@ -24,10 +24,10 @@ jobs:
         run: dotnet restore TranslateBot.sln -r win-x64
 
       - name: Build Solution (Release)
-        run: dotnet build TranslateBot.sln -c Release --no-restore
+        run: dotnet build TranslateBot.sln -c Release
 
       - name: Run All Automated Tests
-        run: dotnet test TranslateBot.Tests/TranslateBot.Tests.csproj -c Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+        run: dotnet test TranslateBot.Tests/TranslateBot.Tests.csproj -c Release --verbosity normal --logger "trx;LogFileName=test_results.trx"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
