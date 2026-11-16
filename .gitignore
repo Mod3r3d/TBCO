@@ -57,12 +57,16 @@ $RECYCLE.BIN/
 DLL/
 TranslateBot/DLL/
 
-# 8. Tệp xuất toàn bộ mã nguồn / Context dành riêng cho AI Agent (không commit lên git)
+# 8. Tệp xuất toàn bộ mã nguồn / Context / Kế hoạch nội bộ AI (không commit lên git)
 FULL_CODEBASE.md
 PROJECT_CONTEXT.md
 *CODEBASE*.md
 *.codebase.md
 *BAO_CAO*.md
+*XAC_MINH*.md
+*Plan*.md
+*Upgrade_Plan*.md
+TBCO_Upgrade_Plan*
 .workbuddy-ai/
 
 # 9. Tệp cấu hình cục bộ của người dùng (chỉ commit config.template.json)
