@@ -38,20 +38,22 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/TBCO-win-x64.zip
-          name: "TBCO ${{ github.ref_name }} - Game Profiles, Safe Translation Memory & Evaluation Harness"
+          name: "TBCO ${{ github.ref_name }} - Bounded Queue, Generation Safety, Multi-Key Pool & Enhanced Reliability"
           body: |
             ### 🎮 TBCO — Phiên Bản Dựng Sẵn (Đã đóng gói hoàn chỉnh)
             
             > 🟢 **Tải về:** Tải file **`TBCO-win-x64.zip`** ở mục **Assets** bên dưới.  
             > ⚠️ **Lưu ý:** KHÔNG tải file `Source code (zip)` vì đó chỉ là mã nguồn lập trình, không có file chạy `.exe`.
             
-            #### ✨ Điểm mới trong bản cập nhật này:
-            - **Hệ thống Hồ sơ Game (Game Profiles) & Phân cảnh (Scene Switching):** Tự động nhận diện cửa sổ game (Fate/Grand Order JP/NA, Blue Archive, Visual Novel Generic), đồng bộ vùng quét OCR, hồ sơ nhân vật và từ điển game ngữ cảnh.
-            - **Bộ nhớ bản dịch an toàn 2.0 (Context-Aware Translation Memory):** Schema v2 với CacheKey phân tách theo Game Profile và cặp ngôn ngữ; bảo vệ tuyệt đối bản dịch người dùng duyệt (`UserApproved`); tự động chặn bản dịch fallback kém chất lượng khỏi canonical cache.
-            - **Đánh giá chất lượng tự động (Translation Quality Harness & OCR Benchmark):** Tích hợp bộ đo lường độc lập cho thuật ngữ, văn phong, CER/WER và độ trễ engine OCR.
-            - **Chuẩn hóa văn phong Vietsub Anime/VN cao cấp:** Nhất quán cặp xưng hô "ta - cậu" hoặc "tôi - cậu", bảo toàn danh xưng đặc thù (Master, Senpai, sư phụ - đồ nhi).
-            - **Giao diện tinh gọn:** Đã loại bỏ nhãn "PRO", tối ưu trải nghiệm đọc thoại trực quan và sắc nét trên mọi tỷ lệ màn hình (14" đến 4K, HiDPI).
-            - **Chất lượng mã nguồn:** Toàn bộ 177/177 bài kiểm thử (Unit & Integration Tests) vượt qua thành công 100%.
+            #### ✨ Điểm mới trong bản cập nhật v3.1.0:
+            - **Hàng đợi dịch có giới hạn & Chống tràn RAM (Bounded Queue & Backpressure):** Chuyển sang hàng đợi Bounded Channel (sức chứa 32 slots), ưu tiên xử lý thoại Confirmed trước Prefetch, tự động loại bỏ prefetch cũ khi hàng đợi đầy.
+            - **An toàn thứ tự & Vòng đời phiên (ReorderBuffer & Generation Safety):** Gọi callback ngoài lock chống deadlock UI, gắn cờ `GenerationId` giúp loại bỏ hoàn toàn các phụ đề trễ từ vùng quét hoặc cửa sổ trước đó.
+            - **Xoay vòng đa khóa API toàn diện (Multi-Key ApiKeyPool Rotation):** Tự động duyệt qua toàn bộ danh sách key khả dụng trong pool theo ngân sách yêu cầu, phân loại chính xác mã lỗi 429 Quota/Rate Limit và dừng ngay lập tức khi hủy tác vụ.
+            - **Hỗ trợ đa màn hình & Toạ độ âm (VirtualScreen & DPI Support):** Mở rộng khả năng chụp trên mọi màn hình phụ (kể cả đặt bên trái/phía trên màn chính), kiểm tra tính hợp lệ của cửa sổ game và ngăn ngừa lỗi toạ độ.
+            - **Bộ ghi log bất đồng bộ & LocalAppData (Async Rolling Logger):** Ghi log nền qua Channel không nghẽn disk, xoay vòng file log tự động tại `%LOCALAPPDATA%\TBCO\logs`.
+            - **Quản lý HttpClient dùng chung (SharedHttpClient):** Sử dụng `SocketsHttpHandler` dùng chung cho toàn bộ provider AI, ngăn chặn rò rỉ socket và kết nối TCP.
+            - **Duy trì lịch sử thoại khi đổi cấu hình (Session Continuity):** Tự động khôi phục và tiếp tục phiên làm việc thay vì xóa sạch danh sách thoại khi engine khởi động lại.
+            - **Chất lượng mã nguồn tuyệt đối:** 195/195 bài kiểm thử tự động (Unit & Integration Tests) vượt qua thành công 100%.
 
             #### 📂 Hướng dẫn khởi chạy nhanh:
             1. Tải và giải nén file `TBCO-win-x64.zip`.

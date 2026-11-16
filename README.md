@@ -1,4 +1,4 @@
-﻿# TBCO — Translate Bot Conversation by OCR (v3.0.5)
+﻿# TBCO — Translate Bot Conversation by OCR (v3.1.0)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(x64)-0078D6?logo=windows" alt="Platform Windows" />
   <img src="https://img.shields.io/badge/.NET-8.0%20WPF-512BD4?logo=dotnet" alt=".NET 8" />
   <img src="https://img.shields.io/badge/AI-Gemini%203.x%20%7C%20DeepL%20%7C%20Google%20Web%20%7C%20Ollama-4285F4?logo=google" alt="AI Providers" />
-  <img src="https://img.shields.io/badge/Release-v3.0.5-10B981" alt="Version 3.0.5" />
+  <img src="https://img.shields.io/badge/Release-v3.1.0-10B981" alt="Version 3.1.0" />
   <img src="https://img.shields.io/badge/Tests-195%2F195%20Passing-success" alt="Tests 195" />
 </p>
 
@@ -16,7 +16,7 @@
 
 ## ⚡ Tải Về Nhanh (Download)
 
-> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.0.5)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.0.5/TBCO-win-x64.zip)
+> 🟢 **TẢI BẢN DỰNG SẴN MỚI NHẤT:** [**👉 Bấm vào đây để tải TBCO-win-x64.zip (v3.1.0)**](https://github.com/Mod3r3d/TBCO/releases/download/v3.1.0/TBCO-win-x64.zip)
 
 > [!IMPORTANT]
 > **DÀNH CHO NGƯỜI CHƠI GAME (KHÔNG PHẢI LẬP TRÌNH VIÊN):**

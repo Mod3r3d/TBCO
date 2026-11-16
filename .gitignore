@@ -57,7 +57,7 @@ $RECYCLE.BIN/
 DLL/
 TranslateBot/DLL/
 
-# 8. Tệp xuất toàn bộ mã nguồn / Context / Kế hoạch nội bộ AI (không commit lên git)
+# 8. Tệp xuất toàn bộ mã nguồn / Context / Kế hoạch / Báo cáo nội bộ (không commit lên git)
 FULL_CODEBASE.md
 PROJECT_CONTEXT.md
 *CODEBASE*.md
@@ -67,13 +67,15 @@ PROJECT_CONTEXT.md
 *Plan*.md
 *Upgrade_Plan*.md
 TBCO_Upgrade_Plan*
+BASELINE.md
+BaselineReport.md
+*Baseline*.md
+*Report*.md
 .workbuddy-ai/
 
 # 9. Tệp cấu hình cục bộ của người dùng (chỉ commit config.template.json)
 config.json
 TranslateBot/config.json
 
-# 10. Tệp báo cáo đánh giá tự động sinh theo timestamp
-evaluation/reports/*-202*.md
-evaluation/reports/*_report.md
-evaluation/reports/*.jsonl
+# 10. Toàn bộ thư mục báo cáo benchmark / đánh giá
+evaluation/reports/
