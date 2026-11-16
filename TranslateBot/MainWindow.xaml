@@ -340,7 +340,7 @@
                 <TextBlock x:Name="BrandTitleText" Text="TBCO" ToolTip="TBCO (Translate Bot Conversation by OCR)" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}" 
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="0,0,12,0">
-                    <TextBlock Text="v3.0" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
+                    <TextBlock Text="v3.1" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
                 </Border>
 
                 <!-- Status pill -->
@@ -386,35 +386,28 @@
                 </Grid.RowDefinitions>
 
                 <!-- 1. Thanh điều khiển trên: Cửa sổ theo dõi & Tách rời -->
-                <Grid Grid.Row="0" Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Cửa sổ theo dõi bên trái -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
-                            <TextBlock Text="CỬA SỔ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
-                        </Border>
-                        <TextBlock x:Name="WindowInfoText" Text="Toàn màn hình (Chưa ghim)" 
-                                   VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" FontSize="12.5" 
-                                   TextTrimming="CharacterEllipsis" MaxWidth="220" Margin="0,0,8,0"
-                                   ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-                        <Button x:Name="SelectWindowBtn" Content="Đổi cửa sổ" ToolTip="Chọn cửa sổ trò chơi hoặc ứng dụng cần dịch"
-                                Style="{StaticResource MicroActionButton}" Click="SelectWindowBtn_Click"/>
-                    </StackPanel>
-
+                <DockPanel Grid.Row="0" Margin="0,0,0,10" LastChildFill="True">
                     <!-- Nút thao tác nhanh bên phải -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
                         <Border x:Name="DetachedBadge" Background="#0F2442" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="Collapsed" VerticalAlignment="Center">
                             <TextBlock Text="ĐANG TÁCH RỜI" FontSize="10" FontWeight="Bold" Foreground="#60A5FA"/>
                         </Border>
                         <Button x:Name="HotkeyCheatsheetBtn" Content="⌨ Phím tắt" ToolTip="Xem bảng tra cứu phím tắt toàn cục [F1]" Style="{StaticResource MicroActionButton}" Click="HotkeyCheatsheetBtn_Click"/>
                         <Button x:Name="DetachSubtitleBtn" Content="Tách cửa sổ" ToolTip="Tách vùng hiển thị thành cửa sổ nổi độc lập [F11]" Style="{StaticResource MicroActionButton}" Click="DetachSubtitleBtn_Click"/>
-                        <Button x:Name="ToolbarToggleBtn" Content="Thanh nổi" ToolTip="Bật / Tắt thanh điều khiển nổi mini" Style="{StaticResource MicroActionButton}" Click="ToolbarToggleBtn_Click"/>
+                        <Button x:Name="ToolbarToggleBtn" Content="Thanh nổi" ToolTip="Bật / Tắt thanh điều khiển nổi mini" Style="{StaticResource MicroActionButton}" Click="ToolbarToggleBtn_Click" Margin="0"/>
                     </StackPanel>
-                </Grid>
+
+                    <!-- Cửa sổ theo dõi bên trái -->
+                    <Border DockPanel.Dock="Left" Background="{DynamicResource BrushKeyBadgeBg}" BorderBrush="{DynamicResource BrushKeyBadgeBorder}" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,8,0" VerticalAlignment="Center">
+                        <TextBlock Text="CỬA SỔ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BrushKeyBadgeFg}"/>
+                    </Border>
+                    <Button DockPanel.Dock="Left" x:Name="SelectWindowBtn" Content="Đổi cửa sổ" ToolTip="Chọn cửa sổ trò chơi hoặc ứng dụng cần dịch"
+                            Style="{StaticResource MicroActionButton}" Click="SelectWindowBtn_Click" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="WindowInfoText" Text="Toàn màn hình (Chưa ghim)" 
+                               VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" FontSize="12.5" 
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                </DockPanel>
 
                 <!-- 2. Khu vực hiển thị phụ đề trực tiếp (Rộng rãi, cuộn mượt mà) -->
                 <ScrollViewer Grid.Row="1" x:Name="TranslationScrollViewer" 

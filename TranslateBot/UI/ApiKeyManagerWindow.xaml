@@ -39,6 +39,68 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Style tiêu đề cột bảng (GridViewColumnHeader) đồng bộ Dark Theme -->
+        <Style TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Background" Value="#161E2E"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderBrush" Value="#1F2937"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style từng dòng (ListViewItem) êm dịu, không bị highlight trắng chói lòa -->
+        <Style TargetType="{x:Type ListViewItem}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,8"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <GridViewRowPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#161E2E"/>
+                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#334155"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#0F2442"/>
+                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="16">
@@ -110,13 +172,13 @@
         </Border>
 
         <!-- Actions Toolbar -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,12" HorizontalAlignment="Left">
-            <Button Content="+ Thêm Key" Margin="0,0,8,0" Click="AddKeyBtn_Click"/>
-            <Button Content="Dán hàng loạt" Margin="0,0,8,0" Click="BatchPasteBtn_Click" ToolTip="Dán nhiều key từ clipboard (mỗi dòng 1 key)"/>
-            <Button Content="Kiểm tra Key đã chọn" Margin="0,0,8,0" Click="TestKeyBtn_Click"/>
-            <Button Content="Bật/Tắt" Margin="0,0,8,0" Click="ToggleEnableBtn_Click"/>
-            <Button Content="Xóa Key" Background="#7F1D1D" BorderBrush="#991B1B" Click="RemoveKeyBtn_Click"/>
-        </StackPanel>
+        <WrapPanel Grid.Row="3" Margin="0,12,0,8" VerticalAlignment="Center">
+            <Button Content="+ Thêm Key" Margin="0,0,8,6" Click="AddKeyBtn_Click"/>
+            <Button Content="Dán hàng loạt" Margin="0,0,8,6" Click="BatchPasteBtn_Click" ToolTip="Dán nhiều key từ clipboard (mỗi dòng 1 key)"/>
+            <Button Content="Kiểm tra Key đã chọn" Margin="0,0,8,6" Click="TestKeyBtn_Click"/>
+            <Button Content="Bật/Tắt" Margin="0,0,8,6" Click="ToggleEnableBtn_Click"/>
+            <Button Content="Xóa Key" Margin="0,0,8,6" Background="#7F1D1D" BorderBrush="#991B1B" Click="RemoveKeyBtn_Click"/>
+        </WrapPanel>
 
         <!-- Footer / Save -->
         <DockPanel Grid.Row="4">
