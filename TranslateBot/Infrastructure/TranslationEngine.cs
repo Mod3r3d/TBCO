@@ -157,12 +157,14 @@ namespace TranslateBot.Infrastructure
             _useWindowRelative = true;
             _changeDetector.Invalidate("default");
             _dialogueTracker.Reset();
+            _translationWorker?.AdvanceGeneration();
         }
 
         public void ResetTracker()
         {
             _dialogueTracker.Reset();
             _changeDetector.Invalidate();
+            _translationWorker?.AdvanceGeneration();
         }
 
         // ═══════════════════════════════════════════════════════════════════

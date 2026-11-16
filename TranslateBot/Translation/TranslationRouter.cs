@@ -12,7 +12,7 @@ namespace TranslateBot.Translation
     /// Quản lý chuỗi fallback: Gemini Key Pool -> DeepL -> Custom API -> Local AI (Ollama) -> Google Web Translate.
     /// Hỗ trợ Offline Mode và tính điểm sức khỏe ProviderHealthTracker.
     /// </summary>
-    public class TranslationRouter : ITranslationProvider
+    public class TranslationRouter : ITranslationProvider, IDisposable
     {
         private readonly IApiKeyPool _keyPool;
         private readonly GeminiProvider _geminiProvider;
@@ -73,6 +73,11 @@ namespace TranslateBot.Translation
         // Stage 3: Hợp đồng dữ liệu translation có kiểu rõ ràng và metadata snapshot theo request
         public async Task<TranslationResult> TranslateRequestAsync(TranslationRequest request)
         {
+            if (request.CancellationToken.IsCancellationRequested)
+            {
+                return TranslationResult.CreateFailure(PrimaryProvider, TranslationStatus.Cancelled, "Yêu cầu dịch đã bị huỷ");
+            }
+
             if (string.IsNullOrWhiteSpace(request.Text))
             {
                 return TranslationResult.CreateFailure(PrimaryProvider, TranslationStatus.EmptyOutput, "Văn bản yêu cầu rỗng");
@@ -106,12 +111,22 @@ namespace TranslateBot.Translation
                     return TranslationResult.CreateSuccess(deepL, "DeepL", "DeepL-API", dSw.Elapsed.TotalMilliseconds);
                 }
 
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("DeepL", TranslationStatus.Cancelled, "Huỷ fallback sau khi DeepL thất bại");
+                }
+
                 // Fallback 1: Gemini Key Pool
                 var (gemini, gemKey) = await TryTranslateWithGeminiPoolWithKeyAsync(request.Text, request.Context);
                 if (!string.IsNullOrEmpty(gemini))
                 {
                     OnFallbackTriggered?.Invoke("DeepL", "Gemini", "DeepL gặp sự cố -> Fallback sang Gemini");
                     return TranslationResult.CreateFallback(gemini, "DeepL", "Gemini", "DeepL không khả dụng", swTotal.Elapsed.TotalMilliseconds);
+                }
+
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("Gemini", TranslationStatus.Cancelled, "Huỷ fallback sau khi Gemini thất bại");
                 }
 
                 // Fallback 2: Custom API / Local AI
@@ -129,6 +144,11 @@ namespace TranslateBot.Translation
                     return TranslationResult.CreateFallback(local, "DeepL", "LocalAI", "Custom API không khả dụng", swTotal.Elapsed.TotalMilliseconds);
                 }
 
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("LocalAI", TranslationStatus.Cancelled, "Huỷ trước khi fallback sang GoogleWeb");
+                }
+
                 // Fallback cuối: Google Web Translate
                 string web = await TryTranslateWithFallbackAsync(request.Text, request.Context);
                 return TranslationResult.CreateFallback(web, "DeepL", "GoogleWebTranslate", "Toàn bộ AI Provider không khả dụng", swTotal.Elapsed.TotalMilliseconds);
@@ -144,6 +164,11 @@ namespace TranslateBot.Translation
                 if (!string.IsNullOrEmpty(web))
                 {
                     return TranslationResult.CreateSuccess(web, "GoogleWebTranslate", "WebAPI", wSw.Elapsed.TotalMilliseconds);
+                }
+
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("GoogleWebTranslate", TranslationStatus.Cancelled, "Huỷ fallback sau khi GoogleWeb thất bại");
                 }
 
                 // Fallback: Gemini -> DeepL
@@ -170,12 +195,22 @@ namespace TranslateBot.Translation
                     return TranslationResult.CreateSuccess(gemini, "Gemini", _geminiProvider.ModelName, swTotal.Elapsed.TotalMilliseconds, keyId: gemKey?.Id);
                 }
 
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("Gemini", TranslationStatus.Cancelled, "Huỷ fallback sau khi Gemini thất bại");
+                }
+
                 // Fallback 1: DeepL
                 string deepL = await TryTranslateWithDeepLAsync(request.Text, request.Context);
                 if (!string.IsNullOrEmpty(deepL))
                 {
                     OnFallbackTriggered?.Invoke("Gemini", "DeepL", "Gemini Key Pool cạn kiệt hoặc lỗi -> Fallback sang DeepL");
                     return TranslationResult.CreateFallback(deepL, "Gemini", "DeepL", "Gemini Key Pool cạn kiệt hoặc lỗi", swTotal.Elapsed.TotalMilliseconds);
+                }
+
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("DeepL", TranslationStatus.Cancelled, "Huỷ fallback sau khi DeepL thất bại");
                 }
 
                 // Fallback 2: Custom API
@@ -194,6 +229,11 @@ namespace TranslateBot.Translation
                     return TranslationResult.CreateFallback(local, "Gemini", "LocalAI", "Custom API không khả dụng", swTotal.Elapsed.TotalMilliseconds);
                 }
 
+                if (request.CancellationToken.IsCancellationRequested)
+                {
+                    return TranslationResult.CreateFailure("LocalAI", TranslationStatus.Cancelled, "Huỷ trước khi fallback sang GoogleWeb");
+                }
+
                 // Fallback cuối: Google Web Translate
                 string web = await TryTranslateWithFallbackAsync(request.Text, request.Context);
                 return TranslationResult.CreateFallback(web, "Gemini", "GoogleWebTranslate", "Toàn bộ AI Provider không khả dụng", swTotal.Elapsed.TotalMilliseconds);
@@ -202,23 +242,29 @@ namespace TranslateBot.Translation
 
         public async Task<(string result, ApiCredential? key)> TryTranslateWithGeminiPoolWithKeyAsync(string text, TranslationContext? context)
         {
-            var primaryKey = _keyPool.AcquireKey("Gemini");
-            if (primaryKey != null)
+            var attemptedKeyIds = new HashSet<string>();
+            const int maxKeyBudget = 8;
+
+            while (attemptedKeyIds.Count < maxKeyBudget)
             {
-                var result = await TryTranslateWithGeminiKeyAsync(primaryKey, text, context);
-                if (!string.IsNullOrEmpty(result)) return (result, primaryKey);
+                var key = _keyPool.AcquireNextKey("Gemini", attemptedKeyIds);
+                if (key == null) break;
 
-                // Nếu key ban đầu bị 429 hoặc lỗi, thử ngay key tiếp theo trong Pool
-                var secondaryKey = _keyPool.AcquireKey("Gemini");
-                if (secondaryKey != null && secondaryKey.Id != primaryKey.Id)
+                attemptedKeyIds.Add(key.Id);
+
+                if (attemptedKeyIds.Count > 1)
                 {
-                    AppLogger.Info($"[ROUTER_ROTATION] Tự động xoay sang key [{secondaryKey.Id}]...");
+                    AppLogger.Info($"[ROUTER_ROTATION] Tự động xoay sang key thứ {attemptedKeyIds.Count} [{key.Id}]...");
                     if (Metrics != null) Metrics.KeyRotationsCount++;
+                }
 
-                    var result2 = await TryTranslateWithGeminiKeyAsync(secondaryKey, text, context);
-                    if (!string.IsNullOrEmpty(result2)) return (result2, secondaryKey);
+                var result = await TryTranslateWithGeminiKeyAsync(key, text, context);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    return (result, key);
                 }
             }
+
             return (string.Empty, null);
         }
 
@@ -419,6 +465,15 @@ namespace TranslateBot.Translation
                 Metrics?.RecordTranslationRequest(sw.Elapsed.TotalMilliseconds, false);
                 return string.Empty;
             }
+        }
+
+        public void Dispose()
+        {
+            (_geminiProvider as IDisposable)?.Dispose();
+            (DeepLProvider as IDisposable)?.Dispose();
+            (CustomApiProvider as IDisposable)?.Dispose();
+            (LocalAiProvider as IDisposable)?.Dispose();
+            (_fallbackProvider as IDisposable)?.Dispose();
         }
     }
 }

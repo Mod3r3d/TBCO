@@ -1,4 +1,13 @@
-param(
+# ==============================================================================
+# TBCO Translation Quality Harness -- Replay Runner
+# ==============================================================================
+# TRẠNG THÁI HIỆN TẠI (02/11/2026):
+#   Script này chạy unit test kiểm tra công thức chấm điểm và tính toàn vẹn dataset.
+#   Nó KHÔNG thực sự gọi provider AI và KHÔNG sinh báo cáo chất lượng dịch.
+#   EvaluationRunner.RunAsync() tồn tại nhưng chưa có CLI entry point gọi nó.
+#   Chức năng sinh report thật cần CLI entry point `tools/TBCO.Eval` (Giai đoạn 1).
+# ==============================================================================
+
     [string]$DatasetPath = "$PSScriptRoot\translation\samples\evaluation_samples.json",
     [string]$OutputDir = "$PSScriptRoot\reports",
     [string]$RunName = "quality_run_" + (Get-Date -Format "yyyyMMdd_HHmmss")

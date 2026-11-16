@@ -78,8 +78,13 @@ namespace TranslateBot.Tests
 
         private class MockFallbackProvider : ITranslationProvider
         {
-            public Task<string> TranslateAsync(string text) => Task.FromResult($"[WebFallback: {text}]");
-            public Task<string> TranslateAsync(string text, TranslationContext? context) => Task.FromResult($"[WebFallback: {text}]");
+            public int CallCount { get; private set; }
+            public Task<string> TranslateAsync(string text)
+            {
+                CallCount++;
+                return Task.FromResult($"[WebFallback: {text}]");
+            }
+            public Task<string> TranslateAsync(string text, TranslationContext? context) => TranslateAsync(text);
         }
 
         [TestMethod]
@@ -288,6 +293,33 @@ namespace TranslateBot.Tests
             Assert.AreEqual("[WebFallback: Direct Web Translate]", result);
             Assert.AreEqual("GoogleWebTranslate", router.CurrentProviderName);
             Assert.IsFalse(geminiCalled, "Khi PrimaryProvider là GoogleWeb, dịch trực tiếp mà không cần Gemini");
+        }
+
+        [TestMethod]
+        public async Task TranslationRouter_Cancellation_DoesNotTriggerFurtherFallbacks()
+        {
+            var keyPool = new ApiKeyPool();
+            keyPool.AddOrUpdateCredential(new ApiCredential { Id = "k1", Provider = "Gemini", Secret = "sec1" });
+
+            bool geminiCalled = false;
+            var gemini = new TestableGeminiProvider
+            {
+                OnTranslate = t => { geminiCalled = true; return "Gemini"; }
+            };
+
+            var fallback = new MockFallbackProvider();
+            var router = new TranslationRouter(keyPool, gemini, fallback);
+
+            using var cts = new System.Threading.CancellationTokenSource();
+            cts.Cancel(); // Huỷ trước khi gọi
+
+            var req = new TranslationRequest("Hello", cancellationToken: cts.Token);
+            var result = await router.TranslateRequestAsync(req);
+
+            Assert.IsFalse(result.IsSuccess, "Request bị huỷ không được thành công");
+            Assert.AreEqual(TranslationStatus.Cancelled, result.Status, "Trạng thái phải là Cancelled");
+            Assert.IsFalse(geminiCalled, "Khi request đã bị huỷ, không được gọi tới provider hoặc fallback");
+            Assert.AreEqual(0, fallback.CallCount, "Fallback không bao giờ được gọi sau khi cancellation xảy ra");
         }
     }
 }

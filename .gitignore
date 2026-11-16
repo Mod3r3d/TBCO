@@ -64,3 +64,12 @@ PROJECT_CONTEXT.md
 *.codebase.md
 *BAO_CAO*.md
 .workbuddy-ai/
+
+# 9. Tệp cấu hình cục bộ của người dùng (chỉ commit config.template.json)
+config.json
+TranslateBot/config.json
+
+# 10. Tệp báo cáo đánh giá tự động sinh theo timestamp
+evaluation/reports/*-202*.md
+evaluation/reports/*_report.md
+evaluation/reports/*.jsonl

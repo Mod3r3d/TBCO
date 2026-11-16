@@ -1,6 +1,14 @@
 # ==============================================================================
 # TBCO OCR Benchmark Runner -- Windows OCR vs OneOCR / Tesseract
 # ==============================================================================
+# TRẠNG THÁI HIỆN TẠI (02/11/2026):
+#   Script này chạy unit test kiểm tra công thức CER/WER và tính toàn vẹn dataset.
+#   Nó KHÔNG sinh báo cáo so sánh engine thật — chức năng đó cần CLI entry point
+#   `tools/TBCO.Eval` (chưa có, nằm trong lộ trình Giai đoạn 1).
+#   Report thật phải chứa: git SHA, OS, model, timestamp, dataset hash.
+#   Benchmark thật phải dùng ảnh screenshot game (evaluation/ocr/images/*.png),
+#   không phải ảnh GDI+ synthetic render.
+# ==============================================================================
 param(
     [string]$SamplesPath = "$PSScriptRoot/ocr/samples/ocr_benchmark_samples.json",
     [string]$OutputDir = "$PSScriptRoot/reports"

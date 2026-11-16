@@ -12,9 +12,10 @@ namespace TranslateBot.Translation.Providers
     /// Nhà cung cấp dịch thuật qua Custom API / OpenAI-Compatible Endpoint (Section 13 của Master Plan)
     /// Hỗ trợ: LM Studio, OpenRouter, Groq, vLLM, LocalAI, v.v.
     /// </summary>
-    public class CustomApiTranslationProvider : ITranslationProvider
+    public class CustomApiTranslationProvider : ITranslationProvider, IDisposable
     {
         private readonly HttpClient _httpClient;
+        private readonly bool _ownsHttpClient;
 
         public string EndpointUrl { get; set; } = "http://localhost:1234/v1/chat/completions";
         public string ApiKey { get; set; } = string.Empty;
@@ -31,7 +32,24 @@ namespace TranslateBot.Translation.Providers
             EndpointUrl = endpointUrl;
             ApiKey = apiKey;
             ModelName = modelName;
-            _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(12) };
+            if (httpClient != null)
+            {
+                _httpClient = httpClient;
+                _ownsHttpClient = false;
+            }
+            else
+            {
+                _httpClient = SharedHttpClient.Instance;
+                _ownsHttpClient = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_ownsHttpClient)
+            {
+                _httpClient.Dispose();
+            }
         }
 
         public Task<string> TranslateAsync(string text)

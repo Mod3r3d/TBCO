@@ -14,9 +14,10 @@ namespace TranslateBot.Translation.Providers
     /// Nhà cung cấp dịch thuật Local AI qua Ollama (Section 14 của Master Plan)
     /// Hỗ trợ dịch ngoại tuyến 100% không phụ thuộc internet qua các model: Qwen2.5, Gemma 2, Llama 3.
     /// </summary>
-    public class OllamaTranslationProvider : ITranslationProvider
+    public class OllamaTranslationProvider : ITranslationProvider, IDisposable
     {
         private readonly HttpClient _httpClient;
+        private readonly bool _ownsHttpClient;
 
         public string Host { get; set; } = "http://localhost:11434";
         public string ModelName { get; set; } = "qwen2.5:7b";
@@ -33,7 +34,24 @@ namespace TranslateBot.Translation.Providers
         {
             Host = host;
             ModelName = modelName;
-            _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+            if (httpClient != null)
+            {
+                _httpClient = httpClient;
+                _ownsHttpClient = false;
+            }
+            else
+            {
+                _httpClient = SharedHttpClient.Instance;
+                _ownsHttpClient = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_ownsHttpClient)
+            {
+                _httpClient.Dispose();
+            }
         }
 
         public async Task<bool> CheckAvailabilityAsync()

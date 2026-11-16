@@ -1,6 +1,6 @@
 {
   "Project": "TBCO (Translate Bot Conversation by OCR)",
-  "Version": "3.0.5",
+  "Version": "3.1.0",
   "AppConfig": {
     "AutoStart": false,
     "TargetWindowHandle": 0,
@@ -24,7 +24,12 @@
   },
   "TranslationProviders": {
     "Primary": "Gemini",
-    "FallbackChain": ["DeepL", "CustomApi", "Ollama", "GoogleWeb"],
+    "FallbackChain": [
+      "DeepL",
+      "CustomApi",
+      "Ollama",
+      "GoogleWeb"
+    ],
     "Gemini": {
       "Model": "gemini-1.5-flash",
       "KeyPool": []

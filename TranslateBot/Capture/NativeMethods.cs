@@ -54,6 +54,30 @@ namespace TranslateBot.Capture
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsIconic(IntPtr hWnd);  // Minimized?
 
+        // ─── System Metrics & Virtual Screen (Section 4.6 & Phase 3) ───────
+        public const int SM_XVIRTUALSCREEN = 76;
+        public const int SM_YVIRTUALSCREEN = 77;
+        public const int SM_CXVIRTUALSCREEN = 78;
+        public const int SM_CYVIRTUALSCREEN = 79;
+
+        [DllImport("user32.dll")]
+        public static extern int GetSystemMetrics(int nIndex);
+
+        public static System.Drawing.Rectangle GetVirtualScreenBounds()
+        {
+            int x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+            int y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+            int w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            int h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+            if (w <= 0 || h <= 0)
+            {
+                return new System.Drawing.Rectangle(0, 0, 1920, 1080);
+            }
+
+            return new System.Drawing.Rectangle(x, y, w, h);
+        }
+
         // ─── Process Info ──────────────────────────────────────────────────
 
         [DllImport("user32.dll", SetLastError = true)]

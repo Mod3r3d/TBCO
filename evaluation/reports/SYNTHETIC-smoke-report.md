@@ -1,7 +1,13 @@
-# Báo cáo Benchmark OCR (Windows OCR vs OneOCR / Tesseract)
+# [SYNTHETIC SMOKE TEST] Benchmark OCR — Dữ liệu Tổng hợp, Không dùng để Kết luận Chất lượng
 
-*Ngày đánh giá: 2026-10-26*  
-*Môi trường: Windows 10/11 x64, .NET 8.0, System.Drawing Preprocessing*
+> **⚠ CẢNH BÁO:** Đây là kết quả **smoke test tổng hợp** (synthetic render), KHÔNG phải đo trên ảnh game thật.
+> Toàn bộ số liệu CER/WER trong tài liệu này **không đại diện** cho hiệu năng thực tế trên screenshot FGO/Blue Archive/Visual Novel.
+> Xem `evaluation/reports/ocr-benchmark-ACTUAL-*.md` (sinh bởi `evaluation/run-ocr-benchmark.ps1 --real`) để có số liệu đáng tin.
+>
+> Mọi quyết định kỹ thuật (chọn engine mặc định, điều chỉnh ngưỡng) phải dựa trên report thật, không phải file này.
+
+*Ngày đánh giá: 2026-10-26 (smoke test)*  
+*Môi trường: Windows 10/11 x64, .NET 8.0, GDI+ synthetic render (không phải screenshot thật)*
 
 ---
 
@@ -34,11 +40,11 @@
   - Cả **Windows OCR** và **OneOCR** đều đạt CER < 2.5% trên nền tối tiêu chuẩn.
   - Trên nền sáng ngoài trời (`LightBackground`), bộ tiền xử lý đảo màu/tăng tương phản tự động giúp Windows OCR đọc rõ 99% text mà không bị mất chữ.
 
-### 2.3. Genshin Impact (`genshin-en`)
-- **Đặc thù:** Tên riêng trong ngoặc vuông, hội thoại tiếng Anh với font chữ đặc thù.
-- **Preset tối ưu:** `GenshinDialogue`.
-- **Kết quả:**
-  - Khớp tuyệt đối 100% các tên riêng đặc thù (Paimon, Statue of The Seven).
+---
+
+> **Ghi chú:** Section này chỉ chứa dữ liệu tổng hợp cho các profile `fgo-jp` và `vn-generic`.
+> Không có profile `genshin-en` hay preset `GenshinDialogue` trong mã nguồn hiện tại.
+> Dữ liệu Genshin Impact đã bị loại bỏ để tránh gây hiểu nhầm.
 
 ---
 

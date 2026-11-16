@@ -105,5 +105,47 @@ namespace TranslateBot.Tests
             Assert.AreEqual(ModifierKeys.Control, snapshotBinding.Modifiers);
             Assert.AreEqual("Ctrl+F11", snapshotBinding.DisplayText);
         }
+
+        [TestMethod]
+        public void HotkeyManager_AllRegisteredBindings_AreSupportedAndDocumented()
+        {
+            var manager = new HotkeyManager();
+            var bindings = manager.Bindings;
+
+            // Danh sách các lệnh thực sự được hỗ trợ và có handler trong giao diện
+            var supportedCommands = new HashSet<HotkeyCommand>
+            {
+                HotkeyCommand.ToggleCapture,
+                HotkeyCommand.CaptureOnce,
+                HotkeyCommand.Snapshot,
+                HotkeyCommand.SelectRegion,
+                HotkeyCommand.LockOverlay,
+                HotkeyCommand.ToggleOverlay,
+                HotkeyCommand.DetachSubtitle,
+                HotkeyCommand.ToggleClickThrough,
+                HotkeyCommand.Retranslate,
+                HotkeyCommand.FinalizeDialogue,
+                HotkeyCommand.OpenApiKeyManager,
+                HotkeyCommand.ToggleTTS,
+                HotkeyCommand.OpenHistory,
+                HotkeyCommand.OpenHotkeyHelp,
+                HotkeyCommand.SelectWindow,
+                HotkeyCommand.EmergencyStop
+            };
+
+            foreach (var b in bindings)
+            {
+                Assert.IsTrue(supportedCommands.Contains(b.Command),
+                    $"Phím tắt {b.DisplayText} đăng ký lệnh {b.Command} nhưng lệnh này không nằm trong danh sách lệnh được hỗ trợ thực tế.");
+                Assert.IsFalse(string.IsNullOrWhiteSpace(b.Description),
+                    $"Phím tắt {b.DisplayText} thiếu mô tả chức năng.");
+            }
+
+            // Đảm bảo không còn đăng ký các phím tắt chết (không có handler)
+            Assert.IsFalse(bindings.Any(b => b.Command == HotkeyCommand.ToggleStabilizer), "ToggleStabilizer không được đăng ký khi chưa có handler.");
+            Assert.IsFalse(bindings.Any(b => b.Command == HotkeyCommand.SkipDialogue), "SkipDialogue không được đăng ký khi chưa có handler.");
+            Assert.IsFalse(bindings.Any(b => b.Command == HotkeyCommand.ToggleLocalAI), "ToggleLocalAI không được đăng ký khi chưa có handler.");
+            Assert.IsFalse(bindings.Any(b => b.Command == HotkeyCommand.OpenDiagnostics), "OpenDiagnostics không được đăng ký khi chưa có handler.");
+        }
     }
 }

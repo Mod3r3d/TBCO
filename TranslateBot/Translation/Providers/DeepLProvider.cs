@@ -13,9 +13,10 @@ namespace TranslateBot.Translation.Providers
     /// Nhà cung cấp dịch thuật DeepL API (Section 13 của Master Plan)
     /// Hỗ trợ cả Free API (key đuôi ':fx') và Pro API.
     /// </summary>
-    public class DeepLProvider : ITranslationProvider
+    public class DeepLProvider : ITranslationProvider, IDisposable
     {
         private readonly HttpClient _httpClient;
+        private readonly bool _ownsHttpClient;
         private string _apiKey;
 
         public string ApiKey
@@ -36,7 +37,24 @@ namespace TranslateBot.Translation.Providers
         public DeepLProvider(string apiKey = "", HttpClient? httpClient = null)
         {
             _apiKey = apiKey;
-            _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+            if (httpClient != null)
+            {
+                _httpClient = httpClient;
+                _ownsHttpClient = false;
+            }
+            else
+            {
+                _httpClient = SharedHttpClient.Instance;
+                _ownsHttpClient = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_ownsHttpClient)
+            {
+                _httpClient.Dispose();
+            }
         }
 
         public Task<string> TranslateAsync(string text)

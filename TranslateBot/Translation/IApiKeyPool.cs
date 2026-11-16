@@ -11,6 +11,11 @@ namespace TranslateBot.Translation
         ApiCredential? AcquireKey(string provider = "Gemini");
 
         /// <summary>
+        /// Lấy credential khả dụng tiếp theo trong pool, loại trừ các key đã thử trong cùng request.
+        /// </summary>
+        ApiCredential? AcquireNextKey(string provider = "Gemini", ISet<string>? excludedIds = null);
+
+        /// <summary>
         /// Báo cáo request thành công để cập nhật độ trễ và tỷ lệ sức khỏe key.
         /// </summary>
         void ReportSuccess(ApiCredential key, TimeSpan latency);

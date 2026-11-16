@@ -131,6 +131,12 @@ namespace TranslateBot
                 _captureService?.Dispose();
                 _captureService = null;
 
+                if (_translationRouter is IDisposable dispRouter)
+                {
+                    dispRouter.Dispose();
+                }
+                _translationRouter = null;
+
                 if (_ocrEngine is IDisposable dispOcr)
                 {
                     dispOcr.Dispose();
@@ -140,7 +146,8 @@ namespace TranslateBot
 
                 if (wasRunning && _engine != null)
                 {
-                    _sessionManager.StartSession();
+                    // P1-1: Tiếp tục session cũ, không xoá lịch sử và không phân mảnh file jsonl
+                    _sessionManager.ResumeSession();
                     _engine.Start();
                     ToggleBotBtn.Content = "TẠM DỪNG HOOK";
                     ToggleBotBtn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E04747"));
@@ -454,6 +461,9 @@ namespace TranslateBot
                             ToggleBotBtn_Click(this, new RoutedEventArgs());
                         }
                         break;
+                    default:
+                        AppLogger.Warn($"[Hotkey] Lệnh phím tắt chưa được gán xử lý trong giao diện: {cmd}");
+                        break;
                 }
             });
         }
@@ -755,59 +765,67 @@ namespace TranslateBot
         {
             if (_snapshotService == null) return;
 
-            StatusText.Text = "Đang chụp...";
-
-            SnapshotResult result;
-
-            if (_appConfig.UseWindowRelativeCapture && _engine != null)
+            try
             {
-                var handle = _engine.TargetWindowHandle;
-                if (handle == IntPtr.Zero)
+                StatusText.Text = "Đang chụp...";
+
+                SnapshotResult result;
+
+                if (_appConfig.UseWindowRelativeCapture && _engine != null)
                 {
-                    // Thử tìm lại cửa sổ
-                    var found = WindowEnumerator.FindByTitleAndProcess(
-                        _appConfig.TargetWindowTitle ?? "", _appConfig.TargetProcessName ?? "");
-                    if (found != null) handle = found.Handle;
+                    var handle = _engine.TargetWindowHandle;
+                    if (handle == IntPtr.Zero)
+                    {
+                        // Thử tìm lại cửa sổ
+                        var found = WindowEnumerator.FindByTitleAndProcess(
+                            _appConfig.TargetWindowTitle ?? "", _appConfig.TargetProcessName ?? "");
+                        if (found != null) handle = found.Handle;
+                    }
+
+                    int x = _appConfig.RelativeCaptureX, y = _appConfig.RelativeCaptureY;
+                    int w = _appConfig.RelativeCaptureWidth, h = _appConfig.RelativeCaptureHeight;
+
+                    // Nếu có OCR areas → dùng area Dialogue đầu tiên
+                    var areas = _engine.OcrAreaManager.GetEnabledDialogueAreas();
+                    if (areas.Count > 0)
+                    {
+                        x = areas[0].RegionX; y = areas[0].RegionY;
+                        w = areas[0].RegionWidth; h = areas[0].RegionHeight;
+                    }
+
+                    result = await _snapshotService.CaptureAndTranslateAsync(handle, x, y, w, h);
+                }
+                else
+                {
+                    int x = _appConfig.CaptureX, y = _appConfig.CaptureY;
+                    int w = _appConfig.CaptureWidth, h = _appConfig.CaptureHeight;
+
+                    if (w <= 0 || h <= 0)
+                    {
+                        StatusText.Text = "Chưa chọn vùng quét";
+                        return;
+                    }
+
+                    result = await _snapshotService.CaptureAndTranslateAsync(x, y, w, h);
                 }
 
-                int x = _appConfig.RelativeCaptureX, y = _appConfig.RelativeCaptureY;
-                int w = _appConfig.RelativeCaptureWidth, h = _appConfig.RelativeCaptureHeight;
-
-                // Nếu có OCR areas → dùng area Dialogue đầu tiên
-                var areas = _engine.OcrAreaManager.GetEnabledDialogueAreas();
-                if (areas.Count > 0)
+                if (result.Success)
                 {
-                    x = areas[0].RegionX; y = areas[0].RegionY;
-                    w = areas[0].RegionWidth; h = areas[0].RegionHeight;
+                    OriginalTextLabel.Text = result.OriginalText;
+                    TranslatedTextLabel.Text = result.TranslatedText;
+                    TranslationScrollViewer?.ScrollToTop();
+                    _detachedSubtitleWindow?.UpdateDialogue(result.OriginalText, result.TranslatedText, null, null);
+                    StatusText.Text = "Snapshot hoàn tất";
                 }
-
-                result = await _snapshotService.CaptureAndTranslateAsync(handle, x, y, w, h);
-            }
-            else
-            {
-                int x = _appConfig.CaptureX, y = _appConfig.CaptureY;
-                int w = _appConfig.CaptureWidth, h = _appConfig.CaptureHeight;
-
-                if (w <= 0 || h <= 0)
+                else
                 {
-                    StatusText.Text = "Chưa chọn vùng quét";
-                    return;
+                    StatusText.Text = "Snapshot thất bại";
                 }
-
-                result = await _snapshotService.CaptureAndTranslateAsync(x, y, w, h);
             }
-
-            if (result.Success)
+            catch (Exception ex)
             {
-                OriginalTextLabel.Text = result.OriginalText;
-                TranslatedTextLabel.Text = result.TranslatedText;
-                TranslationScrollViewer?.ScrollToTop();
-                _detachedSubtitleWindow?.UpdateDialogue(result.OriginalText, result.TranslatedText, null, null);
-                StatusText.Text = "Snapshot hoàn tất";
-            }
-            else
-            {
-                StatusText.Text = "Snapshot thất bại";
+                AppLogger.Error($"Snapshot exception: {ex.Message}", ex);
+                StatusText.Text = $"Snapshot lỗi: {ex.Message}";
             }
         }
 
@@ -1356,7 +1374,7 @@ namespace TranslateBot
             ConfigManager.Save(_appConfig);
         }
 
-        private void SourceLangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void SourceLangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_isSyncingUiControls || SourceLangCombo?.SelectedItem is not ComboBoxItem item) return;
             string lang = item.Tag?.ToString() ?? "auto";
@@ -1368,7 +1386,14 @@ namespace TranslateBot
                 if (_translationRouter.FallbackProvider is GoogleWebTranslateProvider gwt) gwt.SourceLanguage = lang;
             }
             ConfigManager.Save(_appConfig);
-            _ = RestartEngineAsync(); // Khởi tạo lại OCR engine theo đúng ngôn ngữ nguồn mới
+            try
+            {
+                await RestartEngineAsync(); // Khởi tạo lại OCR engine theo đúng ngôn ngữ nguồn mới
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi đổi ngôn ngữ nguồn: {ex.Message}");
+            }
         }
 
         private void TargetLangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1385,14 +1410,21 @@ namespace TranslateBot
             ConfigManager.Save(_appConfig);
         }
 
-        private void OcrEngineCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void OcrEngineCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_isSyncingUiControls || OcrEngineCombo?.SelectedItem is not ComboBoxItem item) return;
             string engineType = item.Tag?.ToString() ?? "WindowsOcr";
             _appConfig.OcrEngineType = engineType;
             ConfigManager.Save(_appConfig);
 
-            _ = RestartEngineAsync();
+            try
+            {
+                await RestartEngineAsync();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi đổi OCR Engine: {ex.Message}");
+            }
         }
 
         public static string MapSourceLanguageToOcrTag(string? sourceLang)
@@ -1585,7 +1617,7 @@ namespace TranslateBot
             }
         }
 
-        private void TranslationProviderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void TranslationProviderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_isSyncingUiControls) return;
 
@@ -1601,7 +1633,14 @@ namespace TranslateBot
                 }
 
                 UpdateProviderPanelsVisibility(provider);
-                _ = RestartEngineAsync();
+                try
+                {
+                    await RestartEngineAsync();
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi đổi Provider: {ex.Message}");
+                }
             }
         }
 
@@ -1633,7 +1672,7 @@ namespace TranslateBot
             }
         }
 
-        private void SaveDeepLKeyBtn_Click(object sender, RoutedEventArgs e)
+        private async void SaveDeepLKeyBtn_Click(object sender, RoutedEventArgs e)
         {
             string key = DeepLKeyTextBox?.Text?.Trim() ?? string.Empty;
             ConfigManager.SetEffectiveDeepLApiKey(_appConfig, key);
@@ -1641,7 +1680,14 @@ namespace TranslateBot
             {
                 _deepLProvider.ApiKey = key;
             }
-            _ = RestartEngineAsync();
+            try
+            {
+                await RestartEngineAsync();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi cập nhật DeepL Key: {ex.Message}");
+            }
 
             string planType = key.EndsWith(":fx", StringComparison.OrdinalIgnoreCase) ? "Free Plan (:fx)" : "Pro Plan";
             MessageBox.Show($"Đã lưu DeepL Auth Key ({planType}) thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1741,7 +1787,7 @@ namespace TranslateBot
             }
         }
 
-        private void GameProfileCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void GameProfileCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_isSyncingUiControls || GameProfileCombo?.SelectedItem is not ComboBoxItem item || _engine == null) return;
 
@@ -1767,7 +1813,14 @@ namespace TranslateBot
 
                 if (needRestart)
                 {
-                    _ = RestartEngineAsync();
+                    try
+                    {
+                        await RestartEngineAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi đổi Game Profile: {ex.Message}");
+                    }
                 }
             }
         }
@@ -1849,7 +1902,7 @@ namespace TranslateBot
             }
         }
 
-        private void ApiKeyBtn_Click(object sender, RoutedEventArgs e)
+        private async void ApiKeyBtn_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UI.ApiKeyManagerWindow(_keyPool, _appConfig)
             {
@@ -1857,10 +1910,20 @@ namespace TranslateBot
             };
 
             bool? dialogResult = dialog.ShowDialog();
-            _ = RestartEngineAsync();
             UpdateApiKeyStatusUi();
+
+            // P1-2: Chỉ restart engine khi người dùng thực sự lưu thay đổi (dialogResult == true)
             if (dialogResult == true)
             {
+                try
+                {
+                    await RestartEngineAsync();
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error($"[RESTART_ERROR] Lỗi khởi động lại khi cập nhật API Key Pool: {ex.Message}");
+                }
+
                 MessageBox.Show("Đã cập nhật cấu hình API Key Pool thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }

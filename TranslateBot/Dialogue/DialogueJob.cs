@@ -19,6 +19,9 @@ namespace TranslateBot.Dialogue
         public bool IsCancelled { get; set; }
         public int Priority { get; set; } = 0; // -1: Low (Prefetch), 0: Normal, 1: High (User Confirmed)
 
+        // Phase 1 (P0): Generation ID ngăn chặn nhận kết quả trễ từ phiên/cửa sổ/hồ sơ trước
+        public long GenerationId { get; set; } = 0;
+
         // Stage 5: Context gửi kèm request dịch (previous lines, glossary, speaker)
         public Translation.TranslationContext? Context { get; set; }
 

@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <NeutralLanguage>vi-VN</NeutralLanguage>
+    <Authors>TBCO Team</Authors>
+    <Company>TBCO Team</Company>
+    <Product>TBCO (Translate Bot Conversation by OCR)</Product>
+  </PropertyGroup>
+</Project>

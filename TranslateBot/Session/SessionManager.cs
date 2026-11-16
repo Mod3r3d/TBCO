@@ -77,6 +77,25 @@ namespace TranslateBot.Session
             }
         }
 
+        /// <summary>
+        /// Tiếp tục phiên hiện tại nếu đang hoạt động, giữ nguyên lịch sử bản ghi trong RAM và file JSONL.
+        /// Chỉ tạo phiên mới nếu chưa có phiên nào đang chạy (P1-1).
+        /// </summary>
+        public void ResumeSession()
+        {
+            lock (_lock)
+            {
+                if (!IsSessionActive || string.IsNullOrEmpty(_currentSessionFilePath))
+                {
+                    StartSession();
+                }
+                else
+                {
+                    AppLogger.Info($"[SESSION] Tiếp tục phiên làm việc {SessionId} (đã có {_records.Count} bản ghi).");
+                }
+            }
+        }
+
         public void EndSession()
         {
             lock (_lock)

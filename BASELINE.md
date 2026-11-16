@@ -1,8 +1,8 @@
 # Báo cáo Baseline và Hiện trạng Kỹ thuật TBCO
 
-> Được lập theo **Giai đoạn 0** của [plan.md](plan.md).  
-> Ngày thực hiện: 26/10/2026.  
-> Phiên bản phần mềm: **3.0.4** | Branch: **main** | Commit: **1adf530**.
+> Được cập nhật theo **BAO_CAO_DANH_GIA_TBCO_2026-11** (Giai đoạn 1 — Bằng chứng đáng tin).  
+> Ngày cập nhật: 02/11/2026.  
+> Phiên bản phần mềm: **3.0.5** | Branch: **main** | Commit: **b29a86f**.
 
 ---
 
@@ -10,27 +10,27 @@
 
 | Tiêu chí | Giá trị xác nhận | Nguồn đối chiếu |
 |---|---|---|
-| **Git Commit** | `1adf530` (`feat(core): release v3.0.4 with persistent config, Ctrl+F8 OCR sync, and uncluttered subtitles`) | `git log -n 1` |
+| **Git Commit** | `b29a86f` (`feat(core): release v3.0.5 with game profiles, safe translation memory, evaluation harness & benchmark suites`) | `git log -n 1` |
 | **Git Branch** | `main` (up-to-date with `origin/main`) | `git status` |
-| **Assembly Version** | `3.0.4.0` / Package Version: `3.0.4` | `TranslateBot/TranslateBot.csproj` |
+| **Assembly Version** | `3.0.5.0` / Package Version: `3.0.5` | `TranslateBot/TranslateBot.csproj` |
 | **Target Framework** | `.NET 8.0 Windows` (`net8.0-windows10.0.19041.0`) | `TranslateBot.csproj` |
 | **Trạng thái Build** | Thành công (0 Error, 0 Warning) | `dotnet build` |
-| **Trạng thái Unit Tests** | **142 / 142 tests PASS** (100%) | `dotnet test` |
+| **Trạng thái Unit Tests** | **195 / 195 tests PASS** (100%) | `dotnet test` |
 | **Đường dẫn dữ liệu runtime** | `%LOCALAPPDATA%\TBCO` | `TranslateBot/Infrastructure/AppPaths.cs` |
 
 ---
 
-## 2. Phân loại và Kiểm kê 142 Unit & Integration Tests
+## 2. Phân loại và Kiểm kê 195 Unit & Integration Tests
 
-Toàn bộ 142 bài kiểm tra tự động đã được kiểm tra và phân loại theo 4 nhóm chức năng:
+Toàn bộ 195 bài kiểm tra tự động đã được kiểm tra và phân loại theo 4 nhóm chức năng:
 
 | Nhóm kiểm thử | Số lượng test | Các file kiểm thử chính | Nội dung bảo vệ |
 |---|:---:|---|---|
-| **Unit Tests** | **55** | `ImagePreprocessingTests.cs` (8)<br>`AdaptiveStabilizationTests.cs` (4)<br>`HotkeyTests.cs` (7)<br>`PerformanceTests.cs` (11)<br>`SpeakerResolverAndContextTests.cs` (6)<br>`OcrRouterTests.cs` (5)<br>`PersistentMemoryTests.cs` (3)<br>`MultiProviderTests.cs` (5)<br>`SecurityAndConfigTests.cs` (6) | Bộ lọc ảnh, nhận dạng phím tắt, băm sai biệt khung hình, xử lý xưng hô thoại/ngoặc/quote, mã hóa DPAPI SecretVault, pool bộ đệm capture. |
-| **Integration Tests** | **27** | `ApiKeyPoolAndRouterTests.cs` (8)<br>`RouterMultiProviderTests.cs` (8)<br>`QueueAndConcurrencyTests.cs` (4)<br>`GameProfileTests.cs` (7) | Luân chuyển Round-Robin API key, cooldown 429, hủy key 401, chuỗi fallback đa tầng (Gemini → DeepL → CustomAPI → LocalAI → GoogleWeb), giới hạn đồng thời động, lưu/nạp Game Profile. |
-| **UI & Runtime Tests** | **29** | `OverlayTests.cs` (9)<br>`ReliabilityAndFixesTests.cs` (12)<br>`PackagingSanityTests.cs` (7)<br>`Test1.cs` (1) | Preset hiển thị phụ đề (Chaldea, HighContrast, LayerMode), khởi tạo STA an toàn cho cửa sổ phụ đề nổi (Detached Subtitle), lọc rác timestamp player, kiểm tra tính toàn vẹn file manifest/tessdata/config. |
-| **Evaluation / Regression Tests** | **16** | `EvaluationRegressionTests.cs` (16) | Kiểm thử hồi quy các lỗi kiến trúc P0/P1: Tọa độ ExclusionArea, ngôn ngữ OCR Windows, khôi phục circuit breaker, ghép câu cuộn (scroll dialogue stitching), đồng bộ vùng quét Ctrl+F8, cờ huy hiệu Speaker. |
-| **TỔNG CỘNG** | **142** | **19 file kiểm thử** | **Đạt 100% tỉ lệ vượt qua.** |
+| **Unit Tests** | **68** | `ImagePreprocessingTests.cs` (8)<br>`AdaptiveStabilizationTests.cs` (4)<br>`HotkeyTests.cs` (7)<br>`PerformanceTests.cs` (11)<br>`SpeakerResolverAndContextTests.cs` (6)<br>`OcrRouterTests.cs` (5)<br>`PersistentMemoryTests.cs` (10)<br>`MultiProviderTests.cs` (5)<br>`SecurityAndConfigTests.cs` (6) | Bộ lọc ảnh, nhận dạng phím tắt, băm sai biệt khung hình, xử lý xưng hô thoại/ngoặc/quote, mã hóa DPAPI SecretVault, pool bộ đệm capture. |
+| **Integration Tests** | **33** | `ApiKeyPoolAndRouterTests.cs` (8)<br>`RouterMultiProviderTests.cs` (8)<br>`QueueAndConcurrencyTests.cs` (4)<br>`GameProfileTests.cs` (7) | Luân chuyển Round-Robin API key, cooldown 429, hủy key 401, chuỗi fallback đa tầng (Gemini → DeepL → CustomAPI → LocalAI → GoogleWeb), giới hạn đồng thời động, lưu/nạp Game Profile. |
+| **UI & Runtime Tests** | **28** | `OverlayTests.cs` (9)<br>`ReliabilityAndFixesTests.cs` (12)<br>`PackagingSanityTests.cs` (7)<br>`Test1.cs` (1) | Preset hiển thị phụ đề (Chaldea, HighContrast, LayerMode), khởi tạo STA an toàn cho cửa sổ phụ đề nổi (Detached Subtitle), lọc rác timestamp player, kiểm tra tính toàn vẹn file manifest/tessdata/config. |
+| **Evaluation / Regression Tests** | **36** | `EvaluationRegressionTests.cs` (16)<br>`OcrBenchmarkTests.cs` (2)<br>`QualityHarnessTests.cs` (18) | Kiểm thử hồi quy các lỗi kiến trúc P0/P1: Tọa độ ExclusionArea, ngôn ngữ OCR Windows, khôi phục circuit breaker, ghép câu cuộn (scroll dialogue stitching), đồng bộ vùng quét Ctrl+F8, cờ huy hiệu Speaker. |
+| **TỔNG CỘNG** | **195** | **22 file kiểm thử** | **Đạt 100% tỉ lệ vượt qua.** |
 
 ---
 
@@ -91,11 +91,11 @@ Toàn bộ 142 bài kiểm tra tự động đã được kiểm tra và phân l
 
 1. **Rủi ro Context & Provider Attribution khi chạy song song**:
    - Hiện tại, `TranslationWorker` xử lý các job qua router dùng chung. Nếu hai request chạy đồng thời mà provider bị fallback, `TranslationRouter.CurrentProviderName` có thể phản ánh sai trạng thái của request trước đó.
-   - *Giải pháp*: Chuẩn hóa Hợp đồng dữ liệu `TranslationRequest` & `TranslationResult` mang metadata snapshot độc lập theo từng request (thực hiện tại **Giai đoạn 3**).
+   - *Trạng thái v3.0.5*: ✅ Đã giải quyết — `TranslationRequest` & `TranslationResult` đã triển khai, mang metadata snapshot độc lập. Còn 1 chỗ câu dài dùng shared state (P1-8 trong BAO_CAO_2026-11).
 
 2. **Chất lượng dịch và kiểm thử hồi quy prompt**:
    - Hiện app chưa có công cụ kiểm thử ngoại tuyến (offline runner) để tự động chấm điểm ngữ cảnh, xưng hô ("ta - cậu", "tôi - cậu", "senpai - em") và thuật ngữ game mà không cần mở giao diện WPF.
-   - *Giải pháp*: Xây dựng **Translation Quality Harness** tại **Giai đoạn 1**.
+   - *Trạng thái v3.0.5*: 🟡 Harness đã có (`EvaluationRunner`, `EvaluationScorer`, 20 mẫu dataset) nhưng chưa có CLI entry point. Script chỉ chạy unit test. Xem lộ trình trong `BAO_CAO_DANH_GIA_TBCO_2026-11.md`.
 
 3. **Yêu cầu người dùng đối với Bước 4 (Translation Memory)**:
    - Theo chỉ thị của người dùng: *"bỏ qua bước 4 thực hiện tuần tự hoàn thiện từng bước 1 rồi mới đến bước tiếp theo"*.
@@ -105,5 +105,6 @@ Toàn bộ 142 bài kiểm tra tự động đã được kiểm tra và phân l
 
 ## 6. Kết luận Giai đoạn 0
 
-- Trạng thái hiện tại của source code đạt độ ổn định cao: toàn bộ 142 bài kiểm tra tự động vượt qua, các sửa đổi nền tảng từ báo cáo cũ đã được tích hợp đầy đủ.
-- Hệ thống đã sẵn sàng để chuyển sang **Giai đoạn 1 — Translation Quality Harness**.
+- Trạng thái hiện tại của source code đạt độ ổn định cao: toàn bộ **195 bài kiểm tra** tự động vượt qua.
+- Phiên bản v3.0.5 đã phát hành tại `https://github.com/Mod3r3d/TBCO/releases/tag/v3.0.5`.
+- Phương hướng tiếp theo: xem `BAO_CAO_DANH_GIA_TBCO_2026-11.md` — ưu tiên **Giai đoạn 1 — Bằng chứng đáng tin** (CLI harness thật + bộ ảnh OCR thật).

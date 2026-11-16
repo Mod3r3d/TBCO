@@ -23,10 +23,11 @@ namespace TranslateBot.Translation
         }
     }
 
-    public class GeminiProvider : ITranslationProvider
+    public class GeminiProvider : ITranslationProvider, IDisposable
     {
         private string _apiKey;
         private readonly HttpClient _httpClient;
+        private readonly bool _ownsHttpClient;
 
         // "Giờ nguội" hết quota (Section: xử lý 429). Khi Google báo hết quota (429), ta
         // ghi nhớ thời điểm được phép gọi lại, để các câu thoại tiếp theo không tiếp tục
@@ -43,17 +44,33 @@ namespace TranslateBot.Translation
         // Phase 9: Cho phép ném ngoại lệ có cấu trúc để TranslationRouter và ApiKeyPool xử lý
         public bool ThrowOnApiError { get; set; } = false;
 
-        public GeminiProvider(string apiKey = "")
+        public GeminiProvider(string apiKey = "", HttpClient? httpClient = null)
         {
             _apiKey = apiKey;
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromSeconds(8);
+            if (httpClient != null)
+            {
+                _httpClient = httpClient;
+                _ownsHttpClient = false;
+            }
+            else
+            {
+                _httpClient = SharedHttpClient.Instance;
+                _ownsHttpClient = false;
+            }
 
             if (!string.IsNullOrEmpty(_apiKey) && !_apiKey.StartsWith("AIzaSy"))
             {
                 AppLogger.Info(
                     $"[GHI CHÚ KEY] API key dạng mới (không bắt đầu \"AIzaSy\") - định dạng " +
                     $"key hiện tại của Google (\"AQ...\"), hoạt động bình thường với generateContent.");
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_ownsHttpClient)
+            {
+                _httpClient.Dispose();
             }
         }
 

@@ -1,4 +1,4 @@
-# TBCO — Translate Bot Conversation by OCR (v3.0.5)
+﻿# TBCO — Translate Bot Conversation by OCR (v3.0.5)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/.NET-8.0%20WPF-512BD4?logo=dotnet" alt=".NET 8" />
   <img src="https://img.shields.io/badge/AI-Gemini%203.x%20%7C%20DeepL%20%7C%20Google%20Web%20%7C%20Ollama-4285F4?logo=google" alt="AI Providers" />
   <img src="https://img.shields.io/badge/Release-v3.0.5-10B981" alt="Version 3.0.5" />
-  <img src="https://img.shields.io/badge/Tests-177%2F177%20Passing-success" alt="Tests 177" />
+  <img src="https://img.shields.io/badge/Tests-195%2F195%20Passing-success" alt="Tests 195" />
 </p>
 
 ---
@@ -129,7 +129,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
    - Thuật ngữ ngữ cảnh (`GlossaryManager`, `FgoContextEngine`).
    - Điều phối dịch thuật (`TranslationRouter`, `TranslationWorker`, `ReorderBuffer`).
 3. **Tầng Giao Diện (Presentation):**
-   - WPF MVVM Main Window, Tabbed Settings & Management.
+   - WPF Main Window (code-behind, refactoring sang MVVM là mục tiêu v3.1), Tabbed Settings & Management.
    - Floating Subtitle HUD & Detached Subtitle Window (Click-through, Per-Monitor DPI).
 4. **Tầng Đánh Giá & Kiểm Định (Evaluation & Benchmarks):**
    - Translation Quality Harness (`EvaluationRunner`, `EvaluationScorer`).
@@ -137,7 +137,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### Biên dịch & Chạy kiểm thử tự động
 ```powershell
-# Chạy toàn bộ 170 unit & integration test cases
+# Chạy toàn bộ 195 unit & integration test cases
 dotnet test TranslateBot.Tests\TranslateBot.Tests.csproj
 
 # Chạy bộ Translation Quality Harness (đo lường xưng hô, glossary, văn phong)

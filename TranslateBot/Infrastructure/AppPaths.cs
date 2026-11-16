@@ -11,17 +11,24 @@ namespace TranslateBot.Infrastructure
     {
         private static string? _appDataDir;
 
+        /// <summary>
+        /// Cho phép thiết lập tường minh chế độ test hoặc thư mục tạm riêng cho từng test run (P1-5).
+        /// </summary>
+        public static bool IsTestMode { get; set; } = false;
+
         private static bool IsTestEnvironment()
         {
+            if (IsTestMode) return true;
+
             try
             {
                 string? entry = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
-                if (entry != null && (entry.Contains("testhost", StringComparison.OrdinalIgnoreCase) || entry.Contains("test", StringComparison.OrdinalIgnoreCase)))
+                if (entry != null && (entry.Equals("testhost", StringComparison.OrdinalIgnoreCase) || entry.StartsWith("testhost.", StringComparison.OrdinalIgnoreCase)))
                 {
                     return true;
                 }
                 string friendly = AppDomain.CurrentDomain.FriendlyName;
-                return friendly.Contains("testhost", StringComparison.OrdinalIgnoreCase) || friendly.Contains("test", StringComparison.OrdinalIgnoreCase);
+                return friendly.StartsWith("testhost", StringComparison.OrdinalIgnoreCase);
             }
             catch
             {
@@ -156,6 +163,26 @@ namespace TranslateBot.Infrastructure
             catch (Exception ex)
             {
                 AppLogger.Error($"[PROFILES_DIR_ERROR] Không thể tạo thư mục profiles: {ex.Message}");
+            }
+            return dir;
+        }
+
+        /// <summary>
+        /// Đường dẫn lưu file log tại %LOCALAPPDATA%\TBCO\logs (P1-4).
+        /// </summary>
+        public static string GetLogsDirectory()
+        {
+            string dir = Path.Combine(AppDataDir, "logs");
+            try
+            {
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LOGS_DIR_ERROR] Không thể tạo thư mục logs: {ex.Message}");
             }
             return dir;
         }

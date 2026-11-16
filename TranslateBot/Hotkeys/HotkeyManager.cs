@@ -44,16 +44,12 @@ namespace TranslateBot.Hotkeys
 
             // Dialogue & Translation
             AddBinding(HotkeyCommand.Retranslate, Key.T, ModifierKeys.Control, "Dịch lại câu thoại gần nhất");
-            AddBinding(HotkeyCommand.ToggleStabilizer, Key.D, ModifierKeys.Control, "Bật/Tắt bộ ổn định thoại");
             AddBinding(HotkeyCommand.FinalizeDialogue, Key.D, ModifierKeys.Control | ModifierKeys.Shift, "Chốt câu thoại ngay lập tức");
-            AddBinding(HotkeyCommand.SkipDialogue, Key.D, ModifierKeys.Alt, "Bỏ qua câu thoại hiện tại");
 
             // API, Audio & Diagnostics
             AddBinding(HotkeyCommand.OpenApiKeyManager, Key.K, ModifierKeys.Control, "Mở quản lý API Key Pool");
             AddBinding(HotkeyCommand.ToggleTTS, Key.Y, ModifierKeys.Control, "Đọc to câu thoại bằng giọng nói (TTS)");
-            AddBinding(HotkeyCommand.ToggleLocalAI, Key.L, ModifierKeys.Control, "Bật/Tắt Local AI (Ollama)");
             AddBinding(HotkeyCommand.OpenHistory, Key.J, ModifierKeys.Control, "Mở lịch sử dịch thuật");
-            AddBinding(HotkeyCommand.OpenDiagnostics, Key.F12, ModifierKeys.Control, "Mở bảng chẩn đoán hiệu năng");
 
             // Cheatsheet Help
             AddBinding(HotkeyCommand.OpenHotkeyHelp, Key.F1, ModifierKeys.None, "Mở bảng tra cứu phím tắt");

@@ -26,6 +26,11 @@ namespace TranslateBot.Translation
 
         public ApiCredential? AcquireKey(string provider = "Gemini")
         {
+            return AcquireNextKey(provider, null);
+        }
+
+        public ApiCredential? AcquireNextKey(string provider = "Gemini", ISet<string>? excludedIds = null)
+        {
             lock (_lock)
             {
                 // Lọc các key thuộc provider được yêu cầu
@@ -41,10 +46,16 @@ namespace TranslateBot.Translation
                     k.CheckAndResetCooldown();
                 }
 
-                var availableKeys = providerKeys.Where(k => k.IsAvailable).ToList();
+                var availableKeys = providerKeys
+                    .Where(k => k.IsAvailable && (excludedIds == null || !excludedIds.Contains(k.Id)))
+                    .ToList();
+
                 if (availableKeys.Count == 0)
                 {
-                    AppLogger.Warn($"[API_KEY_POOL] Toàn bộ {providerKeys.Count} key của [{provider}] hiện không khả dụng (đang Cooldown hoặc Invalid).");
+                    if (excludedIds == null || excludedIds.Count == 0)
+                    {
+                        AppLogger.Warn($"[API_KEY_POOL] Toàn bộ {providerKeys.Count} key của [{provider}] hiện không khả dụng (đang Cooldown hoặc Invalid).");
+                    }
                     return null;
                 }
 

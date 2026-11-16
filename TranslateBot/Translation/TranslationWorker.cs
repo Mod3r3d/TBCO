@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -12,13 +13,20 @@ namespace TranslateBot.Translation
 {
     public class TranslationWorker : IDisposable
     {
+        public const int DefaultQueueCapacity = 32;
+
         private readonly ITranslationProvider _provider;
+        private readonly int _queueCapacity;
         private Channel<DialogueJob> _jobQueue;
         private readonly ReorderBuffer _reorderBuffer = new();
         private CancellationTokenSource? _cts;
 
         // Stage 5: Translation Memory (exact + fuzzy LRU cache)
         private readonly TranslationMemory _translationMemory = new(1000);
+
+        // Phase 1 (P0): Generation/Session ID quản lý theo phiên
+        private long _currentGenerationId = 0;
+        private int _enqueuedJobCount = 0;
 
         // Phase 15 & 19: Performance Metrics & Concurrency Control
         public PerformanceMetrics? Metrics { get; set; }
@@ -32,16 +40,11 @@ namespace TranslateBot.Translation
         // Phase 20: Request Coalescing & Stale Prefetch Tracking
         private DialogueJob? _lastPrefetchJob;
 
-        // Mở rộng Coalescing cho CÂU THOẠI CHÍNH THỨC (không chỉ prefetch): nếu câu #12 (VD:
-        // câu dài, đang dịch chậm) còn chưa xong mà đã có câu #14 mới hơn được xác nhận, việc
-        // dịch xong #12 rồi hiển thị chỉ để bị #13/#14 đè lên gần như ngay lập tức là vô nghĩa
-        // - đây chính là nguyên nhân "phần sub nhảy khá nhanh" khi câu dài làm dồn ứ hàng đợi.
-        // Giữ 1 danh sách nhỏ các job confirmed CHƯA xử lý xong để có thể huỷ khi bị vượt mặt.
+        // Quản lý các job confirmed CHƯA xử lý xong để có thể huỷ khi người chơi tua nhanh
         private readonly List<DialogueJob> _pendingConfirmedJobs = new();
         private readonly object _pendingLock = new();
 
-        // Callback để gửi kết quả về cho giao diện (WPF) hiển thị.
-        // Gọi theo ĐÚNG THỨ TỰ SequenceId (qua ReorderBuffer).
+        // Callback để gửi kết quả về cho giao diện (WPF) hiển thị theo đúng thứ tự (qua ReorderBuffer)
         public Action<DialogueJob, string>? OnTranslationCompleted
         {
             get => _reorderBuffer.OnOrderedResult;
@@ -51,19 +54,23 @@ namespace TranslateBot.Translation
         public TranslationMemory Memory => _translationMemory;
         public int CurrentConcurrency => _currentConcurrency;
         public string ActiveProfileId { get; set; } = "global";
+        public long CurrentGenerationId => _currentGenerationId;
+        public int QueueCapacity => _queueCapacity;
 
-        public TranslationWorker(ITranslationProvider provider)
+        public TranslationWorker(ITranslationProvider provider, int queueCapacity = DefaultQueueCapacity)
         {
             _provider = provider;
-            _jobQueue = CreateQueue();
+            _queueCapacity = queueCapacity > 0 ? queueCapacity : DefaultQueueCapacity;
+            _jobQueue = CreateQueue(_queueCapacity);
         }
 
-        private static Channel<DialogueJob> CreateQueue()
+        private static Channel<DialogueJob> CreateQueue(int capacity)
         {
-            return Channel.CreateUnbounded<DialogueJob>(new UnboundedChannelOptions
+            return Channel.CreateBounded<DialogueJob>(new BoundedChannelOptions(capacity)
             {
                 SingleReader = false,
-                SingleWriter = false
+                SingleWriter = false,
+                FullMode = BoundedChannelFullMode.Wait
             });
         }
 
@@ -71,8 +78,8 @@ namespace TranslateBot.Translation
 
         public void Start()
         {
-            _jobQueue = CreateQueue();
-            _reorderBuffer.Reset();
+            _jobQueue = CreateQueue(_queueCapacity);
+            _reorderBuffer.Reset(_currentGenerationId);
             _cts = new CancellationTokenSource();
             _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
             if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
@@ -102,9 +109,36 @@ namespace TranslateBot.Translation
             }
         }
 
+        public void AdvanceGeneration()
+        {
+            long nextGen = Interlocked.Increment(ref _currentGenerationId);
+            _reorderBuffer.AdvanceGeneration(nextGen);
+
+            lock (_pendingLock)
+            {
+                foreach (var job in _pendingConfirmedJobs)
+                {
+                    job.IsCancelled = true;
+                }
+                _pendingConfirmedJobs.Clear();
+            }
+
+            if (_lastPrefetchJob != null)
+            {
+                _lastPrefetchJob.IsCancelled = true;
+                _lastPrefetchJob = null;
+            }
+
+            Interlocked.Exchange(ref _enqueuedJobCount, 0);
+            if (Metrics != null) Metrics.QueueDepth = 0;
+            AppLogger.Info($"[GENERATION_ADVANCED] The he moi #{nextGen} duoc khoi tao.");
+        }
+
         public void EnqueueJob(DialogueJob job)
         {
             if (job.IsTranslated) return;
+
+            job.GenerationId = _currentGenerationId;
 
             // Phase 20: Request Coalescing & Hủy Stale Prefetch
             if (job.IsPrefetch)
@@ -120,12 +154,11 @@ namespace TranslateBot.Translation
                 {
                     _lastPrefetchJob.IsCancelled = true;
                     Metrics?.RecordJobDropped();
-                    AppLogger.Info($"[COALESCE] Hủy job prefetch #{_lastPrefetchJob.SequenceId} do đã có câu chính thức #{job.SequenceId}");
+                    AppLogger.Info($"[COALESCE] Huy job prefetch #{_lastPrefetchJob.SequenceId} do da co cau chinh thuc #{job.SequenceId}");
                     _lastPrefetchJob = null;
                 }
 
-                // Quản lý hàng đợi confirmed: chỉ hủy bớt câu cũ nếu hàng đợi dồn ứ quá lớn
-                // (người chơi giữ nút SKIP hoặc tua nhanh hội thoại >= 4 câu)
+                // Quản lý hàng đợi confirmed: chỉ hủy bớt câu cũ nếu hàng đợi dồn ứ quá lớn (SKIP/tua nhanh >= 4 câu)
                 lock (_pendingLock)
                 {
                     if (_pendingConfirmedJobs.Count >= 4)
@@ -137,11 +170,10 @@ namespace TranslateBot.Translation
                             {
                                 pending.IsCancelled = true;
                                 Metrics?.RecordJobDropped();
-                                AppLogger.Info($"[COALESCE_FAST_FORWARD] Bỏ qua câu cũ #{pending.SequenceId} do người chơi tua nhanh hội thoại.");
+                                AppLogger.Info($"[COALESCE_FAST_FORWARD] Bo qua cau cu #{pending.SequenceId} do nguoi choi tua nhanh hoi thoai.");
                             }
                         }
                     }
-                    // Chỉ giữ lại các job thật sự còn đang chờ, tránh danh sách phình vô hạn
                     _pendingConfirmedJobs.RemoveAll(j => j.IsTranslated || j.IsCancelled);
                     _pendingConfirmedJobs.Add(job);
                 }
@@ -165,9 +197,58 @@ namespace TranslateBot.Translation
 
             Metrics?.RecordCacheMiss();
             job.State = DialogueState.Queued;
-            AppLogger.Info($"[TRANSLATION_QUEUED] #{job.SequenceId}{(job.IsPrefetch ? " (prefetch)" : "")}");
 
-            _jobQueue.Writer.TryWrite(job);
+            // Phase 1 (P0): Bounded Queue Policy (Latest-Relevant)
+            bool written = _jobQueue.Writer.TryWrite(job);
+            if (!written)
+            {
+                // Hàng đợi đầy
+                if (job.IsPrefetch)
+                {
+                    // Nếu là prefetch, loại bỏ ngay lập tức để không làm nghẽn hàng đợi chính
+                    job.IsCancelled = true;
+                    Metrics?.RecordJobDropped();
+                    AppLogger.Info($"[QUEUE_FULL_DROP_PREFETCH] Hang doi day, bo qua prefetch #{job.SequenceId}.");
+                    return;
+                }
+
+                // Nếu là câu thoại chính thức (Confirmed):
+                // Dọn dẹp bất kỳ stale prefetch nào còn sót lại
+                if (_lastPrefetchJob != null && !_lastPrefetchJob.IsTranslated)
+                {
+                    _lastPrefetchJob.IsCancelled = true;
+                    _lastPrefetchJob = null;
+                }
+
+                // Thử ghi lại lần 2
+                written = _jobQueue.Writer.TryWrite(job);
+                if (!written)
+                {
+                    // Hàng đợi vẫn đầy: Áp dụng Latest-Relevant policy bằng Task.Run không chặn thread gọi
+                    Metrics?.RecordJobDropped();
+                    AppLogger.Warn($"[QUEUE_SATURATED] Hang doi day ({_queueCapacity}), ap dung backpressure cho #{job.SequenceId}.");
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+                            await _jobQueue.Writer.WriteAsync(job, timeoutCts.Token);
+                            Interlocked.Increment(ref _enqueuedJobCount);
+                            if (Metrics != null) Metrics.QueueDepth = _enqueuedJobCount;
+                        }
+                        catch (Exception)
+                        {
+                            job.IsCancelled = true;
+                            AppLogger.Error($"[QUEUE_OVERFLOW_DROP] Khong the chen #{job.SequenceId} sau timeout, bo qua.");
+                        }
+                    });
+                    return;
+                }
+            }
+
+            int currentDepth = Interlocked.Increment(ref _enqueuedJobCount);
+            if (Metrics != null) Metrics.QueueDepth = currentDepth;
+            AppLogger.Info($"[TRANSLATION_QUEUED] #{job.SequenceId}{(job.IsPrefetch ? " (prefetch)" : "")} (Queue: {currentDepth}/{_queueCapacity})");
         }
 
         private async Task ProcessQueueAsync(CancellationToken token)
@@ -176,14 +257,23 @@ namespace TranslateBot.Translation
             {
                 await foreach (var job in _jobQueue.Reader.ReadAllAsync(token))
                 {
-                    // Kiểm tra xem job có bị hủy bởi Coalescing không
-                    if (job.IsCancelled)
+                    int remaining = Interlocked.Decrement(ref _enqueuedJobCount);
+                    if (Metrics != null) Metrics.QueueDepth = Math.Max(0, remaining);
+
+                    // Kiểm tra Generation ID và trạng thái Cancelled
+                    if (job.GenerationId != _currentGenerationId)
                     {
-                        AppLogger.Info($"[JOB_CANCELLED_SKIP] Bỏ qua xử lý job #{job.SequenceId}");
+                        AppLogger.Info($"[STALE_GENERATION_SKIP] Bo qua job #{job.SequenceId} (Gen {job.GenerationId} != {_currentGenerationId})");
                         continue;
                     }
 
-                    // Phase 19: Giới hạn Adaptive Concurrency bằng Semaphore
+                    if (job.IsCancelled)
+                    {
+                        AppLogger.Info($"[JOB_CANCELLED_SKIP] Bo qua xu ly job #{job.SequenceId}");
+                        continue;
+                    }
+
+                    // Phase 19: Giới hạn Adaptive Concurrency bằng Limiter
                     await _concurrencyLimiter.WaitAsync(token);
 
                     var sw = Stopwatch.StartNew();
@@ -192,6 +282,12 @@ namespace TranslateBot.Translation
 
                     try
                     {
+                        // Kiểm tra lại sau khi chờ semaphore
+                        if (job.GenerationId != _currentGenerationId || job.IsCancelled)
+                        {
+                            continue;
+                        }
+
                         job.State = DialogueState.Translating;
                         string translatedText;
                         TranslationResult transResult;
@@ -202,14 +298,11 @@ namespace TranslateBot.Translation
                             sequenceId: job.SequenceId, 
                             cancellationToken: token);
 
-                        // Stage 5: Long dialogue handling (Section 28)
+                        // Stage 5 & Phase 1/2: Long dialogue handling với TranslationResult có cấu trúc
                         if (LongDialogueHandler.IsLongDialogue(job.NormalizedText))
                         {
-                            translatedText = await TranslateLongDialogueAsync(job);
-                            transResult = TranslationResult.CreateSuccess(
-                                translatedText, 
-                                (_provider as TranslationRouter)?.CurrentProviderName ?? "Gemini", 
-                                latency: sw.Elapsed.TotalMilliseconds);
+                            transResult = await TranslateLongDialogueAsync(job, token);
+                            translatedText = transResult.Text;
                         }
                         else
                         {
@@ -231,10 +324,12 @@ namespace TranslateBot.Translation
 
                         if (isSuccess)
                         {
-                            // Stage 3 & Giai đoạn 4: Phân loại cache entry, không để fallback thô thành canonical
-                            bool isDegradedFallback = transResult.IsFallback || (transResult.ProviderName == "GoogleWebTranslate" &&
-                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWeb" &&
-                                                      (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWebTranslate");
+                            // Stage 3 & Giai đoạn 4: Phân loại cache entry, không để fallback hoặc partial failure làm bẩn canonical cache
+                            bool isDegradedFallback = transResult.IsFallback 
+                                || transResult.Status == TranslationStatus.PartialFailure 
+                                || (transResult.ProviderName == "GoogleWebTranslate" &&
+                                    (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWeb" &&
+                                    (_provider as TranslationRouter)?.PrimaryProvider != "GoogleWebTranslate");
 
                             string jobProfile = job.Context?.GameName ?? ActiveProfileId;
                             var memEntry = new TranslationMemoryEntry
@@ -257,7 +352,7 @@ namespace TranslateBot.Translation
                             }
                             else
                             {
-                                AppLogger.Warn($"[MEMORY_SKIP_FALLBACK] Không lưu bản dịch fallback từ {transResult.ProviderName} vào canonical cache của #{job.SequenceId}");
+                                AppLogger.Warn($"[MEMORY_SKIP_FALLBACK] Khong luu ban dich fallback/partial tu {transResult.ProviderName} vao canonical cache cua #{job.SequenceId}");
                             }
 
                             AppLogger.Info($"[TRANSLATION_DONE] #{job.SequenceId} ({job.ProviderName})");
@@ -265,21 +360,18 @@ namespace TranslateBot.Translation
                         }
                         else
                         {
-                            AppLogger.Error($"[TRANSLATION_FAILED] #{job.SequenceId} -> fallback cảnh báo");
+                            AppLogger.Error($"[TRANSLATION_FAILED] #{job.SequenceId} -> fallback canh bao");
                             ReportFailure(false);
                         }
 
-                        // Prefetch: lưu cache nhưng KHÔNG hiển thị ra UI (chờ Confirmed thật sự)
-                        // Cũng bỏ qua hiển thị nếu job đã bị coalesce/huỷ TRONG LÚC đang dịch dở
-                        // (đã có câu mới hơn xuất hiện) - dữ liệu dịch vẫn được lưu cache phía
-                        // trên (không lãng phí), chỉ là không đưa ra màn hình nữa vì đã lỗi thời.
-                        if (!job.IsPrefetch && !job.IsCancelled)
+                        // Kiểm tra lại generation và cancellation trước khi đưa lên màn hình
+                        if (job.GenerationId == _currentGenerationId && !job.IsPrefetch && !job.IsCancelled)
                         {
                             _reorderBuffer.Submit(job, finalResult);
                         }
                         else if (job.IsCancelled)
                         {
-                            AppLogger.Info($"[COALESCE_STALE] Câu #{job.SequenceId} dịch xong nhưng đã bị huỷ từ trước (lỗi thời) - không hiển thị.");
+                            AppLogger.Info($"[COALESCE_STALE] Cau #{job.SequenceId} dich xong nhung da bi huy tu truoc - khong hien thi.");
                         }
                     }
                     catch (Exception ex)
@@ -289,7 +381,7 @@ namespace TranslateBot.Translation
                         AppLogger.Error($"[TRANSLATION_ERROR] #{job.SequenceId}: {ex.Message}");
                         ReportFailure(isRateLimit);
 
-                        if (!job.IsPrefetch && !job.IsCancelled)
+                        if (job.GenerationId == _currentGenerationId && !job.IsPrefetch && !job.IsCancelled)
                         {
                             _reorderBuffer.Submit(job, $"[Lỗi kết nối API]\n{job.RawText}");
                         }
@@ -304,7 +396,7 @@ namespace TranslateBot.Translation
             }
             catch (OperationCanceledException)
             {
-                // Worker đã bị dừng an toàn
+                // Worker đã dừng an toàn
             }
         }
 
@@ -320,7 +412,7 @@ namespace TranslateBot.Translation
                     _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
                     _consecutiveSuccesses = 0;
                     if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
-                    AppLogger.Info($"[CONCURRENCY_SCALED_UP] Tăng luồng dịch đồng thời lên {_currentConcurrency}");
+                    AppLogger.Info($"[CONCURRENCY_SCALED_UP] Tang luong dich dong thoi len {_currentConcurrency}");
                 }
             }
         }
@@ -336,24 +428,81 @@ namespace TranslateBot.Translation
                     _currentConcurrency = 1;
                     _concurrencyLimiter.MaxConcurrency = _currentConcurrency;
                     if (Metrics != null) Metrics.ActiveConcurrency = _currentConcurrency;
-                    AppLogger.Warn($"[CONCURRENCY_THROTTLED] Giảm luồng dịch đồng thời về 1 để tránh bão lỗi{(isRateLimit ? " (429 Rate Limit)" : "")}");
+                    AppLogger.Warn($"[CONCURRENCY_THROTTLED] Giam luong dich dong thoi ve 1 de tranh bao loi{(isRateLimit ? " (429 Rate Limit)" : "")}");
                 }
             }
         }
 
-        // Section 28: Dịch đoạn dài — chia semantic chunks, dịch từng chunk, merge
-        private async Task<string> TranslateLongDialogueAsync(DialogueJob job)
+        // Phase 1 (P0) & Phase 2: Dịch đoạn dài có cấu trúc — phân mảnh semantic, bảo toàn provider metadata, phát hiện partial failure
+        private async Task<TranslationResult> TranslateLongDialogueAsync(DialogueJob job, CancellationToken token)
         {
             var chunks = LongDialogueHandler.SplitIntoChunks(job.NormalizedText);
             var translatedChunks = new List<string>();
+            var sw = Stopwatch.StartNew();
+            bool anyFailed = false;
+            string lastProvider = "Unknown";
+            string? lastModel = null;
+            bool anyFallback = false;
 
-            foreach (var chunk in chunks)
+            for (int i = 0; i < chunks.Count; i++)
             {
-                string translated = await _provider.TranslateAsync(chunk, job.Context);
-                translatedChunks.Add(string.IsNullOrEmpty(translated) ? chunk : translated);
+                var chunk = chunks[i];
+                var chunkReq = new TranslationRequest(
+                    chunk,
+                    job.Context,
+                    sequenceId: job.SequenceId,
+                    cancellationToken: token);
+
+                TranslationResult chunkRes;
+                try
+                {
+                    chunkRes = await _provider.TranslateRequestAsync(chunkReq);
+                }
+                catch (Exception ex)
+                {
+                    chunkRes = TranslationResult.CreateFailure("LongDialogue", TranslationStatus.ProviderError, ex.Message);
+                }
+
+                if (chunkRes.IsSuccess && !string.IsNullOrWhiteSpace(chunkRes.Text))
+                {
+                    translatedChunks.Add(chunkRes.Text);
+                    lastProvider = chunkRes.ProviderName;
+                    lastModel = chunkRes.ModelName;
+                    if (chunkRes.IsFallback) anyFallback = true;
+                }
+                else
+                {
+                    anyFailed = true;
+                    translatedChunks.Add(chunk);
+                    AppLogger.Warn($"[LONG_DIALOGUE_CHUNK_FAIL] #{job.SequenceId} chunk {i + 1}/{chunks.Count} dich that bai ({chunkRes.Status}).");
+                }
             }
 
-            return LongDialogueHandler.MergeTranslations(translatedChunks);
+            sw.Stop();
+            string merged = LongDialogueHandler.MergeTranslations(translatedChunks);
+
+            if (anyFailed)
+            {
+                return TranslationResult.CreatePartialSuccess(
+                    merged,
+                    lastProvider,
+                    lastModel,
+                    "Mot hoac nhieu doan trong cau dai chua dich duoc day du",
+                    latency: sw.Elapsed.TotalMilliseconds);
+            }
+
+            var successRes = TranslationResult.CreateSuccess(
+                merged,
+                lastProvider,
+                lastModel,
+                latency: sw.Elapsed.TotalMilliseconds);
+
+            if (anyFallback)
+            {
+                successRes.IsFallback = true;
+            }
+
+            return successRes;
         }
 
         public void Dispose()

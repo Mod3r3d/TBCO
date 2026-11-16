@@ -6,6 +6,7 @@ namespace TranslateBot.Translation
     {
         Success,
         Fallback,
+        PartialFailure,
         RateLimited429,
         Unauthorized401,
         SafetyBlocked,
@@ -71,6 +72,25 @@ namespace TranslateBot.Translation
                 FallbackReason = $"{primaryProvider} -> {fallbackProvider}: {reason}",
                 LatencyMs = latency,
                 Status = TranslationStatus.Fallback
+            };
+        }
+
+        public static TranslationResult CreatePartialSuccess(
+            string text,
+            string provider,
+            string? model = null,
+            string? errorDetails = null,
+            double latency = 0)
+        {
+            return new TranslationResult
+            {
+                Text = text,
+                ProviderName = provider,
+                ModelName = model,
+                Status = TranslationStatus.PartialFailure,
+                ErrorMessage = errorDetails,
+                LatencyMs = latency,
+                IsFallback = true
             };
         }
 

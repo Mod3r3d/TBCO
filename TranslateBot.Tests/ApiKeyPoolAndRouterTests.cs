@@ -181,5 +181,38 @@ namespace TranslateBot.Tests
             Assert.IsNull(router.CurrentKeyId);
             Assert.AreEqual(1, fallback.CallCount);
         }
+
+        [TestMethod]
+        public async Task TranslationRouter_RotatesThroughAllEligibleKeys_BeforeFallback()
+        {
+            var pool = new ApiKeyPool();
+            pool.AddOrUpdateCredential(new ApiCredential { Id = "key-01", Provider = "Gemini", Secret = "AIzaSyKey1" });
+            pool.AddOrUpdateCredential(new ApiCredential { Id = "key-02", Provider = "Gemini", Secret = "AIzaSyKey2" });
+            pool.AddOrUpdateCredential(new ApiCredential { Id = "key-03", Provider = "Gemini", Secret = "AIzaSyKey3" });
+
+            var gemini = new TestableGeminiProvider();
+            int attemptNumber = 0;
+            gemini.TranslationHandler = (text, key) =>
+            {
+                attemptNumber++;
+                if (attemptNumber <= 2)
+                {
+                    throw new Exception("429 Resource exhausted: Quota exceeded");
+                }
+                return $"[Dịch thành công: {text}]";
+            };
+
+            var fallback = new FakeTranslationProvider();
+            var metrics = new PerformanceMetrics();
+            var router = new TranslationRouter(pool, gemini, fallback, metrics);
+
+            string result = await router.TranslateAsync("Hello world");
+
+            // Kiểm tra: Phải dịch thành công từ Key thứ 3 mà KHÔNG bị rớt xuống fallback
+            Assert.IsTrue(result.Contains("Dịch thành công"), "Phải thử tới key thứ 3 trong pool và thành công");
+            Assert.AreEqual("Gemini", router.CurrentProviderName);
+            Assert.AreEqual(0, fallback.CallCount, "Không được fallback khi vẫn còn key thứ 3 khả dụng");
+            Assert.AreEqual(2, metrics.KeyRotationsCount, "Phải ghi nhận 2 lần xoay key (key1 -> key2 -> key3)");
+        }
     }
 }
