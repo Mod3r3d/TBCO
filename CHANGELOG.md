@@ -26,6 +26,7 @@ và dự án tuân thủ [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Cancellation Propagation**: Khắc phục hiện tượng rơi rớt `CancellationToken` trong `TranslationRouter`, đảm bảo dừng ngay lập tức khi người dùng hủy bỏ thay vì tiếp tục thử lại các provider khác.
 - **Dead Hotkeys & Cleanup**: Loại bỏ các phím tắt không hoạt động (F4, F7, F9, F11) trong `HotkeyManager.cs`, đồng bộ tài liệu phím tắt chuẩn tại `README.md` và `BASELINE.md`.
 - **Untrack Config**: Gỡ bỏ `TranslateBot/config.json` khỏi git tracking, cung cấp `TranslateBot/config.template.json` sạch toạ độ.
+- **Gemini Model Modernization**: Cập nhật danh mục mô hình Gemini chính thức (`gemini-3.5-flash`, `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-pro`), tự động chuẩn hóa và loại bỏ các phiên bản 1.5/2.0/2.5 đã ngừng hỗ trợ khỏi giao diện và cấu hình.
 - **Evaluation Benchmark Transparency**: Cập nhật cảnh báo dữ liệu tổng hợp GDI+ cho `evaluation/reports/SYNTHETIC-smoke-report.md`, cung cấp script hợp nhất `evaluation/run-all.ps1`.
 
 ---

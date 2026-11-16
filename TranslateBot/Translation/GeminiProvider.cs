@@ -92,20 +92,43 @@ namespace TranslateBot.Translation
         {
             if (string.IsNullOrWhiteSpace(model)) return "gemini-3.5-flash";
             string m = model.Trim();
-            if (m.Equals("gemini-flash-latest", StringComparison.OrdinalIgnoreCase))
+
+            // Alias chung
+            if (m.Equals("gemini-flash-latest", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-flash", StringComparison.OrdinalIgnoreCase))
             {
                 return "gemini-3.5-flash";
             }
+            if (m.Equals("gemini-pro-latest", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-pro", StringComparison.OrdinalIgnoreCase))
+            {
+                return "gemini-3.1-pro";
+            }
+
+            // Loại bỏ các model cũ đã ngừng hỗ trợ (deprecated / shut down)
             if (m.Equals("gemini-1.5-flash", StringComparison.OrdinalIgnoreCase) ||
                 m.Equals("gemini-1.5-pro", StringComparison.OrdinalIgnoreCase) ||
-                m.Equals("gemini-2.5-flash", StringComparison.OrdinalIgnoreCase))
+                m.Equals("gemini-2.0-flash", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-2.0-flash-exp", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-2.5-flash", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-2.5-flash-lite", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-3.6-flash", StringComparison.OrdinalIgnoreCase))
             {
                 return "gemini-3.5-flash";
             }
-            if (m.Equals("gemini-2.5-pro", StringComparison.OrdinalIgnoreCase))
+
+            if (m.Equals("gemini-2.0-flash-lite", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-3.1-flash-lite", StringComparison.OrdinalIgnoreCase))
             {
-                return "gemini-3.1-pro-preview";
+                return "gemini-3.5-flash-lite";
             }
+
+            if (m.Equals("gemini-2.5-pro", StringComparison.OrdinalIgnoreCase) ||
+                m.Equals("gemini-3.1-pro-preview", StringComparison.OrdinalIgnoreCase))
+            {
+                return "gemini-3.1-pro";
+            }
+
             return m;
         }
 

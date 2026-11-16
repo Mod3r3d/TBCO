@@ -600,10 +600,10 @@
                             <ComboBox Grid.Column="1" x:Name="AiModelCombo" Style="{StaticResource DarkComboBox}"
                                       SelectionChanged="AiModelCombo_SelectionChanged">
                                 <ComboBoxItem Content="Google Gemini 3.5 Flash (Khuyên dùng - Cân bằng tốc độ / chất lượng)" Tag="gemini-3.5-flash" IsSelected="True"/>
-                                <ComboBoxItem Content="Google Gemini 3.6 Flash (Mới nhất - Dịch thuật cao cấp)" Tag="gemini-3.6-flash"/>
-                                <ComboBoxItem Content="Google Gemini 3.1 Flash Lite (Nhanh nhất - Phản hồi tức thì)" Tag="gemini-3.1-flash-lite"/>
-                                <ComboBoxItem Content="Google Gemini 3.5 Flash Lite (Bản Lite thế hệ 3.5)" Tag="gemini-3.5-flash-lite"/>
-                                <ComboBoxItem Content="Google Gemini 3.1 Pro Preview (Chính xác cao, ngữ cảnh sâu)" Tag="gemini-3.1-pro-preview"/>
+                                <ComboBoxItem Content="Google Gemini 3.8 Flash (Mới nhất thế hệ 3.8 - Siêu tốc &amp; chất lượng cao)" Tag="gemini-3.8-flash"/>
+                                <ComboBoxItem Content="Google Gemini 3.7 Flash (Thế hệ 3.7 - Tối ưu suy luận ngữ cảnh Anime/VN)" Tag="gemini-3.7-flash"/>
+                                <ComboBoxItem Content="Google Gemini 3.5 Flash Lite (Siêu nhanh - Tiết kiệm Quota tối đa)" Tag="gemini-3.5-flash-lite"/>
+                                <ComboBoxItem Content="Google Gemini 3.1 Pro (Chính xác cao, suy luận ngữ cảnh sâu sắc)" Tag="gemini-3.1-pro"/>
                             </ComboBox>
                         </Grid>
 

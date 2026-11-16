@@ -1,4 +1,4 @@
-﻿# TBCO — Translate Bot Conversation by OCR (v3.1.0)
+# TBCO — Translate Bot Conversation by OCR (v3.1.0)
 
 <p align="center">
   <img src="TranslateBot/TBCO-Icon.png" alt="TBCO Logo" width="120" />
@@ -44,7 +44,7 @@ Kế thừa các công nghệ cốt lõi từ MORT và mở rộng với kiến 
 
 ### 2. 🧠 Chuỗi Nhà Cung Cấp Đa Tầng (Multi-Provider Router & DeepL)
 - **Linh hoạt lựa chọn bộ dịch**: Hỗ trợ trực tiếp từ giao diện:
-  - **Google Gemini AI 3.x**: Các model tiên tiến nhất (`gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.1-pro-preview`); đã loại bỏ hoàn toàn các bản 1.5/2.5 đã lỗi thời.
+  - **Google Gemini AI**: Các model tối tân được hỗ trợ chính thức (`gemini-3.5-flash`, `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-pro`); tự động nhận diện và chuyển đổi thông minh các phiên bản cũ đã ngừng hoạt động (1.5, 2.0, 2.5).
   - **DeepL Translate**: Dịch tự nhiên, văn phong chuẩn quốc tế, tự động hỗ trợ cả DeepL Free (`:fx`) và DeepL Pro API.
   - **Google Web Translate**: Dịch nhanh miễn phí 100% không yêu cầu API Key.
   - **Local AI (Ollama `qwen2.5:7b`)**: Dịch 100% ngoại tuyến, bảo mật tuyệt đối.

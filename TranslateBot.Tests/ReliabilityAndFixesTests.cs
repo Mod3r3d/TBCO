@@ -182,14 +182,18 @@ namespace TranslateBot.Tests
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName(""));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-flash-latest"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-3.5-flash"));
-            Assert.AreEqual("gemini-3.6-flash", GeminiProvider.NormalizeModelName("gemini-3.6-flash"));
-            Assert.AreEqual("gemini-3.1-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
+            Assert.AreEqual("gemini-3.8-flash", GeminiProvider.NormalizeModelName("gemini-3.8-flash"));
+            Assert.AreEqual("gemini-3.7-flash", GeminiProvider.NormalizeModelName("gemini-3.7-flash"));
             Assert.AreEqual("gemini-3.5-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.5-flash-lite"));
-            Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
+            Assert.AreEqual("gemini-3.1-pro", GeminiProvider.NormalizeModelName("gemini-3.1-pro"));
+            Assert.AreEqual("gemini-3.1-pro", GeminiProvider.NormalizeModelName("gemini-pro-latest"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-flash"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-1.5-pro"));
+            Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-2.0-flash"));
             Assert.AreEqual("gemini-3.5-flash", GeminiProvider.NormalizeModelName("gemini-2.5-flash"));
-            Assert.AreEqual("gemini-3.1-pro-preview", GeminiProvider.NormalizeModelName("gemini-2.5-pro"));
+            Assert.AreEqual("gemini-3.1-pro", GeminiProvider.NormalizeModelName("gemini-2.5-pro"));
+            Assert.AreEqual("gemini-3.1-pro", GeminiProvider.NormalizeModelName("gemini-3.1-pro-preview"));
+            Assert.AreEqual("gemini-3.5-flash-lite", GeminiProvider.NormalizeModelName("gemini-3.1-flash-lite"));
         }
 
         [TestMethod]

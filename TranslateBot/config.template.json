@@ -12,7 +12,7 @@
     "SourceLanguage": "ja",
     "TargetLanguage": "vi",
     "TranslationProvider": "Gemini",
-    "AiModel": "gemini-1.5-flash",
+    "AiModel": "gemini-3.5-flash",
     "OcrEngineType": "WindowsOcr",
     "MainTheme": "AutoHostDark",
     "ScanIntervalMs": 300,
@@ -31,7 +31,7 @@
       "GoogleWeb"
     ],
     "Gemini": {
-      "Model": "gemini-1.5-flash",
+      "Model": "gemini-3.5-flash",
       "KeyPool": []
     },
     "DeepL": {
